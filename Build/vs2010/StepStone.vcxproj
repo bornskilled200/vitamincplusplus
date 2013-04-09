@@ -252,6 +252,7 @@
     <ClInclude Include="..\..\StepStone\Tests\VaryingRestitution.h" />
     <ClInclude Include="..\..\StepStone\Tests\VerticalStack.h" />
     <ClInclude Include="..\..\StepStone\Tests\Web.h" />
+    <ClInclude Include="Framework\LuaLevel.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\StepStone\Framework\Main.cpp">
@@ -262,6 +263,7 @@
     </ClCompile>
     <ClCompile Include="..\..\StepStone\Tests\TestEntries.cpp">
     </ClCompile>
+    <ClCompile Include="Framework\LuaLevel.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
