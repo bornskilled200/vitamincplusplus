@@ -90,7 +90,7 @@ extern LuaLevelEntry g_luaLevelEntries[];
 // This is called when a joint in the world is implicitly destroyed
 // because an attached body is destroyed. This gives us a chance to
 // nullify the mouse joint.
-class DestructionListener : public b2DestructionListener
+class LuaLevelDestructionListener : public b2DestructionListener
 {
 public:
 	void SayGoodbye(b2Fixture* fixture) { B2_NOT_USED(fixture); }
@@ -126,12 +126,6 @@ public:
 	virtual void MouseDown(const b2Vec2& p);
 	virtual void MouseUp(const b2Vec2& p);
 	void MouseMove(const b2Vec2& p);
-	void LaunchBomb();
-	void LaunchBomb(const b2Vec2& position, const b2Vec2& velocity);
-	
-	void SpawnBomb(const b2Vec2& worldPt);
-	void CompleteBombSpawn(const b2Vec2& p);
-
 	// Let derived tests know that a joint was destroyed.
 	virtual void JointDestroyed(b2Joint* joint) { B2_NOT_USED(joint); }
 
@@ -146,7 +140,7 @@ public:
 	}
 
 protected:
-	friend class DestructionListener;
+	friend class LuaLevelDestructionListener;
 	friend class BoundaryListener;
 	friend class ContactListener;
 
@@ -154,14 +148,11 @@ protected:
 	b2AABB m_worldAABB;
 	ContactPoint m_points[k_maxContactPoints];
 	int32 m_pointCount;
-	DestructionListener m_destructionListener;
+	LuaLevelDestructionListener m_destructionListener;
 	DebugDraw m_debugDraw;
 	int32 m_textLine;
 	b2World* m_world;
-	b2Body* m_bomb;
 	b2MouseJoint* m_mouseJoint;
-	b2Vec2 m_bombSpawnPoint;
-	bool m_bombSpawning;
 	b2Vec2 m_mouseWorld;
 	int32 m_stepCount;
 

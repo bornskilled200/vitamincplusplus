@@ -1,5 +1,5 @@
-﻿Build started 4/8/2013 16:50:14.
-     1>Project "C:\Users\David\Dropbox\box2d\Build\vs2010\FreeGLUT.vcxproj" on node 2 (Build target(s)).
+﻿Build started 4/11/2013 02:13:00.
+     1>Project "C:\Users\David\Dropbox\box2d\Build\vs2010\FreeGLUT.vcxproj" on node 3 (Rebuild target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D _CRT_SECURE_NO_WARNINGS /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"obj\x32\Debug\FreeGLUT\\" /Fd"bin\Debug\FreeGLUT.pdb" /Gd /TC /analyze- /errorReport:prompt ..\..\freeglut\freeglut_callbacks.c ..\..\freeglut\freeglut_cursor.c ..\..\freeglut\freeglut_display.c ..\..\freeglut\freeglut_ext.c ..\..\freeglut\freeglut_font.c ..\..\freeglut\freeglut_font_data.c ..\..\freeglut\freeglut_gamemode.c ..\..\freeglut\freeglut_geometry.c ..\..\freeglut\freeglut_glutfont_definitions.c ..\..\freeglut\freeglut_init.c ..\..\freeglut\freeglut_input_devices.c ..\..\freeglut\freeglut_joystick.c ..\..\freeglut\freeglut_main.c ..\..\freeglut\freeglut_menu.c ..\..\freeglut\freeglut_misc.c ..\..\freeglut\freeglut_overlay.c ..\..\freeglut\freeglut_spaceball.c ..\..\freeglut\freeglut_state.c ..\..\freeglut\freeglut_stroke_mono_roman.c ..\..\freeglut\freeglut_stroke_roman.c ..\..\freeglut\freeglut_structure.c ..\..\freeglut\freeglut_teapot.c ..\..\freeglut\freeglut_videoresize.c ..\..\freeglut\freeglut_window.c
          freeglut_window.c
@@ -55,8 +55,8 @@
          obj\x32\Debug\FreeGLUT\freeglut_videoresize.obj
          obj\x32\Debug\FreeGLUT\freeglut_window.obj
          FreeGLUT.vcxproj -> C:\Users\David\Dropbox\box2d\Build\vs2010\bin\Debug\FreeGLUT.lib
-     1>Done Building Project "C:\Users\David\Dropbox\box2d\Build\vs2010\FreeGLUT.vcxproj" (Build target(s)).
+     1>Done Building Project "C:\Users\David\Dropbox\box2d\Build\vs2010\FreeGLUT.vcxproj" (Rebuild target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:24.15
+Time Elapsed 00:00:25.90

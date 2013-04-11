@@ -153,7 +153,7 @@
     <ClInclude Include="..\..\StepStone\Tests\Web.h">
       <Filter>Tests</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\LuaLevel.h">
+    <ClInclude Include="..\..\StepStone\Framework\LuaLevel.h">
       <Filter>Framework</Filter>
     </ClInclude>
   </ItemGroup>
@@ -170,7 +170,7 @@
     <ClCompile Include="..\..\StepStone\Tests\TestEntries.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\LuaLevel.cpp">
+    <ClCompile Include="..\..\StepStone\Framework\LuaLevel.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
   </ItemGroup>

@@ -22,9 +22,12 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StepStone", "StepStone.vcxproj", "{FD7D5115-1059-4080-B4D9-E63F45695D2D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{6F01DB00-32F0-A842-9B60-3ABA75A2D458} = {6F01DB00-32F0-A842-9B60-3ABA75A2D458}
+		{AFCBE206-93CD-4F56-9579-C2ED194064F7} = {AFCBE206-93CD-4F56-9579-C2ED194064F7}
 		{98400D17-43A5-1A40-95BE-C53AC78E7694} = {98400D17-43A5-1A40-95BE-C53AC78E7694}
 		{BCA4569B-A486-E443-9EE2-07D4CB3CFBA8} = {BCA4569B-A486-E443-9EE2-07D4CB3CFBA8}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LuaPlusFramework", "..\..\LuaPlusFramework\LuaPlusFramework.vcxproj", "{AFCBE206-93CD-4F56-9579-C2ED194064F7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -82,6 +85,12 @@ Global
 		{FD7D5115-1059-4080-B4D9-E63F45695D2D}.Release|Win32.Build.0 = Release|Win32
 		{FD7D5115-1059-4080-B4D9-E63F45695D2D}.Release|x64.ActiveCfg = Release|x64
 		{FD7D5115-1059-4080-B4D9-E63F45695D2D}.Release|x64.Build.0 = Release|x64
+		{AFCBE206-93CD-4F56-9579-C2ED194064F7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AFCBE206-93CD-4F56-9579-C2ED194064F7}.Debug|Win32.Build.0 = Debug|Win32
+		{AFCBE206-93CD-4F56-9579-C2ED194064F7}.Debug|x64.ActiveCfg = Debug|Win32
+		{AFCBE206-93CD-4F56-9579-C2ED194064F7}.Release|Win32.ActiveCfg = Release|Win32
+		{AFCBE206-93CD-4F56-9579-C2ED194064F7}.Release|Win32.Build.0 = Release|Win32
+		{AFCBE206-93CD-4F56-9579-C2ED194064F7}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

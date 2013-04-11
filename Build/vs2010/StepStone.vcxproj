@@ -204,6 +204,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\StepStone\Framework\LuaLevel.h" />
     <ClInclude Include="..\..\StepStone\Framework\Render.h" />
     <ClInclude Include="..\..\StepStone\Framework\Test.h" />
     <ClInclude Include="..\..\StepStone\Tests\AddPair.h" />
@@ -252,9 +253,9 @@
     <ClInclude Include="..\..\StepStone\Tests\VaryingRestitution.h" />
     <ClInclude Include="..\..\StepStone\Tests\VerticalStack.h" />
     <ClInclude Include="..\..\StepStone\Tests\Web.h" />
-    <ClInclude Include="Framework\LuaLevel.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\StepStone\Framework\LuaLevel.cpp" />
     <ClCompile Include="..\..\StepStone\Framework\Main.cpp">
     </ClCompile>
     <ClCompile Include="..\..\StepStone\Framework\Render.cpp">
@@ -263,7 +264,6 @@
     </ClCompile>
     <ClCompile Include="..\..\StepStone\Tests\TestEntries.cpp">
     </ClCompile>
-    <ClCompile Include="Framework\LuaLevel.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

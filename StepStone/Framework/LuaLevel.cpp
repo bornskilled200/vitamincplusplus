@@ -16,11 +16,12 @@
 * misrepresented as being the original software.
 * 3. This notice may not be removed or altered from any source distribution.
 */
-
+#include "LuaPlusFramework\LuaPlus.h"
+using namespace LuaPlus;
 #include <cstdio>
 using namespace std;
 
-void DestructionListener::SayGoodbye(b2Joint* joint)
+void LuaLevelDestructionListener::SayGoodbye(b2Joint* joint)
 {
 	if (luaLevel->m_mouseJoint == joint)
 	{
@@ -37,7 +38,6 @@ LuaLevel::LuaLevel()
 	b2Vec2 gravity;
 	gravity.Set(0.0f, -10.0f);
 	m_world = new b2World(gravity);
-	m_bomb = NULL;
 	m_textLine = 30;
 	m_mouseJoint = NULL;
 	m_pointCount = 0;
@@ -47,8 +47,6 @@ LuaLevel::LuaLevel()
 	m_world->SetContactListener(this);
 	m_world->SetDebugDraw(&m_debugDraw);
 	
-	m_bombSpawning = false;
-
 	m_stepCount = 0;
 
 	b2BodyDef bodyDef;
@@ -165,26 +163,6 @@ void LuaLevel::MouseDown(const b2Vec2& p)
 	}
 }
 
-void LuaLevel::SpawnBomb(const b2Vec2& worldPt)
-{
-	m_bombSpawnPoint = worldPt;
-	m_bombSpawning = true;
-}
-    
-void LuaLevel::CompleteBombSpawn(const b2Vec2& p)
-{
-	if (m_bombSpawning == false)
-	{
-		return;
-	}
-
-	const float multiplier = 30.0f;
-	b2Vec2 vel = m_bombSpawnPoint - p;
-	vel *= multiplier;
-	LaunchBomb(m_bombSpawnPoint,vel);
-	m_bombSpawning = false;
-}
-
 void LuaLevel::ShiftMouseDown(const b2Vec2& p)
 {
 	m_mouseWorld = p;
@@ -193,8 +171,6 @@ void LuaLevel::ShiftMouseDown(const b2Vec2& p)
 	{
 		return;
 	}
-
-	SpawnBomb(p);
 }
 
 void LuaLevel::MouseUp(const b2Vec2& p)
@@ -203,11 +179,6 @@ void LuaLevel::MouseUp(const b2Vec2& p)
 	{
 		m_world->DestroyJoint(m_mouseJoint);
 		m_mouseJoint = NULL;
-	}
-	
-	if (m_bombSpawning)
-	{
-		CompleteBombSpawn(p);
 	}
 }
 
@@ -219,46 +190,6 @@ void LuaLevel::MouseMove(const b2Vec2& p)
 	{
 		m_mouseJoint->SetTarget(p);
 	}
-}
-
-void LuaLevel::LaunchBomb()
-{
-	b2Vec2 p(RandomFloat(-15.0f, 15.0f), 30.0f);
-	b2Vec2 v = -5.0f * p;
-	LaunchBomb(p, v);
-}
-
-void LuaLevel::LaunchBomb(const b2Vec2& position, const b2Vec2& velocity)
-{
-	if (m_bomb)
-	{
-		m_world->DestroyBody(m_bomb);
-		m_bomb = NULL;
-	}
-
-	b2BodyDef bd;
-	bd.type = b2_dynamicBody;
-	bd.position = position;
-	bd.bullet = true;
-	m_bomb = m_world->CreateBody(&bd);
-	m_bomb->SetLinearVelocity(velocity);
-	
-	b2CircleShape circle;
-	circle.m_radius = 0.3f;
-
-	b2FixtureDef fd;
-	fd.shape = &circle;
-	fd.density = 20.0f;
-	fd.restitution = 0.0f;
-	
-	b2Vec2 minV = position - b2Vec2(0.3f,0.3f);
-	b2Vec2 maxV = position + b2Vec2(0.3f,0.3f);
-	
-	b2AABB aabb;
-	aabb.lowerBound = minV;
-	aabb.upperBound = maxV;
-
-	m_bomb->CreateFixture(&fd);
 }
 
 void LuaLevel::Step(Settings* settings)
@@ -390,16 +321,6 @@ void LuaLevel::Step(Settings* settings)
 
 		c.Set(0.8f, 0.8f, 0.8f);
 		m_debugDraw.DrawSegment(p1, p2, c);
-	}
-	
-	if (m_bombSpawning)
-	{
-		b2Color c;
-		c.Set(0.0f, 0.0f, 1.0f);
-		m_debugDraw.DrawPoint(m_bombSpawnPoint, 4.0f, c);
-
-		c.Set(0.8f, 0.8f, 0.8f);
-		m_debugDraw.DrawSegment(m_mouseWorld, m_bombSpawnPoint, c);
 	}
 
 	if (settings->drawContactPoints)
