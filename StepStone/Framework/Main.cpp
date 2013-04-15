@@ -25,7 +25,7 @@ using namespace std;
 
 namespace
 {
-	LuaLevel luaLevel;
+	LuaLevel* luaLevel;
 	Settings settings;
 	int32 width = 640;
 	int32 height = 480;
@@ -96,9 +96,10 @@ static void SimulationLoop()
 
 	b2Vec2 oldCenter = settings.viewCenter;
 	settings.hz = settingsHz;
+	float32 oldZoom = viewZoom;
 	//test->Step(&settings);
-	luaLevel.Step(&settings);
-	if (oldCenter.x != settings.viewCenter.x || oldCenter.y != settings.viewCenter.y)
+	luaLevel->Step(&settings,viewZoom);
+	if (oldCenter.x != settings.viewCenter.x || oldCenter.y != settings.viewCenter.y || viewZoom!=oldZoom)
 	{
 		Resize(width, height);
 	}
@@ -115,13 +116,6 @@ static void Keyboard(unsigned char key, int x, int y)
 
 	switch (key)
 	{
-	case 27:
-#ifndef __APPLE__
-		// freeglut specific function
-		glutLeaveMainLoop();
-#endif
-		exit(0);
-		break;
 	//case 'w':
 	//case 'a':
 	//case 's':
@@ -154,12 +148,12 @@ static void Keyboard(unsigned char key, int x, int y)
 		break;
 		
 	default:
-		/*
-		if (test)
+		
+		if (luaLevel)
 		{
-			test->Keyboard(key);
+			luaLevel->Keyboard(key);
 		}
-		*/
+
 		break;
 	}
 }
@@ -209,6 +203,7 @@ static void KeyboardUp(unsigned char key, int x, int y)
 {
 	B2_NOT_USED(x);
 	B2_NOT_USED(y);
+	luaLevel->KeyboardUp(key);
 }
 
 static void Mouse(int32 button, int32 state, int32 x, int32 y)
@@ -316,6 +311,12 @@ int main(int argc, char** argv)
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
+	
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glDisable(GL_ALPHA_TEST);
 	glutInitWindowSize(width, height);
 	char title[32];
 	sprintf(title, "Box2D Version %d.%d.%d", b2_version.major, b2_version.minor, b2_version.revision);
@@ -333,9 +334,10 @@ int main(int argc, char** argv)
 	glutMotionFunc(MouseMotion);
 
 	glutKeyboardUpFunc(KeyboardUp);
-
+	/*
 	glui = GLUI_Master.create_glui_subwindow( mainWindow, 
 		GLUI_SUBWINDOW_RIGHT );
+	//GLUI_Master.d
 	//glui->
 
 	GLUI_Spinner* velocityIterationSpinner =
@@ -375,10 +377,11 @@ int main(int argc, char** argv)
 	glui->add_button("Quit", 0,(GLUI_Update_CB)Exit);
 	glui->set_main_gfx_window( mainWindow );
 	glui->hide();
-
+	glui->refresh();
+	*/
 	// Use a timer to control the frame rate.
 	glutTimerFunc(framePeriod, Timer, 0);
-
+	luaLevel = new LuaLevel();
 	glutMainLoop();
 
 	return 0;

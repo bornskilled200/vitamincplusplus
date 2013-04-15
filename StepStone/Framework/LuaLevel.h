@@ -5,9 +5,11 @@
 #include <Box2D/Box2D.h>
 #include "Render.h"
 #include "LuaPlusFramework\LuaPlus.h"
+#include <vector>
 using namespace LuaPlus;
 
 #include <cstdlib>
+using namespace std;
 
 class LuaLevel;
 struct Settings;
@@ -108,6 +110,15 @@ struct ContactPoint
 	b2PointState state;
 };
 
+enum GameState
+{
+	SPLASH,
+	MENU,
+		MENU_ABOUT,
+		MENU_HELP,
+	GAME
+};
+
 class LuaLevel : public b2ContactListener
 {
 public:
@@ -117,9 +128,10 @@ public:
 
 	void SetTextLine(int32 line) { m_textLine = line; }
     void DrawTitle(int x, int y, const char *string);
-	virtual void Step(Settings* settings);
-	virtual void Keyboard(unsigned char key) { B2_NOT_USED(key); }
-	virtual void KeyboardUp(unsigned char key) { B2_NOT_USED(key); }
+	void drawGame(Settings* settings);
+	virtual void Step(Settings* settings,float32 &viewZoom);
+	void Keyboard(unsigned char key);
+	void KeyboardUp(unsigned char key);
 	void ShiftMouseDown(const b2Vec2& p);
 	virtual void MouseDown(const b2Vec2& p);
 	virtual void MouseUp(const b2Vec2& p);
@@ -139,8 +151,6 @@ public:
 	
 	void loadLevelGlobals(LuaState *pstate);
 	void unloadLevelGlobals(LuaState *pstate);
-	int Index(LuaState *pstate);
-	int Equals(LuaState *pstate);
 	int createAnEdge(float32 x1, float32 y1, float32 x2, float32 y2);
 
 protected:
@@ -150,6 +160,8 @@ protected:
 	
 	LuaState* luaPState;
 	b2Body* m_groundBody;
+	b2Body* playerBody;
+	b2Fixture* playerFeet;
 	b2AABB m_worldAABB;
 	ContactPoint m_points[k_maxContactPoints];
 	int32 m_pointCount;
@@ -159,6 +171,19 @@ protected:
 	b2World* m_world;
 	b2Vec2 m_mouseWorld;
 	int32 m_stepCount;
+	GameState gameState;
+
+	bool controlLeft,
+		 controlRight,
+		 controlJump,
+		 wasMoving;
+	bool isFeetTouchingBoundary, canJump, justKickedOff;
+	float32 playerCanMoveUpwards;
+	
+	unsigned int splashImageWidth,splashImageHeight; double splashImageWidthScaled,splashImageHeightScaled; unsigned int splashImageID;
+	unsigned int menuImageWidth,menuImageHeight; double menuImageWidthScaled,menuImageHeightScaled; unsigned int menuImageID;
+	unsigned int aboutImageWidth,aboutImageHeight; double aboutImageWidthScaled,aboutImageHeightScaled; unsigned int aboutImageID;
+	unsigned int helpImageWidth,helpImageHeight; double helpImageWidthScaled,helpImageHeightScaled; unsigned int helpImageID;
 };
 
 #endif
