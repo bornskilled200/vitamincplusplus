@@ -103,7 +103,7 @@
       <AdditionalIncludeDirectories>..\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>bin\Debug\Box2D.lib;bin\Debug\FreeGLUT.lib;bin\Debug\GLUI.lib;glu32.lib;opengl32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>bin\Debug\Box2D.lib;bin\Debug\FreeGLUT.lib;bin\Debug\GLUI.lib;bin\Debug\LuaPlusFramework.lib;bin\Debug\LodePNG.lib;glu32.lib;opengl32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)StepStone.exe</OutputFile>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
@@ -206,63 +206,12 @@
   <ItemGroup>
     <ClInclude Include="..\..\StepStone\Framework\LuaLevel.h" />
     <ClInclude Include="..\..\StepStone\Framework\Render.h" />
-    <ClInclude Include="..\..\StepStone\Framework\Test.h" />
-    <ClInclude Include="..\..\StepStone\Tests\AddPair.h" />
-    <ClInclude Include="..\..\StepStone\Tests\ApplyForce.h" />
-    <ClInclude Include="..\..\StepStone\Tests\BodyTypes.h" />
-    <ClInclude Include="..\..\StepStone\Tests\Breakable.h" />
-    <ClInclude Include="..\..\StepStone\Tests\Bridge.h" />
-    <ClInclude Include="..\..\StepStone\Tests\BulletTest.h" />
-    <ClInclude Include="..\..\StepStone\Tests\Cantilever.h" />
-    <ClInclude Include="..\..\StepStone\Tests\Car.h" />
-    <ClInclude Include="..\..\StepStone\Tests\Chain.h" />
-    <ClInclude Include="..\..\StepStone\Tests\CharacterCollision.h" />
-    <ClInclude Include="..\..\StepStone\Tests\CollisionFiltering.h" />
-    <ClInclude Include="..\..\StepStone\Tests\CollisionProcessing.h" />
-    <ClInclude Include="..\..\StepStone\Tests\CompoundShapes.h" />
-    <ClInclude Include="..\..\StepStone\Tests\Confined.h" />
-    <ClInclude Include="..\..\StepStone\Tests\ContinuousTest.h" />
-    <ClInclude Include="..\..\StepStone\Tests\Cord.h" />
-    <ClInclude Include="..\..\StepStone\Tests\DistanceTest.h" />
-    <ClInclude Include="..\..\StepStone\Tests\Dominos.h" />
-    <ClInclude Include="..\..\StepStone\Tests\DumpShell.h" />
-    <ClInclude Include="..\..\StepStone\Tests\DynamicTreeTest.h" />
-    <ClInclude Include="..\..\StepStone\Tests\EdgeShapes.h" />
-    <ClInclude Include="..\..\StepStone\Tests\EdgeTest.h" />
-    <ClInclude Include="..\..\StepStone\Tests\Gears.h" />
-    <ClInclude Include="..\..\StepStone\Tests\OneSidedPlatform.h" />
-    <ClInclude Include="..\..\StepStone\Tests\Pinball.h" />
-    <ClInclude Include="..\..\StepStone\Tests\PolyCollision.h" />
-    <ClInclude Include="..\..\StepStone\Tests\PolyShapes.h" />
-    <ClInclude Include="..\..\StepStone\Tests\Prismatic.h" />
-    <ClInclude Include="..\..\StepStone\Tests\Pulleys.h" />
-    <ClInclude Include="..\..\StepStone\Tests\Pyramid.h" />
-    <ClInclude Include="..\..\StepStone\Tests\RayCast.h" />
-    <ClInclude Include="..\..\StepStone\Tests\Revolute.h" />
-    <ClInclude Include="..\..\StepStone\Tests\Rope.h" />
-    <ClInclude Include="..\..\StepStone\Tests\RopeJoint.h" />
-    <ClInclude Include="..\..\StepStone\Tests\SensorTest.h" />
-    <ClInclude Include="..\..\StepStone\Tests\ShapeEditing.h" />
-    <ClInclude Include="..\..\StepStone\Tests\SliderCrank.h" />
-    <ClInclude Include="..\..\StepStone\Tests\SphereStack.h" />
-    <ClInclude Include="..\..\StepStone\Tests\TheoJansen.h" />
-    <ClInclude Include="..\..\StepStone\Tests\Tiles.h" />
-    <ClInclude Include="..\..\StepStone\Tests\TimeOfImpact.h" />
-    <ClInclude Include="..\..\StepStone\Tests\Tumbler.h" />
-    <ClInclude Include="..\..\StepStone\Tests\VaryingFriction.h" />
-    <ClInclude Include="..\..\StepStone\Tests\VaryingRestitution.h" />
-    <ClInclude Include="..\..\StepStone\Tests\VerticalStack.h" />
-    <ClInclude Include="..\..\StepStone\Tests\Web.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\StepStone\Framework\LuaLevel.cpp" />
     <ClCompile Include="..\..\StepStone\Framework\Main.cpp">
     </ClCompile>
     <ClCompile Include="..\..\StepStone\Framework\Render.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\StepStone\Framework\Test.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\StepStone\Tests\TestEntries.cpp">
     </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -16,30 +16,57 @@
 * misrepresented as being the original software.
 * 3. This notice may not be removed or altered from any source distribution.
 */
-#include "LuaPlusFramework\LuaPlus.h"
-using namespace LuaPlus;
 #include <cstdio>
+#include <iostream>
+#include <string>
 using namespace std;
 
 void LuaLevelDestructionListener::SayGoodbye(b2Joint* joint)
 {
-	if (luaLevel->m_mouseJoint == joint)
-	{
-		luaLevel->m_mouseJoint = NULL;
-	}
-	else
-	{
-		luaLevel->JointDestroyed(joint);
-	}
+}
+
+int Print( LuaPlus::LuaState* pState )
+{
+ // Get the argument count
+ int top = pState->GetTop();
+ 
+ for( int i = 1; i <= top; ++i )
+ {
+ // Retrieve all arguments, if possible they will be converted to strings
+ cout << pState->CheckString(i) << std::endl;
+ }
+ 
+ // We don't return any values to the script
+ return 0;
 }
 
 LuaLevel::LuaLevel()
 {
+	
+	// Init Lua
+	luaPState = LuaState::Create();
+
 	b2Vec2 gravity;
 	gravity.Set(0.0f, -10.0f);
 	m_world = new b2World(gravity);
+	b2BodyDef bodyDef;
+	bodyDef.type = b2_staticBody;
+	m_groundBody = m_world->CreateBody(&bodyDef);
+	//m_world->IsLocked();
+
+	loadLevelGlobals(luaPState);
+	luaPState->GetGlobals().Register("Print",Print);
+
+	// Open the Lua Script File
+	if (luaPState->DoFile("TrainingLevel.lua"))
+		if( luaPState->GetTop() == 1 )
+			std::cout << "An error occured: " << luaPState->CheckString(1) << std::endl;
+	LuaObject testObject = luaPState->GetGlobal("test");
+	cout<<((!testObject.IsNil())?testObject.GetString():"nil") << endl;
+
+	unloadLevelGlobals(luaPState);
+
 	m_textLine = 30;
-	m_mouseJoint = NULL;
 	m_pointCount = 0;
 
 	m_destructionListener.luaLevel = this;
@@ -48,17 +75,71 @@ LuaLevel::LuaLevel()
 	m_world->SetDebugDraw(&m_debugDraw);
 	
 	m_stepCount = 0;
+}
 
-	b2BodyDef bodyDef;
-	m_groundBody = m_world->CreateBody(&bodyDef);
+int LuaLevel::createAnEdge( float32 x1, float32 y1, float32 x2, float32 y2 )
+{
+	cout<<x1<<", "<<y1<<", "<<x2<<", "<<y2<<endl;
+	b2FixtureDef fixtureDef;
+	b2EdgeShape edgeShape;
+	b2Vec2 from(x1,y1),to(x2,y2);
+	edgeShape.Set(from,to);
+	fixtureDef.shape = &edgeShape;
+	m_groundBody->CreateFixture(&fixtureDef);
+	return 0;
+}
+int createEdge( float32 x1, float32 y1, float32 x2, float32 y2 )
+{
+	cout<<x1<<", "<<y1<<", "<<x2<<", "<<y2<<endl;
+	return 0;
+}
+void LuaLevel::loadLevelGlobals(LuaState *pstate)
+{
+	//FixtureDef~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	b2FixtureDef *fixtureDef = new b2FixtureDef;
+	LuaPlus::LuaObject fixtureDefObject = pstate->BoxPointer(fixtureDef);
+	pstate->GetGlobals().SetObject("fixtureDef", fixtureDefObject);
 
-	memset(&m_maxProfile, 0, sizeof(b2Profile));
-	memset(&m_totalProfile, 0, sizeof(b2Profile));
+	//Box2DFactory~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	//pstate->GetGlobals().RegisterObjectDirect( "createEdge",createEdge);
+	pstate->GetGlobals().RegisterDirect( "createEdge",*this, &LuaLevel::createAnEdge);
+}
+
+int LuaLevel::Index(LuaState *pState)
+{
+    // Table, Key
+    int top = pState->GetTop();
+	//pState-
+    if( top == 2 && /*pState->Check(1) && */pState->CheckString(2) )
+    {
+        // t[key]
+		std::string key( pState->CheckString(2) );
+ 
+		if(key == "health")
+            pState->PushInteger(1);
+        else if( key == "maxHealth" )
+            pState->PushInteger(2);
+        else if( key== "dead" )
+            pState->PushBoolean(3 <= 0);
+        else if( key== "name" )
+            pState->PushString("312");
+    }
+    // return the count of our pushed values
+    return pState->GetTop() - top;
+}
+
+
+void LuaLevel::unloadLevelGlobals(LuaState *pstate)
+{
+	LuaObject testObject = pstate->GetGlobals().GetByName("fixtureDef");
+	//cout<<((!testObject.IsNil())?testObject.GetString():"nil") << endl;
+	//cout<<((!testObject.IsNil())?testObject.GetByObject(:"nil") << endl;
 }
 
 LuaLevel::~LuaLevel()
 {
 	// By deleting the world, we delete the bomb, mouse joint, etc.
+	LuaState::Destroy(luaPState);
 	delete m_world;
 	m_world = NULL;
 }
@@ -133,63 +214,21 @@ public:
 void LuaLevel::MouseDown(const b2Vec2& p)
 {
 	m_mouseWorld = p;
-	
-	if (m_mouseJoint != NULL)
-	{
-		return;
-	}
-
-	// Make a small box.
-	b2AABB aabb;
-	b2Vec2 d;
-	d.Set(0.001f, 0.001f);
-	aabb.lowerBound = p - d;
-	aabb.upperBound = p + d;
-
-	// Query the world for overlapping shapes.
-	QueryCallback callback(p);
-	m_world->QueryAABB(&callback, aabb);
-
-	if (callback.m_fixture)
-	{
-		b2Body* body = callback.m_fixture->GetBody();
-		b2MouseJointDef md;
-		md.bodyA = m_groundBody;
-		md.bodyB = body;
-		md.target = p;
-		md.maxForce = 1000.0f * body->GetMass();
-		m_mouseJoint = (b2MouseJoint*)m_world->CreateJoint(&md);
-		body->SetAwake(true);
-	}
 }
 
 void LuaLevel::ShiftMouseDown(const b2Vec2& p)
 {
 	m_mouseWorld = p;
-	
-	if (m_mouseJoint != NULL)
-	{
-		return;
-	}
 }
 
 void LuaLevel::MouseUp(const b2Vec2& p)
 {
-	if (m_mouseJoint)
-	{
-		m_world->DestroyJoint(m_mouseJoint);
-		m_mouseJoint = NULL;
-	}
+	m_mouseWorld = p;
 }
 
 void LuaLevel::MouseMove(const b2Vec2& p)
 {
 	m_mouseWorld = p;
-	
-	if (m_mouseJoint)
-	{
-		m_mouseJoint->SetTarget(p);
-	}
 }
 
 void LuaLevel::Step(Settings* settings)
@@ -232,95 +271,6 @@ void LuaLevel::Step(Settings* settings)
 	if (timeStep > 0.0f)
 	{
 		++m_stepCount;
-	}
-
-	if (settings->drawStats)
-	{
-		int32 bodyCount = m_world->GetBodyCount();
-		int32 contactCount = m_world->GetContactCount();
-		int32 jointCount = m_world->GetJointCount();
-		m_debugDraw.DrawString(5, m_textLine, "bodies/contacts/joints = %d/%d/%d", bodyCount, contactCount, jointCount);
-		m_textLine += 15;
-
-		int32 proxyCount = m_world->GetProxyCount();
-		int32 height = m_world->GetTreeHeight();
-		int32 balance = m_world->GetTreeBalance();
-		float32 quality = m_world->GetTreeQuality();
-		m_debugDraw.DrawString(5, m_textLine, "proxies/height/balance/quality = %d/%d/%d/%g", proxyCount, height, balance, quality);
-		m_textLine += 15;
-	}
-
-	// Track maximum profile times
-	{
-		const b2Profile& p = m_world->GetProfile();
-		m_maxProfile.step = b2Max(m_maxProfile.step, p.step);
-		m_maxProfile.collide = b2Max(m_maxProfile.collide, p.collide);
-		m_maxProfile.solve = b2Max(m_maxProfile.solve, p.solve);
-		m_maxProfile.solveInit = b2Max(m_maxProfile.solveInit, p.solveInit);
-		m_maxProfile.solveVelocity = b2Max(m_maxProfile.solveVelocity, p.solveVelocity);
-		m_maxProfile.solvePosition = b2Max(m_maxProfile.solvePosition, p.solvePosition);
-		m_maxProfile.solveTOI = b2Max(m_maxProfile.solveTOI, p.solveTOI);
-		m_maxProfile.broadphase = b2Max(m_maxProfile.broadphase, p.broadphase);
-
-		m_totalProfile.step += p.step;
-		m_totalProfile.collide += p.collide;
-		m_totalProfile.solve += p.solve;
-		m_totalProfile.solveInit += p.solveInit;
-		m_totalProfile.solveVelocity += p.solveVelocity;
-		m_totalProfile.solvePosition += p.solvePosition;
-		m_totalProfile.solveTOI += p.solveTOI;
-		m_totalProfile.broadphase += p.broadphase;
-	}
-
-	if (settings->drawProfile)
-	{
-		const b2Profile& p = m_world->GetProfile();
-
-		b2Profile aveProfile;
-		memset(&aveProfile, 0, sizeof(b2Profile));
-		if (m_stepCount > 0)
-		{
-			float32 scale = 1.0f / m_stepCount;
-			aveProfile.step = scale * m_totalProfile.step;
-			aveProfile.collide = scale * m_totalProfile.collide;
-			aveProfile.solve = scale * m_totalProfile.solve;
-			aveProfile.solveInit = scale * m_totalProfile.solveInit;
-			aveProfile.solveVelocity = scale * m_totalProfile.solveVelocity;
-			aveProfile.solvePosition = scale * m_totalProfile.solvePosition;
-			aveProfile.solveTOI = scale * m_totalProfile.solveTOI;
-			aveProfile.broadphase = scale * m_totalProfile.broadphase;
-		}
-
-		m_debugDraw.DrawString(5, m_textLine, "step [ave] (max) = %5.2f [%6.2f] (%6.2f)", p.step, aveProfile.step, m_maxProfile.step);
-		m_textLine += 15;
-		m_debugDraw.DrawString(5, m_textLine, "collide [ave] (max) = %5.2f [%6.2f] (%6.2f)", p.collide, aveProfile.collide, m_maxProfile.collide);
-		m_textLine += 15;
-		m_debugDraw.DrawString(5, m_textLine, "solve [ave] (max) = %5.2f [%6.2f] (%6.2f)", p.solve, aveProfile.solve, m_maxProfile.solve);
-		m_textLine += 15;
-		m_debugDraw.DrawString(5, m_textLine, "solve init [ave] (max) = %5.2f [%6.2f] (%6.2f)", p.solveInit, aveProfile.solveInit, m_maxProfile.solveInit);
-		m_textLine += 15;
-		m_debugDraw.DrawString(5, m_textLine, "solve velocity [ave] (max) = %5.2f [%6.2f] (%6.2f)", p.solveVelocity, aveProfile.solveVelocity, m_maxProfile.solveVelocity);
-		m_textLine += 15;
-		m_debugDraw.DrawString(5, m_textLine, "solve position [ave] (max) = %5.2f [%6.2f] (%6.2f)", p.solvePosition, aveProfile.solvePosition, m_maxProfile.solvePosition);
-		m_textLine += 15;
-		m_debugDraw.DrawString(5, m_textLine, "solveTOI [ave] (max) = %5.2f [%6.2f] (%6.2f)", p.solveTOI, aveProfile.solveTOI, m_maxProfile.solveTOI);
-		m_textLine += 15;
-		m_debugDraw.DrawString(5, m_textLine, "broad-phase [ave] (max) = %5.2f [%6.2f] (%6.2f)", p.broadphase, aveProfile.broadphase, m_maxProfile.broadphase);
-		m_textLine += 15;
-	}
-
-	if (m_mouseJoint)
-	{
-		b2Vec2 p1 = m_mouseJoint->GetAnchorB();
-		b2Vec2 p2 = m_mouseJoint->GetTarget();
-
-		b2Color c;
-		c.Set(0.0f, 1.0f, 0.0f);
-		m_debugDraw.DrawPoint(p1, 4.0f, c);
-		m_debugDraw.DrawPoint(p2, 4.0f, c);
-
-		c.Set(0.8f, 0.8f, 0.8f);
-		m_debugDraw.DrawSegment(p1, p2, c);
 	}
 
 	if (settings->drawContactPoints)

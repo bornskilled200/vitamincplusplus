@@ -4,6 +4,8 @@
 
 #include <Box2D/Box2D.h>
 #include "Render.h"
+#include "LuaPlusFramework\LuaPlus.h"
+using namespace LuaPlus;
 
 #include <cstdlib>
 
@@ -49,8 +51,6 @@ struct Settings
 		drawContactForces(0),
 		drawFrictionForces(0),
 		drawCOMs(0),
-		drawStats(0),
-		drawProfile(0),
 		enableWarmStarting(1),
 		enableContinuous(1),
 		enableSubStepping(0),
@@ -71,8 +71,6 @@ struct Settings
 	int32 drawContactForces;
 	int32 drawFrictionForces;
 	int32 drawCOMs;
-	int32 drawStats;
-	int32 drawProfile;
 	int32 enableWarmStarting;
 	int32 enableContinuous;
 	int32 enableSubStepping;
@@ -138,12 +136,19 @@ public:
 		B2_NOT_USED(contact);
 		B2_NOT_USED(impulse);
 	}
+	
+	void loadLevelGlobals(LuaState *pstate);
+	void unloadLevelGlobals(LuaState *pstate);
+	int Index(LuaState *pstate);
+	int Equals(LuaState *pstate);
+	int createAnEdge(float32 x1, float32 y1, float32 x2, float32 y2);
 
 protected:
 	friend class LuaLevelDestructionListener;
 	friend class BoundaryListener;
 	friend class ContactListener;
-
+	
+	LuaState* luaPState;
 	b2Body* m_groundBody;
 	b2AABB m_worldAABB;
 	ContactPoint m_points[k_maxContactPoints];
@@ -152,12 +157,8 @@ protected:
 	DebugDraw m_debugDraw;
 	int32 m_textLine;
 	b2World* m_world;
-	b2MouseJoint* m_mouseJoint;
 	b2Vec2 m_mouseWorld;
 	int32 m_stepCount;
-
-	b2Profile m_maxProfile;
-	b2Profile m_totalProfile;
 };
 
 #endif

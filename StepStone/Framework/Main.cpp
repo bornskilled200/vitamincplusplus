@@ -17,7 +17,7 @@
 */
 
 #include "Render.h"
-#include "Test.h"
+#include "LuaLevel.h"
 #include "glui/glui.h"
 
 #include <cstdio>
@@ -25,20 +25,16 @@ using namespace std;
 
 namespace
 {
-	int32 testIndex = 0;
-	int32 testSelection = 0;
-	int32 testCount = 0;
-	TestEntry* entry;
-	Test* test;
+	LuaLevel luaLevel;
 	Settings settings;
 	int32 width = 640;
 	int32 height = 480;
 	int32 framePeriod = 16;
 	int32 mainWindow;
-	float settingsHz = 60.0;
+	float settingsHz = 60.0; // target fps?
 	GLUI *glui;
 	float32 viewZoom = 1.0f;
-	int tx, ty, tw, th;
+	int tx, ty, tw, th; // 
 	bool rMouseDown;
 	b2Vec2 lastp;
 }
@@ -98,29 +94,18 @@ static void SimulationLoop()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	test->SetTextLine(30);
 	b2Vec2 oldCenter = settings.viewCenter;
 	settings.hz = settingsHz;
-	test->Step(&settings);
+	//test->Step(&settings);
+	luaLevel.Step(&settings);
 	if (oldCenter.x != settings.viewCenter.x || oldCenter.y != settings.viewCenter.y)
 	{
 		Resize(width, height);
 	}
 
-	test->DrawTitle(5, 15, entry->name);
+	//test->DrawTitle(5, 15, entry->name);
 
 	glutSwapBuffers();
-
-	if (testSelection != testIndex)
-	{
-		testIndex = testSelection;
-		delete test;
-		entry = g_testEntries + testIndex;
-		test = entry->createFcn();
-		viewZoom = 1.0f;
-		settings.viewCenter.Set(0.0f, 20.0f);
-		Resize(width, height);
-	}
 }
 
 static void Keyboard(unsigned char key, int x, int y)
@@ -137,10 +122,10 @@ static void Keyboard(unsigned char key, int x, int y)
 #endif
 		exit(0);
 		break;
-	case 'w':
-	case 'a':
-	case 's':
-	case 'd':
+	//case 'w':
+	//case 'a':
+	//case 's':
+	//case 'd':
 		break;
 	
 		// Press 'z' to zoom out.
@@ -157,27 +142,25 @@ static void Keyboard(unsigned char key, int x, int y)
 
 		// Press 'r' to reset.
 	case 'r':
-		delete test;
-		test = entry->createFcn();
-		break;
-
-		// Press space to launch a bomb.
-	case ' ':
-		if (test)
-		{
-			test->LaunchBomb();
-		}
+		//delete test;
+		//test = entry->createFcn();
 		break;
  
 	case 'p':
 		settings.pause = !settings.pause;
+		if (settings.pause )
+			glui->show();
+		else glui->hide();
 		break;
 		
 	default:
+		/*
 		if (test)
 		{
 			test->Keyboard(key);
 		}
+		*/
+		break;
 	}
 }
 
@@ -226,11 +209,6 @@ static void KeyboardUp(unsigned char key, int x, int y)
 {
 	B2_NOT_USED(x);
 	B2_NOT_USED(y);
-
-	if (test)
-	{
-		test->KeyboardUp(key);
-	}
 }
 
 static void Mouse(int32 button, int32 state, int32 x, int32 y)
@@ -245,17 +223,17 @@ static void Mouse(int32 button, int32 state, int32 x, int32 y)
 			b2Vec2 p = ConvertScreenToWorld(x, y);
 			if (mod == GLUT_ACTIVE_SHIFT)
 			{
-				test->ShiftMouseDown(p);
+				//test->ShiftMouseDown(p);
 			}
 			else
 			{
-				test->MouseDown(p);
+				//test->MouseDown(p);
 			}
 		}
 		
 		if (state == GLUT_UP)
 		{
-			test->MouseUp(p);
+			//test->MouseUp(p);
 		}
 	}
 	else if (button == GLUT_RIGHT_BUTTON)
@@ -276,7 +254,7 @@ static void Mouse(int32 button, int32 state, int32 x, int32 y)
 static void MouseMotion(int32 x, int32 y)
 {
 	b2Vec2 p = ConvertScreenToWorld(x, y);
-	test->MouseMove(p);
+	//test->MouseMove(p);
 	
 	if (rMouseDown)
 	{
@@ -306,9 +284,9 @@ static void MouseWheel(int wheel, int direction, int x, int y)
 
 static void Restart(int)
 {
-	delete test;
-	entry = g_testEntries + testIndex;
-	test = entry->createFcn();
+	//delete test;
+	//entry = g_testEntries + testIndex;
+	//test = entry->createFcn();
     Resize(width, height);
 }
 
@@ -334,17 +312,7 @@ static void SingleStep(int)
 
 int main(int argc, char** argv)
 {
-	testCount = 0;
-	while (g_testEntries[testCount].createFcn != NULL)
-	{
-		++testCount;
-	}
-
-	testIndex = b2Clamp(testIndex, 0, testCount-1);
-	testSelection = testIndex;
-
-	entry = g_testEntries + testIndex;
-	test = entry->createFcn();
+	//test = entry->createFcn();
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
@@ -368,12 +336,7 @@ int main(int argc, char** argv)
 
 	glui = GLUI_Master.create_glui_subwindow( mainWindow, 
 		GLUI_SUBWINDOW_RIGHT );
-
-	glui->add_statictext("Tests");
-	GLUI_Listbox* testList =
-		glui->add_listbox("", &testSelection);
-
-	glui->add_separator();
+	//glui->
 
 	GLUI_Spinner* velocityIterationSpinner =
 		glui->add_spinner("Vel Iters", GLUI_SPINNER_INT, &settings.velocityIterations);
@@ -404,17 +367,6 @@ int main(int argc, char** argv)
 	glui->add_checkbox_to_panel(drawPanel, "Contact Forces", &settings.drawContactForces);
 	glui->add_checkbox_to_panel(drawPanel, "Friction Forces", &settings.drawFrictionForces);
 	glui->add_checkbox_to_panel(drawPanel, "Center of Masses", &settings.drawCOMs);
-	glui->add_checkbox_to_panel(drawPanel, "Statistics", &settings.drawStats);
-	glui->add_checkbox_to_panel(drawPanel, "Profile", &settings.drawProfile);
-
-	int32 testCount = 0;
-	TestEntry* e = g_testEntries;
-	while (e->createFcn)
-	{
-		testList->add_item(testCount, e->name);
-		++testCount;
-		++e;
-	}
 
 	glui->add_button("Pause", 0, Pause);
 	glui->add_button("Single Step", 0, SingleStep);
@@ -422,6 +374,7 @@ int main(int argc, char** argv)
 
 	glui->add_button("Quit", 0,(GLUI_Update_CB)Exit);
 	glui->set_main_gfx_window( mainWindow );
+	glui->hide();
 
 	// Use a timer to control the frame rate.
 	glutTimerFunc(framePeriod, Timer, 0);
