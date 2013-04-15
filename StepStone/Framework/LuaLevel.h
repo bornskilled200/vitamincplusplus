@@ -119,6 +119,14 @@ enum GameState
 	GAME
 };
 
+struct Texture
+{
+	Texture():imageWidth(0),imageHeight(0),scaledImageWidth(0),scaledImageHeight(0),id(0){}
+	unsigned int imageWidth, imageHeight;
+	double scaledImageWidth, scaledImageHeight;
+	unsigned int id;
+};
+
 class LuaLevel : public b2ContactListener
 {
 public:
@@ -180,10 +188,11 @@ protected:
 	bool isFeetTouchingBoundary, canJump, justKickedOff;
 	float32 playerCanMoveUpwards;
 	
-	unsigned int splashImageWidth,splashImageHeight; double splashImageWidthScaled,splashImageHeightScaled; unsigned int splashImageID;
-	unsigned int menuImageWidth,menuImageHeight; double menuImageWidthScaled,menuImageHeightScaled; unsigned int menuImageID;
-	unsigned int aboutImageWidth,aboutImageHeight; double aboutImageWidthScaled,aboutImageHeightScaled; unsigned int aboutImageID;
-	unsigned int helpImageWidth,helpImageHeight; double helpImageWidthScaled,helpImageHeightScaled; unsigned int helpImageID;
+	Texture aboutImage;
+	Texture menuImage;
+	Texture helpImage;
+	Texture idleImages[3];
+	int framecount;
 };
 
 #endif

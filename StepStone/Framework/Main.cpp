@@ -319,7 +319,7 @@ int main(int argc, char** argv)
     glDisable(GL_ALPHA_TEST);
 	glutInitWindowSize(width, height);
 	char title[32];
-	sprintf(title, "Box2D Version %d.%d.%d", b2_version.major, b2_version.minor, b2_version.revision);
+	sprintf(title, "StepStone");
 	mainWindow = glutCreateWindow(title);
 	//glutSetOption (GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
 

@@ -48,6 +48,7 @@ static uint16 playerFeetBits =0x0008;
 static uint16 PLAYER_FEET_TOUCHING_BOUNDARY=playerFeetBits|boundaryBits;
 static uint16 PLAYER_FEET_TOUCHING_DEBRIS=playerFeetBits|debrisBits;
 
+
 GLuint loadTexture(string fileName, unsigned int &imageWidth, unsigned int &imageHeight, double &scaledImageWidth, double &scaledImageHeight)
 {
 	vector<unsigned char> image;
@@ -77,27 +78,27 @@ GLuint loadTexture(string fileName, unsigned int &imageWidth, unsigned int &imag
   {
     image2[4 * u2 * y + 4 * x + c] = image[4 * imageWidth * y + 4 * x + c];
   }
-
+  /*
   //now fix the orientation of the image
   unsigned char *imagePtr = &image2[0];
-	int halfTheHeightInPixels = imageHeight / 2;
+	int halfTheSmallestLength = (imageHeight<imageWidth?imageHeight:imageWidth) / 2;
  
 	// Assuming RGBA for 4 components per pixel.
 	int numColorComponents = 4;
  
 	// Assuming each color component is an unsigned char.
-	int widthInChars = imageWidth * numColorComponents;
+	int largestLength = (imageWidth>imageHeight?imageWidth:imageHeight) * numColorComponents;
  
 	unsigned char *top = NULL;
 	unsigned char *bottom = NULL;
 	unsigned char temp = 0;
  
-	for( int h = 0; h < halfTheHeightInPixels; ++h )
+	for( int h = 0; h < halfTheSmallestLength; ++h )
 	{
-		top = imagePtr + h * widthInChars;
-		bottom = imagePtr + (imageHeight - h - 1) * widthInChars;
+		top = imagePtr + h * largestLength;
+		bottom = imagePtr + (imageHeight - h - 1) * largestLength;
  
-		for( int w = 0; w < widthInChars; ++w )
+		for( int w = 0; w < largestLength; ++w )
 		{
 			// Swap the chars around.
 			temp = *top;
@@ -108,7 +109,7 @@ GLuint loadTexture(string fileName, unsigned int &imageWidth, unsigned int &imag
 			++bottom;
 		}
 	}
-  
+  */
   // Enable the texture for OpenGL.
   GLuint id;
   glEnable(GL_TEXTURE_2D);
@@ -116,13 +117,15 @@ GLuint loadTexture(string fileName, unsigned int &imageWidth, unsigned int &imag
   //printf("\ntexture = %u", id);
   glBindTexture(GL_TEXTURE_2D, id);//evrything we're about to do is about this texture
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_NEAREST = no smoothing
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexImage2D(GL_TEXTURE_2D, 0, 4, u2, v2, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image2[0]);
   return id;
 }
-
+inline void loadATexture(string fileName, Texture *texture)
+{
+	texture->id = loadTexture(fileName,texture->imageWidth,texture->imageHeight,texture->scaledImageWidth,texture->scaledImageHeight);
+}
 void LuaLevel::Keyboard(unsigned char key)
 {
 	switch (key)
@@ -173,15 +176,16 @@ void LuaLevel::KeyboardUp(unsigned char key)
 
 LuaLevel::LuaLevel()
 {
-	helpImageID = loadTexture("helpscreen.png",helpImageWidth,helpImageHeight,helpImageWidthScaled,helpImageHeightScaled);
-	aboutImageID = loadTexture("aboutscreen.png",aboutImageWidth,aboutImageHeight,aboutImageWidthScaled,aboutImageHeightScaled);
-	menuImageID = loadTexture("titlescreen.png",menuImageWidth,menuImageHeight,menuImageWidthScaled,menuImageHeightScaled);
-  
-	cout<<"debris bit "<< debrisBits<<endl;
-	cout<<"boundary bit "<< boundaryBits<<endl;
-	cout<<"playerFeet bit "<< playerFeetBits<<endl;
-	cout<<"PLAYER_FEET_TOUCHING_BOUNDARY bits"<< PLAYER_FEET_TOUCHING_BOUNDARY<<endl;
-	cout<<"PLAYER_FEET_TOUCHING_Debris bits"<< PLAYER_FEET_TOUCHING_DEBRIS<<endl;
+	loadATexture("Angela\\test\\1.png", &idleImages[0]);
+	loadATexture("Angela\\test\\2.png", &(idleImages[1]));
+	loadATexture("Angela\\test\\3.png", &(idleImages[2]));
+	loadATexture("helpscreen.png", &helpImage);
+	loadATexture("aboutscreen.png", &aboutImage);
+	loadATexture("titlescreen.png", &menuImage);
+  framecount=0;
+  controlJump = false;
+  controlLeft= false;
+  controlRight=false;
 	// Init Lua
 	luaPState = LuaState::Create();
 	gameState = MENU;
@@ -444,33 +448,45 @@ void drawImage(GLubyte id, unsigned int width, unsigned int height, double scale
 {
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, id);
-  glColor4ub(255, 255, 255, 255);
-    glBegin(GL_QUADS);
+    glBegin(GL_QUADS);/*
       glTexCoord2d(	   		 0,			   0);	glVertex2f(	   0,	   0);
       glTexCoord2d(scaledWidth,			   0);	glVertex2f(width, 	   0);
       glTexCoord2d(scaledWidth, scaledHeight);	glVertex2f(width, height);
       glTexCoord2d(			 0, scaledHeight);	glVertex2f(    0, height);
+	  */
+    glTexCoord2f(0,scaledHeight);  glVertex2f(0, 0);
+    glTexCoord2f(scaledWidth,scaledHeight);  glVertex2f(width, 0);
+    glTexCoord2f(scaledWidth,0);  glVertex2f(width, height);
+    glTexCoord2f(0,0);  glVertex2f(0,height);
     glEnd();
   glDisable(GL_TEXTURE_2D);
+}
+
+inline void drawImage(Texture *texture)
+{
+	drawImage(texture->id,texture->imageWidth,texture->imageHeight,texture->scaledImageWidth,texture->scaledImageHeight);
 }
 void LuaLevel::Step(Settings* settings, float32 &viewZoom)
 {
 	switch (gameState)
 	{
 	case MENU:
-		settings->viewCenter.Set(menuImageWidth/2,menuImageHeight/2);
+		settings->viewCenter.Set(menuImage.imageWidth/2,menuImage.imageHeight/2);
 		viewZoom=15;
-		drawImage(menuImageID, menuImageWidth, menuImageHeight, menuImageWidthScaled, menuImageHeightScaled);
+  glColor4ub(255, 255, 255, 255);
+		drawImage(&menuImage);
 		break;
 	case MENU_ABOUT:
-		settings->viewCenter.Set(aboutImageWidth/2,aboutImageHeight/2);
+		settings->viewCenter.Set(aboutImage.imageWidth/2,aboutImage.imageHeight/2);
 		viewZoom=15;
-		drawImage(aboutImageID, aboutImageWidth, aboutImageHeight, aboutImageWidthScaled, aboutImageHeightScaled);
+  glColor4ub(255, 255, 255, 255);
+		drawImage(&aboutImage);
 		break;
 	case MENU_HELP:
-		settings->viewCenter.Set(aboutImageWidth/2,helpImageHeight/2);
+		settings->viewCenter.Set(aboutImage.imageWidth/2,helpImage.imageHeight/2);
 		viewZoom=15;
-		drawImage(helpImageID, helpImageWidth, helpImageHeight, helpImageWidthScaled, helpImageHeightScaled);
+  glColor4ub(255, 255, 255, 255);
+		drawImage(&helpImage);
 		break;
 	case GAME:
 		viewZoom=1;
@@ -557,7 +573,22 @@ void LuaLevel::Step(Settings* settings, float32 &viewZoom)
                 wasMoving = true;
             }
         }
+		
+		glTranslatef(worldCenter.x-.76,worldCenter.y-1.28,0);
+		float32 scale = .015;
+		glScalef(scale,scale,scale);
+		glColor4f(1,1,1,1);
+		drawImage(&idleImages[framecount/26]);
+		framecount=(framecount+1)%(26*3);
+		glScalef(1/scale,1/scale,1/scale);
+		glTranslatef(-(worldCenter.x-.76),-(worldCenter.y-1.28),0);
 		drawGame(settings);
+		/*
+		glTranslatef(80,80,0);
+		drawImage(&idleImages[1]);
+		glTranslatef(80,80,0);
+		drawImage(&idleImages[2]);
+		glTranslatef(-160,-160,0);*/
 		break;
 	}
 	
