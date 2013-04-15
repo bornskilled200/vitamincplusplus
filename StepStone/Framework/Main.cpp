@@ -32,7 +32,6 @@ namespace
 	int32 framePeriod = 16;
 	int32 mainWindow;
 	float settingsHz = 60.0; // target fps?
-	GLUI *glui;
 	float32 viewZoom = 1.0f;
 	int tx, ty, tw, th; // 
 	bool rMouseDown;
@@ -97,7 +96,6 @@ static void SimulationLoop()
 	b2Vec2 oldCenter = settings.viewCenter;
 	settings.hz = settingsHz;
 	float32 oldZoom = viewZoom;
-	//test->Step(&settings);
 	luaLevel->Step(&settings,viewZoom);
 	if (oldCenter.x != settings.viewCenter.x || oldCenter.y != settings.viewCenter.y || viewZoom!=oldZoom)
 	{
@@ -116,12 +114,6 @@ static void Keyboard(unsigned char key, int x, int y)
 
 	switch (key)
 	{
-	//case 'w':
-	//case 'a':
-	//case 's':
-	//case 'd':
-		break;
-	
 		// Press 'z' to zoom out.
 	case 'z':
 		viewZoom = b2Min(1.1f * viewZoom, 20.0f);
@@ -142,9 +134,6 @@ static void Keyboard(unsigned char key, int x, int y)
  
 	case 'p':
 		settings.pause = !settings.pause;
-		if (settings.pause )
-			glui->show();
-		else glui->hide();
 		break;
 		
 	default:
@@ -318,10 +307,7 @@ int main(int argc, char** argv)
     glEnable(GL_BLEND);
     glDisable(GL_ALPHA_TEST);
 	glutInitWindowSize(width, height);
-	char title[32];
-	sprintf(title, "StepStone");
-	mainWindow = glutCreateWindow(title);
-	//glutSetOption (GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
+	mainWindow = glutCreateWindow("StepStone");
 
 	glutDisplayFunc(SimulationLoop);
 	GLUI_Master.set_glutReshapeFunc(Resize);  
@@ -332,53 +318,8 @@ int main(int argc, char** argv)
 	glutMouseWheelFunc(MouseWheel);
 #endif
 	glutMotionFunc(MouseMotion);
-
 	glutKeyboardUpFunc(KeyboardUp);
-	/*
-	glui = GLUI_Master.create_glui_subwindow( mainWindow, 
-		GLUI_SUBWINDOW_RIGHT );
-	//GLUI_Master.d
-	//glui->
 
-	GLUI_Spinner* velocityIterationSpinner =
-		glui->add_spinner("Vel Iters", GLUI_SPINNER_INT, &settings.velocityIterations);
-	velocityIterationSpinner->set_int_limits(1, 500);
-
-	GLUI_Spinner* positionIterationSpinner =
-		glui->add_spinner("Pos Iters", GLUI_SPINNER_INT, &settings.positionIterations);
-	positionIterationSpinner->set_int_limits(0, 100);
-
-	GLUI_Spinner* hertzSpinner =
-		glui->add_spinner("Hertz", GLUI_SPINNER_FLOAT, &settingsHz);
-
-	hertzSpinner->set_float_limits(5.0f, 200.0f);
-
-	glui->add_checkbox("Warm Starting", &settings.enableWarmStarting);
-	glui->add_checkbox("Time of Impact", &settings.enableContinuous);
-	glui->add_checkbox("Sub-Stepping", &settings.enableSubStepping);
-
-	//glui->add_separator();
-
-	GLUI_Panel* drawPanel =	glui->add_panel("Draw");
-	glui->add_checkbox_to_panel(drawPanel, "Shapes", &settings.drawShapes);
-	glui->add_checkbox_to_panel(drawPanel, "Joints", &settings.drawJoints);
-	glui->add_checkbox_to_panel(drawPanel, "AABBs", &settings.drawAABBs);
-	glui->add_checkbox_to_panel(drawPanel, "Pairs", &settings.drawPairs);
-	glui->add_checkbox_to_panel(drawPanel, "Contact Points", &settings.drawContactPoints);
-	glui->add_checkbox_to_panel(drawPanel, "Contact Normals", &settings.drawContactNormals);
-	glui->add_checkbox_to_panel(drawPanel, "Contact Forces", &settings.drawContactForces);
-	glui->add_checkbox_to_panel(drawPanel, "Friction Forces", &settings.drawFrictionForces);
-	glui->add_checkbox_to_panel(drawPanel, "Center of Masses", &settings.drawCOMs);
-
-	glui->add_button("Pause", 0, Pause);
-	glui->add_button("Single Step", 0, SingleStep);
-	glui->add_button("Restart", 0, Restart);
-
-	glui->add_button("Quit", 0,(GLUI_Update_CB)Exit);
-	glui->set_main_gfx_window( mainWindow );
-	glui->hide();
-	glui->refresh();
-	*/
 	// Use a timer to control the frame rate.
 	glutTimerFunc(framePeriod, Timer, 0);
 	luaLevel = new LuaLevel();

@@ -1,17 +1,2 @@
 ﻿  LuaLevel.cpp
-c:\users\david\dropbox\box2d\stepstone\framework\lualevel.cpp(59): warning C4018: '<' : signed/unsigned mismatch
-c:\users\david\dropbox\box2d\stepstone\framework\lualevel.cpp(61): warning C4018: '<' : signed/unsigned mismatch
-c:\users\david\dropbox\box2d\stepstone\framework\lualevel.cpp(457): warning C4244: 'argument' : conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\david\dropbox\box2d\stepstone\framework\lualevel.cpp(458): warning C4244: 'argument' : conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\david\dropbox\box2d\stepstone\framework\lualevel.cpp(458): warning C4244: 'argument' : conversion from 'unsigned int' to 'GLfloat', possible loss of data
-c:\users\david\dropbox\box2d\stepstone\framework\lualevel.cpp(459): warning C4244: 'argument' : conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\david\dropbox\box2d\stepstone\framework\lualevel.cpp(459): warning C4244: 'argument' : conversion from 'unsigned int' to 'GLfloat', possible loss of data
-c:\users\david\dropbox\box2d\stepstone\framework\lualevel.cpp(460): warning C4244: 'argument' : conversion from 'unsigned int' to 'GLfloat', possible loss of data
-c:\users\david\dropbox\box2d\stepstone\framework\lualevel.cpp(474): warning C4244: 'argument' : conversion from 'unsigned int' to 'float32', possible loss of data
-c:\users\david\dropbox\box2d\stepstone\framework\lualevel.cpp(480): warning C4244: 'argument' : conversion from 'unsigned int' to 'float32', possible loss of data
-c:\users\david\dropbox\box2d\stepstone\framework\lualevel.cpp(486): warning C4244: 'argument' : conversion from 'unsigned int' to 'float32', possible loss of data
-c:\users\david\dropbox\box2d\stepstone\framework\lualevel.cpp(542): warning C4305: 'argument' : truncation from 'double' to 'float32'
-c:\users\david\dropbox\box2d\stepstone\framework\lualevel.cpp(577): warning C4244: 'argument' : conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\david\dropbox\box2d\stepstone\framework\lualevel.cpp(578): warning C4305: 'initializing' : truncation from 'double' to 'float32'
-c:\users\david\dropbox\box2d\stepstone\framework\lualevel.cpp(584): warning C4244: 'argument' : conversion from 'double' to 'GLfloat', possible loss of data
   StepStone.vcxproj -> C:\Users\David\Dropbox\box2d\Build\vs2010\bin\Debug\StepStone.exe
