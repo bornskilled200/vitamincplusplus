@@ -6,16 +6,16 @@
 #include "Render.h"
 #include "LuaPlusFramework\LuaPlus.h"
 #include <vector>
+#include "Graphics.h"
+#include "Main.h"
 using namespace LuaPlus;
 
 #include <cstdlib>
 using namespace std;
 
 class LuaLevel;
-struct Settings;
-
-typedef LuaLevel* LuaLevelCreateFcn();
-
+//struct Settings;
+/*
 #define	RAND_LIMIT	32767
 
 /// Random number in range [-1,1]
@@ -35,40 +35,10 @@ inline float32 RandomFloat(float32 lo, float32 hi)
 	r = (hi - lo) * r + lo;
 	return r;
 }
-
+*/
 /// LuaLevel settings. Some can be controlled in the GUI.
-struct Settings
-{
-	Settings() :
-		viewCenter(0.0f, 20.0f),
-		hz(60.0f),
-		velocityIterations(8),
-		positionIterations(3),
-		enableWarmStarting(1),
-		enableContinuous(1),
-		enableSubStepping(0),
-		pause(0),
-		singleStep(0)
-		{}
 
-	b2Vec2 viewCenter;
-	float32 hz;
-	int32 velocityIterations;
-	int32 positionIterations;
-	int32 enableWarmStarting;
-	int32 enableContinuous;
-	int32 enableSubStepping;
-	int32 pause;
-	int32 singleStep;
-};
 
-struct LuaLevelEntry
-{
-	const char *name;
-	LuaLevelCreateFcn *createFcn;
-};
-
-extern LuaLevelEntry g_luaLevelEntries[];
 // This is called when a joint in the world is implicitly destroyed
 // because an attached body is destroyed. This gives us a chance to
 // nullify the mouse joint.
@@ -81,93 +51,99 @@ public:
 	LuaLevel* luaLevel;
 };
 
-const int32 k_maxContactPoints = 2048;
-
-struct ContactPoint
-{
-	b2Fixture* fixtureA;
-	b2Fixture* fixtureB;
-	b2Vec2 normal;
-	b2Vec2 position;
-	b2PointState state;
-};
-
 enum GameState
 {
 	SPLASH,
 	MENU,
-		MENU_ABOUT,
-		MENU_HELP,
+	MENU_ABOUT,
+	MENU_HELP,
 	GAME
-};
-
-struct Texture
-{
-	Texture():imageWidth(0),imageHeight(0),scaledImageWidth(0),scaledImageHeight(0),id(0){}
-	unsigned int imageWidth, imageHeight;
-	float32 scaledImageWidth, scaledImageHeight;
-	unsigned int id;
 };
 
 class LuaLevel
 {
 public:
 
-	LuaLevel();
-	virtual ~LuaLevel();
+	LuaLevel(Settings* settings);
+	~LuaLevel();
 
-    void DrawTitle(int x, int y, const char *string);
-	void drawGame(Settings* settings);
-	virtual void Step(Settings* settings,float32 &viewZoom);
-	void Keyboard(unsigned char key);
+	void DrawTitle(int x, int y, const char *string);
+	void drawGame(Settings* settings, float32 timeStep);
+	void Step(Settings* settings);
+	void Keyboard(unsigned char key, Settings* settings);
 	void KeyboardUp(unsigned char key);
 	void ShiftMouseDown(const b2Vec2& p);
-	virtual void MouseDown(const b2Vec2& p);
-	virtual void MouseUp(const b2Vec2& p);
+	void MouseDown(const b2Vec2& p);
+	void MouseUp(const b2Vec2& p);
 	void MouseMove(const b2Vec2& p);
 	// Let derived tests know that a joint was destroyed.
-	virtual void JointDestroyed(b2Joint* joint) { B2_NOT_USED(joint); }
-	
+	void JointDestroyed(b2Joint* joint) { B2_NOT_USED(joint); }
+
 	void loadLevelGlobals(LuaState *pstate);
 	void unloadLevelGlobals(LuaState *pstate);
+
+	void setGameState(GameState state, Settings* settings);
+	
+	// Lua hooked methods
 	int createAnEdge(float32 x1, float32 y1, float32 x2, float32 y2);
+	int createDebris(float32 x, float32 y);
 
 protected:
-	void processCollisionsForGame();
-	void processInputForGame(Settings *settings);
+	inline void processCollisionsForGame();
+	inline void processInputForGame(Settings *settings, float32 timeStep);
 
 	friend class LuaLevelDestructionListener;
-	friend class BoundaryListener;
-	friend class ContactListener;
-	
-	LuaState* luaPState;
-	b2Body* m_groundBody;
+	//friend class BoundaryListener;
+	//friend class ContactListener;
 
+	LuaState* luaPState;
+	LuaObject luaStepFunction;
+	b2BodyDef bodyDef;
+	LuaObject bodyDefObj;
+	int BodyDefIndex(LuaState* pState);
+	int BodyDefNewIndex(LuaState* pState);
+	b2FixtureDef fixtureDef;
+	LuaObject fixtureDefObj;
+	int FixtureDefIndex(LuaState* pState);
+	int FixtureDefNewIndex(LuaState* pState);
+	b2PolygonShape polygonShape;
+	LuaObject polygonShapeObj;
+	int PolygonShapeIndex(LuaState* pState);
+	int PolygonShapeNewIndex(LuaState* pState);
+	b2EdgeShape edgeShape;
+	LuaObject edgeShapeObj;
+	int edgeShapeIndex(LuaState* pState);
+	int edgeShapeNewIndex(LuaState* pState);
+	b2CircleShape circleShape;
+	LuaObject circleShapeObj;
+	int circleShapeIndex(LuaState* pState);
+	int circleShapeNewIndex(LuaState* pState);
+
+	b2Body* m_groundBody;
 	b2Body* playerBody;
 	b2Fixture* playerFeet;
-	
+
 	b2World* m_world;
 	LuaLevelDestructionListener m_destructionListener;
 	DebugDraw m_debugDraw;
-	int32 m_stepCount;
 	GameState gameState;
 
 	//UI
 	bool controlLeft,
-		 controlRight,
-		 controlJump;
+		controlRight,
+		controlJump;
 
 	//Game Variables
 	bool isFeetTouchingBoundary, canJump, justKickedOff, wasMoving;
 	float32 playerCanMoveUpwards;
-	
+
 	//Texutres
-	Texture aboutImage;
-	Texture menuImage;
-	Texture helpImage;
-	Texture idleImages[3];
-	Texture jumpImages[3];
-	Texture walkImages[3];
+	Graphics::Texture aboutImage;
+	Graphics::Texture menuImage;
+	Graphics::Texture helpImage;
+	Graphics::Texture idleImages[3];
+	Graphics::Texture jumpImages[3];
+	Graphics::Texture walkImages[3];
 	int framecount;
 };
 

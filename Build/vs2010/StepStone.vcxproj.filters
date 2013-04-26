@@ -12,6 +12,9 @@
     <ClInclude Include="..\..\StepStone\Framework\LuaLevel.h">
       <Filter>Framework</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\StepStone\Framework\Main.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\StepStone\Framework\Render.cpp">
@@ -21,6 +24,12 @@
       <Filter>Framework</Filter>
     </ClCompile>
     <ClCompile Include="..\..\StepStone\Framework\LuaLevel.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\StepStone\Framework\mpg.h">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\StepStone\Framework\Graphics.h">
       <Filter>Framework</Filter>
     </ClCompile>
   </ItemGroup>

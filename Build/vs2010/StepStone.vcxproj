@@ -83,6 +83,10 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">StepStone</TargetName>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
@@ -103,7 +107,7 @@
       <AdditionalIncludeDirectories>..\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>bin\Debug\Box2D.lib;bin\Debug\FreeGLUT.lib;bin\Debug\GLUI.lib;bin\Debug\LuaPlusFramework.lib;bin\Debug\LodePNG.lib;glu32.lib;opengl32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>bin\Debug\Box2D.lib;bin\Debug\FreeGLUT.lib;bin\Debug\GLUI.lib;bin\Debug\LuaPlusFramework.lib;bin\Debug\LodePNG.lib;glu32.lib;opengl32.lib;winmm.lib;libmpg123-0.lib;portaudio_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)StepStone.exe</OutputFile>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
@@ -205,14 +209,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\StepStone\Framework\LuaLevel.h" />
+    <ClInclude Include="..\..\StepStone\Framework\Main.h" />
     <ClInclude Include="..\..\StepStone\Framework\Render.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\StepStone\Framework\LuaLevel.cpp" />
     <ClCompile Include="..\..\StepStone\Framework\Main.cpp">
     </ClCompile>
+    <ClCompile Include="..\..\StepStone\Framework\mpg.h" />
     <ClCompile Include="..\..\StepStone\Framework\Render.cpp">
     </ClCompile>
+    <ClCompile Include="..\..\StepStone\Framework\Graphics.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
