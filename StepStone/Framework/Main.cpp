@@ -18,21 +18,22 @@
 #include "Main.h"
 #include "Render.h"
 #include "LuaLevel.h"
-#include "glui/glui.h"
-#include "mpg.h"
+#include "Sound.h"
 #include <cstdio>
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
 using namespace std;
 
 namespace
 {
-	LuaLevel* luaLevel;
+	LuaLevel* luaLevel = NULL;
 	Settings settings;
 	int32 width = 640;
 	int32 height = 480;
 	int32 framePeriod = 16;
 	int32 mainWindow;
 	float settingsHz = 60.0; // target fps?
-	int tx, ty, tw, th; // 
 	bool rMouseDown;
 	b2Vec2 lastp;
 }
@@ -41,22 +42,24 @@ static void Resize(int32 w, int32 h)
 {
 	width = w;
 	height = h;
-
-	GLUI_Master.get_viewport_area(&tx, &ty, &tw, &th);
-	glViewport(tx, ty, tw, th);
+	
+	//GLUI_Master.get_viewport_area(&tx, &ty, &tw, &th);
+	//cout<<tx<<", "<<ty<<", "<<tw<<", "<<th<<endl;
+	glViewport(0,0,width,height);//tx, ty, tw, th);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	float32 ratio = float32(tw) / float32(th);
+	float32 ratio = float32(width) / float32(height);
 
 	b2Vec2 extents(ratio * 25.0f, 25.0f);
 	extents *= settings.getViewZoom();
 
-	b2Vec2 lower = settings.getViewCenter() - extents;
-	b2Vec2 upper = settings.getViewCenter() + extents;
+	//b2Vec2 lower = settings.getViewCenter() - extents;
+	//b2Vec2 upper = settings.getViewCenter() + extents;
 
 	// L/R/B/T
-	gluOrtho2D(lower.x, upper.x, lower.y, upper.y);
+	gluOrtho2D(0, extents.x, 0, extents.y);//lower.x, upper.x, lower.y, upper.y);
+	
 }
 
 void Settings::setViewCenter(b2Vec2 set)
@@ -73,19 +76,19 @@ void Settings::setViewZoom(float32 set)
 
 static b2Vec2 ConvertScreenToWorld(int32 x, int32 y)
 {
-	float32 u = x / float32(tw);
-	float32 v = (th - y) / float32(th);
+	float32 u = x / float32(width);
+	float32 v = (height - y) / float32(height);
 
-	float32 ratio = float32(tw) / float32(th);
+	float32 ratio = float32(width) / float32(height);
 	b2Vec2 extents(ratio * 25.0f, 25.0f);
 	extents *= settings.getViewZoom();
 
-	b2Vec2 lower = settings.getViewCenter() - extents;
-	b2Vec2 upper = settings.getViewCenter() + extents;
+	//b2Vec2 lower = settings.getViewCenter() - extents;
+	//b2Vec2 upper = settings.getViewCenter() + extents;
 
 	b2Vec2 p;
-	p.x = (1.0f - u) * lower.x + u * upper.x;
-	p.y = (1.0f - v) * lower.y + v * upper.y;
+	p.x = (1.0f - u) * 0 + u * extents.x;
+	p.y = (1.0f - v) * 0 + v * extents.y;
 	return p;
 }
 
@@ -105,9 +108,8 @@ static void SimulationLoop()
 	glLoadIdentity();
 
 	settings.setHz(settingsHz);
-	luaLevel->Step(&settings);
-
-	//test->DrawTitle(5, 15, entry->name);
+	if (luaLevel!=NULL)
+		luaLevel->Step(&settings);
 
 	glutSwapBuffers();
 }
@@ -133,8 +135,9 @@ static void Keyboard(unsigned char key, int x, int y)
 
 		// Press 'r' to reset.
 	case 'r':
-		//delete test;
-		//test = entry->createFcn();
+		cout<<"trying to delete "<<luaLevel<<endl;
+		delete luaLevel;
+		luaLevel = new LuaLevel(&settings);
 		break;
 
 	case 'p':
@@ -296,83 +299,42 @@ static void SingleStep(int)
 	settings.setSingleStep(1);
 }
 
-
-int audioCallback(const void *input, void *output, 
-				  unsigned long frameCount,
-				  const PaStreamCallbackTimeInfo* timeInfo,
-				  PaStreamCallbackFlags statusFlags,
-				  void* userData)
-{
-	
-	mpg123Struct* mpgStruct = static_cast<mpg123Struct*>(userData);
-	memset(output, 0, frameCount * 2 * sizeof(short));
-	// I HAVE NO IDEA WHY THIS WORKKKKKSSSSSSSSS
-	if (mpg123_read(mpgStruct->mh, (unsigned char*)output, frameCount*4, &mpgStruct->done) == MPG123_OK) {
-		//memcpy((unsigned char*)output, mpgStruct->buffer, mpgStruct->done/4);
-		//portaudio->rms = rms(outputBuffer, size);
-		//portaudio->position = mpg123_tellframe(portaudio->mpg123);
-		/*
-		short *out = (short*)output;
-		int i,j,playbackIndex = 0;
-
-		for( i=0; i<frameCount; i++ )
-			{
-				for( j = 0; j < 2; ++j ){
-					*out++ = ((short*)mpgStruct->buffer)[ playbackIndex++ ];
-
-				}
-			}
-			*/
-		//totalBtyes += mpgStruct->done;
-		//std::cout<<"huh"<<buffer<<" "<<done<<", "<<done/4<<std::endl;
-	}
-	// Play it safe when debugging and coding, protect your ears by clearing
-	// the output buffer.
-
-	// Decode the number of samples that PortAudio said it needs to send to the 
-	// soundcard. This is where we're grabbing audio from demo.mp3!
-
-	else{
-		/* clean up */
-	
-		free(mpgStruct->buffer);
-		mpg123_close(mpgStruct->mh);
-		mpg123_delete(mpgStruct->mh);
-		mpg123_exit();
-		return paComplete;
-	}
-	return paContinue;
-	 /* Cast data passed through stream to our structure. */
-    //paTestData *data = (paTestData*)userData; 
-}
 int main(int argc, char** argv)
 {
+	//FreeConsole();
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
-
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_BLEND);
-	glDisable(GL_ALPHA_TEST);
+	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);// | GLUT_MULTISAMPLE);
 	glutInitWindowSize(width, height);
 	mainWindow = glutCreateWindow("StepStone");
 
+	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
 	glutDisplayFunc(SimulationLoop);
-	GLUI_Master.set_glutReshapeFunc(Resize);  
-	GLUI_Master.set_glutKeyboardFunc(Keyboard);
-	GLUI_Master.set_glutSpecialFunc(KeyboardSpecial);
-	GLUI_Master.set_glutMouseFunc(Mouse);
+	glutReshapeFunc(Resize);
+	glutKeyboardFunc(Keyboard);
+	glutSpecialFunc(KeyboardSpecial);
+	glutMouseFunc(Mouse);
 	glutMouseWheelFunc(MouseWheel);
 	glutMotionFunc(MouseMotion);
 	glutKeyboardUpFunc(KeyboardUp);
 
 	// Use a timer to control the frame rate.
 	glutTimerFunc(framePeriod, Timer, 0);
-	LuaLevel aLuaLevel(&settings); // can we safely initlize the world in the stack rather in the heap?
-	luaLevel = &aLuaLevel;
-	loadMp3File("title\\music.mp3", &audioCallback);
-	glutMainLoop();
+	
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_ALPHA_TEST);
 
-	return 0;
+	//LuaLevel aLuaLevel(&settings); // can we safely initlize the world in the stack rather in the heap?
+	cout<<"check "<<luaLevel<<endl;
+	luaLevel = new LuaLevel(&settings);
+	Sound music;
+	loadMp3File("title\\music.mp3", &music);
+	
+	glutMainLoop();
+	
+	Pa_AbortStream(music.pStream);
+	system("pause");
+	return EXIT_SUCCESS;
 }

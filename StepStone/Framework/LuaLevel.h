@@ -141,9 +141,16 @@ protected:
 	Graphics::Texture aboutImage;
 	Graphics::Texture menuImage;
 	Graphics::Texture helpImage;
-	Graphics::Texture idleImages[3];
-	Graphics::Texture jumpImages[3];
-	Graphics::Texture walkImages[3];
+	Graphics::Texture backdropImage;
+
+	vector<GLuint> uniqueTextures;
+
+	Graphics::AnimatedTexture* animatedIdle;
+	Graphics::AnimatedTexture* animatedRun;
+	Graphics::AnimatedTexture* animatedJump;
+
+	Graphics::AnimatedTexture* currentAnimatedTexture;
+	bool isFacingRight;
 	int framecount;
 };
 

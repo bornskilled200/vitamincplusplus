@@ -107,7 +107,7 @@
       <AdditionalIncludeDirectories>..\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>bin\Debug\Box2D.lib;bin\Debug\FreeGLUT.lib;bin\Debug\GLUI.lib;bin\Debug\LuaPlusFramework.lib;bin\Debug\LodePNG.lib;glu32.lib;opengl32.lib;winmm.lib;libmpg123-0.lib;portaudio_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>bin\Debug\Box2D.lib;bin\Debug\FreeGLUT.lib;bin\Debug\LuaPlusFramework.lib;bin\Debug\LodePNG.lib;bin\Debug\PortAudio.lib;bin\Debug\mpg123.lib;glu32.lib;opengl32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)StepStone.exe</OutputFile>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
@@ -213,13 +213,15 @@
     <ClInclude Include="..\..\StepStone\Framework\Render.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\StepStone\Framework\Graphics.cpp" />
     <ClCompile Include="..\..\StepStone\Framework\LuaLevel.cpp" />
     <ClCompile Include="..\..\StepStone\Framework\Main.cpp">
     </ClCompile>
-    <ClCompile Include="..\..\StepStone\Framework\mpg.h" />
+    <ClCompile Include="..\..\StepStone\Framework\Sound.cpp" />
+    <ClInclude Include="..\..\StepStone\Framework\Sound.h" />
     <ClCompile Include="..\..\StepStone\Framework\Render.cpp">
     </ClCompile>
-    <ClCompile Include="..\..\StepStone\Framework\Graphics.h" />
+    <ClInclude Include="..\..\StepStone\Framework\Graphics.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
