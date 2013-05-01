@@ -1,28 +1,9 @@
-﻿  freeglut_window.c
-  freeglut_videoresize.c
-  freeglut_teapot.c
-  freeglut_structure.c
-  freeglut_stroke_roman.c
-  freeglut_stroke_mono_roman.c
-  freeglut_state.c
-  freeglut_spaceball.c
-  freeglut_overlay.c
-  freeglut_misc.c
-  freeglut_menu.c
-  freeglut_main.c
-  freeglut_joystick.c
-  freeglut_input_devices.c
-  freeglut_init.c
-  freeglut_glutfont_definitions.c
-  freeglut_geometry.c
-  freeglut_gamemode.c
-  freeglut_font_data.c
-  freeglut_font.c
-  Generating Code...
-  Compiling...
-  freeglut_ext.c
-  freeglut_display.c
-  freeglut_cursor.c
-  freeglut_callbacks.c
-  Generating Code...
-  FreeGLUT.vcxproj -> C:\Users\David\Dropbox\box2d\Build\vs2010\bin\Debug\FreeGLUT.lib
+﻿Build started 4/30/2013 10:43:41 PM.
+     1>Project "C:\Users\David Park\Desktop\New folder (2)\Build\vs2010\FreeGLUT.vcxproj" on node 3 (clean target(s)).
+     1>_PrepareForClean:
+         Deleting file "obj\x32\Debug\FreeGLUT\FreeGLUT.lastbuildstate".
+     1>Done Building Project "C:\Users\David Park\Desktop\New folder (2)\Build\vs2010\FreeGLUT.vcxproj" (clean target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.03

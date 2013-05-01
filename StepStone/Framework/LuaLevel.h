@@ -14,30 +14,6 @@ using namespace LuaPlus;
 using namespace std;
 
 class LuaLevel;
-//struct Settings;
-/*
-#define	RAND_LIMIT	32767
-
-/// Random number in range [-1,1]
-inline float32 RandomFloat()
-{
-	float32 r = (float32)(std::rand() & (RAND_LIMIT));
-	r /= RAND_LIMIT;
-	r = 2.0f * r - 1.0f;
-	return r;
-}
-
-/// Random floating point number in range [lo, hi]
-inline float32 RandomFloat(float32 lo, float32 hi)
-{
-	float32 r = (float32)(std::rand() & (RAND_LIMIT));
-	r /= RAND_LIMIT;
-	r = (hi - lo) * r + lo;
-	return r;
-}
-*/
-/// LuaLevel settings. Some can be controlled in the GUI.
-
 
 // This is called when a joint in the world is implicitly destroyed
 // because an attached body is destroyed. This gives us a chance to
@@ -91,6 +67,8 @@ public:
 protected:
 	inline void processCollisionsForGame();
 	inline void processInputForGame(Settings *settings, float32 timeStep);
+
+	GLuint bindTexture(string file);
 
 	friend class LuaLevelDestructionListener;
 	//friend class BoundaryListener;

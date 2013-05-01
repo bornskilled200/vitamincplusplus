@@ -20,9 +20,6 @@
 #include "LuaLevel.h"
 #include "Sound.h"
 #include <cstdio>
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
 using namespace std;
 
 namespace
@@ -277,15 +274,17 @@ static void Pause(int)
 	settings.setPause(!settings.getPause());
 }
 
+//Uncomment the next line if you do not want to see the console.
+//#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
+
 int main(int argc, char** argv)
 {
-	//FreeConsole();
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);// | GLUT_MULTISAMPLE);
 	glutInitWindowSize(width, height);
 	mainWindow = glutCreateWindow("StepStone");
 
-	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
+	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
 	glutDisplayFunc(SimulationLoop);
 	glutReshapeFunc(Resize);
 	glutKeyboardFunc(Keyboard);
@@ -311,7 +310,6 @@ int main(int argc, char** argv)
 	
 	glutMainLoop();
 	
-	Pa_Terminate();
-	system("pause");
+	Pa_AbortStream(music.pStream);
 	return EXIT_SUCCESS;
 }

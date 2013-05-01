@@ -19,12 +19,8 @@
 #include <cstdio>
 #include <iostream>
 #include <cmath>
-//#include <sstream> 
 #include <string>
 
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
 using namespace std;
 
 void LuaLevelDestructionListener::SayGoodbye(b2Joint* joint)
@@ -109,10 +105,10 @@ LuaLevel::LuaLevel(Settings* settings)
 
 	vector<Graphics::Texture> textures(4);
 	vector<int> framesPerImage(4);
-	loadATexture("Alex\\idle\\1.png", &textures[0], image);  framesPerImage[0]=8; uniqueTextures.push_back(textures[0].id);
+	loadATexture("Alex\\idle\\1.png", &textures[0], image);  framesPerImage[0]=8;  uniqueTextures.push_back(textures[0].id);
 	loadATexture("Alex\\idle\\2.png", &textures[1], image);  framesPerImage[1]=30; uniqueTextures.push_back(textures[1].id);
-	textures[2]=textures[0];																	     framesPerImage[2]=8;
-	loadATexture("Alex\\idle\\3.png", &textures[3], image, buffer, LodePNGColorType::LCT_RGBA, 8U);  framesPerImage[3]=30; uniqueTextures.push_back(textures[3].id);
+	textures[2]=textures[0];						         framesPerImage[2]=8;
+	loadATexture("Alex\\idle\\3.png", &textures[3], image);  framesPerImage[3]=30; uniqueTextures.push_back(textures[3].id);
 	animatedIdle = new Graphics::AnimatedTexture(textures,4,framesPerImage);
 
 	textures.resize(8);
@@ -148,6 +144,7 @@ GLuint LuaLevel::bindTexture(string file)
 {
 	Graphics::Texture texture;
 	loadATexture(file,&texture);
+	return texture.id;
 }
 
 int LuaLevel::createAnEdge( float32 x1, float32 y1, float32 x2, float32 y2 )

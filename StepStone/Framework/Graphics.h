@@ -77,7 +77,12 @@ namespace Graphics
 	{
 		texture->id = loadTexture(image, fileName, texture->imageWidth,texture->imageHeight,texture->scaledImageWidth,texture->scaledImageHeight);
 	}
-
+	
+	inline void loadATexture(string fileName, Texture *texture)
+	{
+		vector<unsigned char> image;
+		texture->id = loadTexture(image, fileName, texture->imageWidth,texture->imageHeight,texture->scaledImageWidth,texture->scaledImageHeight);
+	}
 
 	/* This method assumes that this is the only method that is being called to draw textures */
 	inline void drawImageOptimistically(Graphics::Texture *texture);
