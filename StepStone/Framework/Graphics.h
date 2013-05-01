@@ -3,7 +3,6 @@
 #define SIMPLEWRAPPER_H
 
 #include "lodepng\lodepng.h"
-//#include "glui/glui.h"
 #include "freeglut\freeglut.h"
 #include <string>
 #include <iostream>
@@ -66,25 +65,28 @@ namespace Graphics
 		{
 			return textureCount;
 		}
-
 	};
-	//extern GLuint bindedTexture;
-	GLuint loadTexture(vector<unsigned char> &image, string fileName, unsigned char* buffer, unsigned int &imageWidth, unsigned int &imageHeight, float &scaledImageWidth, float &scaledImageHeight, LodePNGColorType colorType , unsigned int bit_depth);
+
+	GLuint loadTexture(vector<unsigned char> &image, string fileName, unsigned int &imageWidth, unsigned int &imageHeight, float &scaledImageWidth, float &scaledImageHeight);
+	//void loadTextures(vector<unsigned char> &image, vector<string> fileName, vector<Texture> textures);
+	
 	//This draws the texture flipped, so perfect for a directly loaded png!
-	void drawImage(GLubyte id, unsigned int width, unsigned int height, GLfloat scaledWidth, GLfloat scaledHeight);
+	void drawImage(unsigned int width, unsigned int height, GLfloat scaledWidth, GLfloat scaledHeight);
 
-	inline void loadATexture(string fileName, Texture *texture,vector<unsigned char> &image, unsigned char* buffer, LodePNGColorType colorType, unsigned int bit_depth)
+	inline void loadATexture(string fileName, Texture *texture,vector<unsigned char> &image)
 	{
-		texture->id = loadTexture(image, fileName,buffer, texture->imageWidth,texture->imageHeight,texture->scaledImageWidth,texture->scaledImageHeight, colorType, bit_depth);
+		texture->id = loadTexture(image, fileName, texture->imageWidth,texture->imageHeight,texture->scaledImageWidth,texture->scaledImageHeight);
 	}
 
-	inline void drawImage(Graphics::Texture *texture, unsigned int width, unsigned int height)
-	{
-		drawImage(texture->id,width,height,texture->scaledImageWidth,texture->scaledImageHeight);
-	}
+
+	/* This method assumes that this is the only method that is being called to draw textures */
+	inline void drawImageOptimistically(Graphics::Texture *texture);
+
 	inline void drawImage(Graphics::Texture *texture)
 	{
-		drawImage(texture->id,texture->imageWidth,texture->imageHeight,texture->scaledImageWidth,texture->scaledImageHeight);
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, texture->id);
+		drawImage(texture->imageWidth,texture->imageHeight,texture->scaledImageWidth,texture->scaledImageHeight);
 	}
 
 }

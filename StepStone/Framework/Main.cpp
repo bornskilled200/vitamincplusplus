@@ -49,9 +49,9 @@ static void Resize(int32 w, int32 h)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	float32 ratio = float32(width) / float32(height);
+	float32 ratio = float32(height) / float32(width);
 
-	b2Vec2 extents(ratio * 25.0f, 25.0f);
+	b2Vec2 extents(30.0f, 30.0f * ratio);
 	extents *= settings.getViewZoom();
 
 	//b2Vec2 lower = settings.getViewCenter() - extents;
@@ -79,8 +79,8 @@ static b2Vec2 ConvertScreenToWorld(int32 x, int32 y)
 	float32 u = x / float32(width);
 	float32 v = (height - y) / float32(height);
 
-	float32 ratio = float32(width) / float32(height);
-	b2Vec2 extents(ratio * 25.0f, 25.0f);
+	float32 ratio = float32(height) / float32(width);
+	b2Vec2 extents(30.0f, 30.0f * ratio);
 	extents *= settings.getViewZoom();
 
 	//b2Vec2 lower = settings.getViewCenter() - extents;
@@ -135,7 +135,6 @@ static void Keyboard(unsigned char key, int x, int y)
 
 		// Press 'r' to reset.
 	case 'r':
-		cout<<"trying to delete "<<luaLevel<<endl;
 		delete luaLevel;
 		luaLevel = new LuaLevel(&settings);
 		break;
@@ -145,12 +144,10 @@ static void Keyboard(unsigned char key, int x, int y)
 		break;
 
 	default:
-
 		if (luaLevel)
 		{
 			luaLevel->Keyboard(key, &settings);
 		}
-
 		break;
 	}
 }
@@ -275,28 +272,9 @@ static void MouseWheel(int wheel, int direction, int x, int y)
 	}
 }
 
-static void Restart(int)
-{
-	//delete test;
-	//entry = g_testEntries + testIndex;
-	//test = entry->createFcn();
-	Resize(width, height);
-}
-
 static void Pause(int)
 {
 	settings.setPause(!settings.getPause());
-}
-
-static void Exit(int code)
-{
-	glutLeaveMainLoop();
-}
-
-static void SingleStep(int)
-{
-	settings.setPause(1);
-	settings.setSingleStep(1);
 }
 
 int main(int argc, char** argv)
@@ -327,14 +305,13 @@ int main(int argc, char** argv)
 	glDisable(GL_ALPHA_TEST);
 
 	//LuaLevel aLuaLevel(&settings); // can we safely initlize the world in the stack rather in the heap?
-	cout<<"check "<<luaLevel<<endl;
 	luaLevel = new LuaLevel(&settings);
 	Sound music;
 	loadMp3File("title\\music.mp3", &music);
 	
 	glutMainLoop();
 	
-	Pa_AbortStream(music.pStream);
+	Pa_Terminate();
 	system("pause");
 	return EXIT_SUCCESS;
 }

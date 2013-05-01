@@ -1,0 +1,175 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{22FA1D4E-8E2B-45CA-B681-A16B29934C0E}</ProjectGuid>
+    <RootNamespace>PortAudio</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>bin\Debug\</OutDir>
+    <IntDir>obj\x32\Debug\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Full</Optimization>
+      <AdditionalIncludeDirectories>..\..\portaudio\hostapi\asio\ASIOSDK\host\pc;..\..\portaudio\hostapi\asio\ASIOSDK\host;..\..\portaudio\os\win;..\..\PortAudio;..\..\PortAudio\common;..\..\portaudio\hostapi\asio\ASIOSDK\common</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_USRDLL;//PA_ENABLE_DEBUG_OUTPUT;_CRT_SECURE_NO_DEPRECATE;PAWIN_USE_WDMKS_DEVICE_INFO;PA_USE_ASIO=0;PA_USE_DS=0;PA_USE_WMME=1;PA_USE_WASAPI=1;PA_USE_WDMKS=1;PA_WDMKS_NO_KSGUID_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <MinimalRebuild>false</MinimalRebuild>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\portaudio\common\pa_allocation.c" />
+    <ClCompile Include="..\..\portaudio\common\pa_converters.c" />
+    <ClCompile Include="..\..\portaudio\common\pa_cpuload.c" />
+    <ClCompile Include="..\..\portaudio\common\pa_debugprint.c" />
+    <ClCompile Include="..\..\portaudio\common\pa_dither.c" />
+    <ClCompile Include="..\..\portaudio\common\pa_front.c" />
+    <ClCompile Include="..\..\portaudio\common\pa_process.c" />
+    <ClCompile Include="..\..\portaudio\common\pa_ringbuffer.c" />
+    <ClCompile Include="..\..\portaudio\common\pa_stream.c" />
+    <ClCompile Include="..\..\portaudio\common\pa_trace.c" />
+    <ClCompile Include="..\..\portaudio\hostapi\asio\ASIOSDK\common\asio.cpp" />
+    <ClCompile Include="..\..\portaudio\hostapi\asio\ASIOSDK\common\combase.cpp" />
+    <ClCompile Include="..\..\portaudio\hostapi\asio\ASIOSDK\common\debugmessage.cpp" />
+    <ClCompile Include="..\..\portaudio\hostapi\asio\ASIOSDK\common\dllentry.cpp" />
+    <ClCompile Include="..\..\portaudio\hostapi\asio\ASIOSDK\common\register.cpp" />
+    <ClCompile Include="..\..\portaudio\hostapi\asio\ASIOSDK\driver\asiosample\asiosmpl.cpp" />
+    <ClCompile Include="..\..\portaudio\hostapi\asio\ASIOSDK\driver\asiosample\wintimer.cpp" />
+    <ClCompile Include="..\..\portaudio\hostapi\asio\ASIOSDK\host\ASIOConvertSamples.cpp" />
+    <ClCompile Include="..\..\portaudio\hostapi\asio\ASIOSDK\host\asiodrivers.cpp" />
+    <ClCompile Include="..\..\portaudio\hostapi\asio\ASIOSDK\host\pc\asiolist.cpp" />
+    <ClCompile Include="..\..\portaudio\hostapi\asio\ASIOSDK\host\sample\hostsample.cpp" />
+    <ClCompile Include="..\..\portaudio\hostapi\asio\iasiothiscallresolver.cpp" />
+    <ClCompile Include="..\..\portaudio\hostapi\asio\pa_asio.cpp" />
+    <ClCompile Include="..\..\portaudio\hostapi\dsound\pa_win_ds.c" />
+    <ClCompile Include="..\..\portaudio\hostapi\dsound\pa_win_ds_dynlink.c" />
+    <ClCompile Include="..\..\portaudio\hostapi\skeleton\pa_hostapi_skeleton.c" />
+    <ClCompile Include="..\..\portaudio\hostapi\wasapi\pa_win_wasapi.c" />
+    <ClCompile Include="..\..\portaudio\hostapi\wdmks\pa_win_wdmks.c" />
+    <ClCompile Include="..\..\portaudio\hostapi\wmme\pa_win_wmme.c" />
+    <ClCompile Include="..\..\portaudio\os\win\pa_win_coinitialize.c" />
+    <ClCompile Include="..\..\portaudio\os\win\pa_win_hostapis.c" />
+    <ClCompile Include="..\..\portaudio\os\win\pa_win_util.c" />
+    <ClCompile Include="..\..\portaudio\os\win\pa_win_waveformat.c" />
+    <ClCompile Include="..\..\portaudio\os\win\pa_win_wdmks_utils.c" />
+    <ClCompile Include="..\..\portaudio\os\win\pa_x86_plain_converters.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\portaudio\common\pa_allocation.h" />
+    <ClInclude Include="..\..\portaudio\common\pa_converters.h" />
+    <ClInclude Include="..\..\portaudio\common\pa_cpuload.h" />
+    <ClInclude Include="..\..\portaudio\common\pa_debugprint.h" />
+    <ClInclude Include="..\..\portaudio\common\pa_dither.h" />
+    <ClInclude Include="..\..\portaudio\common\pa_endianness.h" />
+    <ClInclude Include="..\..\portaudio\common\pa_hostapi.h" />
+    <ClInclude Include="..\..\portaudio\common\pa_memorybarrier.h" />
+    <ClInclude Include="..\..\portaudio\common\pa_process.h" />
+    <ClInclude Include="..\..\portaudio\common\pa_ringbuffer.h" />
+    <ClInclude Include="..\..\portaudio\common\pa_stream.h" />
+    <ClInclude Include="..\..\portaudio\common\pa_trace.h" />
+    <ClInclude Include="..\..\portaudio\common\pa_types.h" />
+    <ClInclude Include="..\..\portaudio\common\pa_util.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\asio\ASIOSDK\common\asio.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\asio\ASIOSDK\common\asiosys.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\asio\ASIOSDK\common\combase.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\asio\ASIOSDK\common\iasiodrv.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\asio\ASIOSDK\common\wxdebug.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\asio\ASIOSDK\host\ASIOConvertSamples.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\asio\ASIOSDK\host\asiodrivers.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\asio\ASIOSDK\host\ginclude.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\asio\ASIOSDK\host\mac\codefragments.hpp" />
+    <ClInclude Include="..\..\portaudio\hostapi\asio\ASIOSDK\host\pc\asiolist.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\asio\iasiothiscallresolver.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\dsound\pa_win_ds_dynlink.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\wasapi\mingw-include\audioclient.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\wasapi\mingw-include\AudioSessionTypes.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\wasapi\mingw-include\devicetopology.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\wasapi\mingw-include\endpointvolume.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\wasapi\mingw-include\functiondiscoverykeys.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\wasapi\mingw-include\FunctionDiscoveryKeys_devpkey.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\wasapi\mingw-include\ks.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\wasapi\mingw-include\ksguid.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\wasapi\mingw-include\ksmedia.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\wasapi\mingw-include\ksproxy.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\wasapi\mingw-include\ksuuids.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\wasapi\mingw-include\mmdeviceapi.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\wasapi\mingw-include\propidl.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\wasapi\mingw-include\propkey.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\wasapi\mingw-include\propkeydef.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\wasapi\mingw-include\propsys.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\wasapi\mingw-include\rpcsal.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\wasapi\mingw-include\sal.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\wasapi\mingw-include\sdkddkver.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\wasapi\mingw-include\shtypes.h" />
+    <ClInclude Include="..\..\portaudio\hostapi\wasapi\mingw-include\structuredquery.h" />
+    <ClInclude Include="..\..\portaudio\os\win\pa_win_coinitialize.h" />
+    <ClInclude Include="..\..\portaudio\os\win\pa_win_wdmks_utils.h" />
+    <ClInclude Include="..\..\portaudio\os\win\pa_x86_plain_converters.h" />
+    <ClInclude Include="..\..\portaudio\pa_asio.h" />
+    <ClInclude Include="..\..\portaudio\pa_jack.h" />
+    <ClInclude Include="..\..\portaudio\pa_win_ds.h" />
+    <ClInclude Include="..\..\portaudio\pa_win_wasapi.h" />
+    <ClInclude Include="..\..\portaudio\pa_win_waveformat.h" />
+    <ClInclude Include="..\..\portaudio\pa_win_wmme.h" />
+    <ClInclude Include="..\..\portaudio\portaudio.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\portaudio\hostapi\asio\ASIOSDK\driver\asiosample\asiosample.def" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

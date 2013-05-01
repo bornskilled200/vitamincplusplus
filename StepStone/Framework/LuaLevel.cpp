@@ -109,39 +109,45 @@ LuaLevel::LuaLevel(Settings* settings)
 
 	vector<Graphics::Texture> textures(4);
 	vector<int> framesPerImage(4);
-	loadATexture("Alex\\idle\\1.png", &textures[0], image, buffer, LodePNGColorType::LCT_RGBA, 8U);  framesPerImage[0]=10; uniqueTextures.push_back(textures[0].id);
-	loadATexture("Alex\\idle\\2.png", &textures[1], image, buffer, LodePNGColorType::LCT_RGBA, 8U);  framesPerImage[1]=50; uniqueTextures.push_back(textures[1].id);
-	textures[2]=textures[0];																	     framesPerImage[2]=10;
-	loadATexture("Alex\\idle\\3.png", &textures[3], image, buffer, LodePNGColorType::LCT_RGBA, 8U);  framesPerImage[3]=50; uniqueTextures.push_back(textures[3].id);
+	loadATexture("Alex\\idle\\1.png", &textures[0], image);  framesPerImage[0]=8; uniqueTextures.push_back(textures[0].id);
+	loadATexture("Alex\\idle\\2.png", &textures[1], image);  framesPerImage[1]=30; uniqueTextures.push_back(textures[1].id);
+	textures[2]=textures[0];																	     framesPerImage[2]=8;
+	loadATexture("Alex\\idle\\3.png", &textures[3], image, buffer, LodePNGColorType::LCT_RGBA, 8U);  framesPerImage[3]=30; uniqueTextures.push_back(textures[3].id);
 	animatedIdle = new Graphics::AnimatedTexture(textures,4,framesPerImage);
 
 	textures.resize(8);
 	framesPerImage.resize(8);
-	loadATexture("Alex\\run\\1.png", &textures[0], image, buffer, LodePNGColorType::LCT_RGBA, 8U); framesPerImage[0]=10; uniqueTextures.push_back(textures[0].id);
-	loadATexture("Alex\\run\\2.png", &textures[1], image, buffer, LodePNGColorType::LCT_RGBA, 8U); framesPerImage[1]=10; uniqueTextures.push_back(textures[1].id);
-	loadATexture("Alex\\run\\3.png", &textures[2], image, buffer, LodePNGColorType::LCT_RGBA, 8U); framesPerImage[2]=10; uniqueTextures.push_back(textures[2].id);
-	loadATexture("Alex\\run\\4.png", &textures[3], image, buffer, LodePNGColorType::LCT_RGBA, 8U); framesPerImage[3]=15; uniqueTextures.push_back(textures[3].id);
-	loadATexture("Alex\\run\\5.png", &textures[4], image, buffer, LodePNGColorType::LCT_RGBA, 8U); framesPerImage[4]=10; uniqueTextures.push_back(textures[4].id);
-	loadATexture("Alex\\run\\6.png", &textures[5], image, buffer, LodePNGColorType::LCT_RGBA, 8U); framesPerImage[5]=10; uniqueTextures.push_back(textures[5].id);
-	loadATexture("Alex\\run\\7.png", &textures[6], image, buffer, LodePNGColorType::LCT_RGBA, 8U); framesPerImage[6]=10; uniqueTextures.push_back(textures[6].id);
-	loadATexture("Alex\\run\\8.png", &textures[7], image, buffer, LodePNGColorType::LCT_RGBA, 8U); framesPerImage[7]=15; uniqueTextures.push_back(textures[7].id);
+	loadATexture("Alex\\run\\1.png", &textures[0], image); framesPerImage[0]=5; uniqueTextures.push_back(textures[0].id);
+	loadATexture("Alex\\run\\2.png", &textures[1], image); framesPerImage[1]=5; uniqueTextures.push_back(textures[1].id);
+	loadATexture("Alex\\run\\3.png", &textures[2], image); framesPerImage[2]=5; uniqueTextures.push_back(textures[2].id);
+	loadATexture("Alex\\run\\4.png", &textures[3], image); framesPerImage[3]=7; uniqueTextures.push_back(textures[3].id);
+	loadATexture("Alex\\run\\5.png", &textures[4], image); framesPerImage[4]=5; uniqueTextures.push_back(textures[4].id);
+	loadATexture("Alex\\run\\6.png", &textures[5], image); framesPerImage[5]=5; uniqueTextures.push_back(textures[5].id);
+	loadATexture("Alex\\run\\7.png", &textures[6], image); framesPerImage[6]=5; uniqueTextures.push_back(textures[6].id);
+	loadATexture("Alex\\run\\8.png", &textures[7], image); framesPerImage[7]=7; uniqueTextures.push_back(textures[7].id);
 	animatedRun = new Graphics::AnimatedTexture(textures,8,framesPerImage);
 
 	textures.resize(5);
 	framesPerImage.resize(5);
-	loadATexture("Alex\\jump\\1.png", &textures[0], image, buffer, LodePNGColorType::LCT_RGBA, 8U); framesPerImage[0]=10; uniqueTextures.push_back(textures[0].id);
-	loadATexture("Alex\\jump\\2.png", &textures[1], image, buffer, LodePNGColorType::LCT_RGBA, 8U); framesPerImage[1]=10; uniqueTextures.push_back(textures[1].id);
-	loadATexture("Alex\\jump\\3.png", &textures[2], image, buffer, LodePNGColorType::LCT_RGBA, 8U); framesPerImage[2]=10; uniqueTextures.push_back(textures[2].id);
-	loadATexture("Alex\\jump\\4.png", &textures[3], image, buffer, LodePNGColorType::LCT_RGBA, 8U); framesPerImage[3]=10; uniqueTextures.push_back(textures[3].id);
-	loadATexture("Alex\\jump\\5.png", &textures[4], image, buffer, LodePNGColorType::LCT_RGBA, 8U); framesPerImage[4]=10; uniqueTextures.push_back(textures[4].id);
+	loadATexture("Alex\\jump\\1.png", &textures[0], image); framesPerImage[0]=10; uniqueTextures.push_back(textures[0].id);
+	loadATexture("Alex\\jump\\2.png", &textures[1], image); framesPerImage[1]=10; uniqueTextures.push_back(textures[1].id);
+	loadATexture("Alex\\jump\\3.png", &textures[2], image); framesPerImage[2]=10; uniqueTextures.push_back(textures[2].id);
+	loadATexture("Alex\\jump\\4.png", &textures[3], image); framesPerImage[3]=10; uniqueTextures.push_back(textures[3].id);
+	loadATexture("Alex\\jump\\5.png", &textures[4], image); framesPerImage[4]=10; uniqueTextures.push_back(textures[4].id);
 	animatedJump = new Graphics::AnimatedTexture(textures,5,framesPerImage);
 
-	loadATexture("helpscreen.png", &helpImage, image, buffer,LodePNGColorType::LCT_RGBA, 8U);					uniqueTextures.push_back(helpImage.id);
-	loadATexture("aboutscreen.png", &aboutImage, image, buffer,LodePNGColorType::LCT_RGBA, 8U);					uniqueTextures.push_back(aboutImage.id);
-	loadATexture("titlescreen.png", &menuImage, image, buffer,LodePNGColorType::LCT_RGBA, 8U);					uniqueTextures.push_back(menuImage.id);
-	loadATexture("backdrops\\cloudyskies.png", &backdropImage, image, buffer,LodePNGColorType::LCT_RGBA, 8U);	uniqueTextures.push_back(backdropImage.id);
+	loadATexture("helpscreen.png", &helpImage, image);					uniqueTextures.push_back(helpImage.id);
+	loadATexture("aboutscreen.png", &aboutImage, image);					uniqueTextures.push_back(aboutImage.id);
+	loadATexture("titlescreen.png", &menuImage, image);					uniqueTextures.push_back(menuImage.id);
+	loadATexture("backdrops\\cloudyskies.png", &backdropImage, image);	uniqueTextures.push_back(backdropImage.id);
 	currentAnimatedTexture = animatedIdle;
 	setGameState(MENU, settings);
+}
+
+GLuint LuaLevel::bindTexture(string file)
+{
+	Graphics::Texture texture;
+	loadATexture(file,&texture);
 }
 
 int LuaLevel::createAnEdge( float32 x1, float32 y1, float32 x2, float32 y2 )

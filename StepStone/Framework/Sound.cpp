@@ -82,6 +82,7 @@ Sound* loadMp3File(const char* filename, Sound* sound)
         return NULL;
     } 
 
+
 	if (Pa_StartStream(sound->pStream) != paNoError)
     {
         std::cout << "Failed to start the PortAudio stream." << std::endl;
@@ -107,13 +108,16 @@ int audioCallback(const void *input, void *output,
 	Sound* sound = static_cast<Sound*>(userData);
 	// I HAVE NO IDEA WHY THIS WORKKKKKSSSSSSSSS
 	size_t done = 0;
-	if (mpg123_read(sound->mh, (unsigned char*)output, frameCount*4, &done) == MPG123_OK) {	
+	//framecount, channel = 2
+	if (mpg123_read(sound->mh, (unsigned char*)output, frameCount*2*sizeof(short), &done) == MPG123_OK) {	
+		//std::cout<<"reading "<<done<<std::endl;
 		return paContinue;
 	}
 	else
 	{
 		/* clean up */
-		memset((unsigned char*)output, 0, frameCount * 4);
+		//std::cout<<"done"<<std::endl;
+		memset((unsigned char*)output, 0, frameCount * 2*sizeof(short));
 		return paComplete;
 	}
 }

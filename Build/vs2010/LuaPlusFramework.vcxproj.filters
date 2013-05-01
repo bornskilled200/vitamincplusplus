@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="..\..\LuaPlusFramework\LuaFunction.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\LuaHelper.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\LuaHelper_Object.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\LuaHelper_StackObject.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\LuaLink.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\LuaObject.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\LuaPlus.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\LuaPlusCD.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\LuaPlusFunctions.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\LuaPlusInternal.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\LuaStackObject.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\LuaStackTableIterator.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\LuaState.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\LuaStateOutFile.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\LuaTableIterator.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\luathread.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\pt.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\srm.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\Lua\lapi.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\Lua\lauxlib.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\Lua\lcode.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\Lua\ldebug.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\Lua\ldo.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\Lua\lfunc.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\Lua\lgc.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\Lua\llex.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\Lua\llimits.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\Lua\lmem.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\Lua\lobject.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\Lua\lopcodes.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\Lua\lparser.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\Lua\lstate.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\Lua\lstring.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\Lua\ltable.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\Lua\ltm.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\Lua\lua.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\Lua\luaconf.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\Lua\lualib.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\Lua\lundump.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\Lua\lvm.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\Lua\lzio.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\auxiliar.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\LuaAutoBlock.h" />
+    <ClInclude Include="..\..\LuaPlusFramework\LuaCall.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\LuaPlusFramework\LuaObject.cpp" />
+    <ClCompile Include="..\..\LuaPlusFramework\LuaPlus.cpp" />
+    <ClCompile Include="..\..\LuaPlusFramework\LuaPlus_Libs.cpp" />
+    <ClCompile Include="..\..\LuaPlusFramework\LuaPlusAddons.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\LuaPlusFunctions.cpp" />
+    <ClCompile Include="..\..\LuaPlusFramework\LuaStackObject.cpp" />
+    <ClCompile Include="..\..\LuaPlusFramework\LuaStackTableIterator.cpp" />
+    <ClCompile Include="..\..\LuaPlusFramework\LuaState.cpp" />
+    <ClCompile Include="..\..\LuaPlusFramework\LuaState_DumpObject.cpp" />
+    <ClCompile Include="..\..\LuaPlusFramework\LuaStateOutFile.cpp" />
+    <ClCompile Include="..\..\LuaPlusFramework\LuaTableIterator.cpp" />
+    <ClCompile Include="..\..\LuaPlusFramework\luathread.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\lwstrlib.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\pt.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\srm.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\lapi.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\lauxlib.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\lbaselib.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\lcode.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\ldblib.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\ldebug.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\ldo.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\ldump.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\lfunc.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\lgc.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\linit.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\liolib.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\llex.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\lmathlib.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\lmem.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\loadlib.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\lobject.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\lopcodes.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\loslib.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\lparser.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\lstate.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\lstring.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\lstrlib.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\ltable.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\ltablib.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\ltm.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\lundump.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\lvm.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\lzio.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\Lua\print.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\auxiliar.c" />
+    <ClCompile Include="..\..\LuaPlusFramework\LuaCall.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\LuaPlusFramework\LuaObject.inl" />
+    <None Include="..\..\LuaPlusFramework\LuaStackObject.inl" />
+    <None Include="..\..\LuaPlusFramework\LuaState.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\LuaPlusFramework\ReadMe.txt" />
+  </ItemGroup>
+</Project>

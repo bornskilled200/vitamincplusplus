@@ -1,10 +1,10 @@
 #include "Graphics.h"
 
-GLuint Graphics::loadTexture(vector<unsigned char> &image, string fileName, unsigned char* buffer, unsigned int &imageWidth, unsigned int &imageHeight, float &scaledImageWidth, float &scaledImageHeight, LodePNGColorType colorType , unsigned int bit_depth)
+GLuint Graphics::loadTexture(vector<unsigned char> &image, string fileName, unsigned int &imageWidth, unsigned int &imageHeight, float &scaledImageWidth, float &scaledImageHeight)
 {
 		image.clear();
 
-		unsigned error = lodepng::decode(image, imageWidth, imageHeight, fileName, colorType, bit_depth);
+		unsigned error = lodepng::decode(image, imageWidth, imageHeight, fileName);
 		//if there's an error, display it
 		if(error) 
 		{
@@ -49,16 +49,22 @@ GLuint Graphics::loadTexture(vector<unsigned char> &image, string fileName, unsi
 
 static GLuint bindedTexture= 0;
 
-void Graphics::drawImage(GLubyte id, unsigned int width, unsigned int height, GLfloat scaledWidth, GLfloat scaledHeight)
-	{
-		//glEnable(GL_TEXTURE_2D);
-		if (bindedTexture!=id)
-			glBindTexture(GL_TEXTURE_2D, bindedTexture=id);
-		glBegin(GL_QUADS);
-		glTexCoord2f(		   0, scaledHeight); glVertex2i(	0,	    0);
-		glTexCoord2f(scaledWidth, scaledHeight); glVertex2i(width,	    0);
-		glTexCoord2f(scaledWidth,			 0); glVertex2i(width, height);
-		glTexCoord2f(		   0,			 0); glVertex2i(	0, height);
-		glEnd();
-		//glDisable(GL_TEXTURE_2D);
-	}
+inline void drawImageOptimistically(Graphics::Texture *texture)
+{
+	if (bindedTexture!=texture->id)
+		glBindTexture(GL_TEXTURE_2D, bindedTexture=texture->id);
+	Graphics::drawImage(texture->imageWidth,texture->imageHeight,texture->scaledImageWidth,texture->scaledImageHeight);
+}
+
+void Graphics::drawImage(unsigned int width, unsigned int height, GLfloat scaledWidth, GLfloat scaledHeight)
+{
+	//glEnable(GL_TEXTURE_2D);
+	glBegin(GL_QUADS);
+	glTexCoord2f(		   0, scaledHeight); glVertex2i(	0,	    0);
+	glTexCoord2f(scaledWidth, scaledHeight); glVertex2i(width,	    0);
+	glTexCoord2f(scaledWidth,			 0); glVertex2i(width, height);
+	glTexCoord2f(		   0,			 0); glVertex2i(	0, height);
+	glEnd();
+	//glDisable(GL_TEXTURE_2D);
+}
+
