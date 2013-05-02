@@ -1,11 +1,12 @@
 #include "Sound.h"
 
-Sound* loadMp3File(const char* filename)
+Sound* loadMp3File(const char* filename, Sound* sound)
 {
-	return loadMp3File(filename, new Sound());
+	//return loadMp3File(filename);
+	return sound;
 }
 
-Sound* loadMp3File(const char* filename, Sound* sound)
+Sound* playMp3File(const char* filename, Sound* sound)
 {
 	if (Pa_Initialize() != paNoError) {
         std::cout << "Failed to initialize PortAudio." << std::endl;

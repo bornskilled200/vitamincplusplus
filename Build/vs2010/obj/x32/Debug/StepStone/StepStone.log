@@ -1,9 +1,5 @@
-﻿Build started 4/30/2013 10:43:40 PM.
-     1>Project "C:\Users\David Park\Desktop\New folder (2)\Build\vs2010\StepStone.vcxproj" on node 2 (clean target(s)).
-     1>_PrepareForClean:
-         Deleting file "obj\x32\Debug\StepStone\StepStone.lastbuildstate".
-     1>Done Building Project "C:\Users\David Park\Desktop\New folder (2)\Build\vs2010\StepStone.vcxproj" (clean target(s)).
-
-Build succeeded.
-
-Time Elapsed 00:00:00.03
+﻿  Main.cpp
+  Generating Code...
+  Skipping... (no relevant changes detected)
+  LuaLevel.cpp
+  StepStone.vcxproj -> C:\Users\David\Dropbox\box2d\Build\vs2010\bin\Debug\StepStone.exe

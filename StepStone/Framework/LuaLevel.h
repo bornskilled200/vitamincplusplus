@@ -33,7 +33,9 @@ enum GameState
 	MENU,
 	MENU_ABOUT,
 	MENU_HELP,
-	GAME
+	GAME,
+	GAME_WIN,
+	GAME_INTRO
 };
 
 class LuaLevel
@@ -63,9 +65,10 @@ public:
 	// Lua hooked methods
 	int createAnEdge(float32 x1, float32 y1, float32 x2, float32 y2);
 	int createDebris(float32 x, float32 y);
+	void init();
 
 protected:
-	inline void processCollisionsForGame();
+	inline void processCollisionsForGame(Settings* settings);
 	inline void processInputForGame(Settings *settings, float32 timeStep);
 
 	GLuint bindTexture(string file);
@@ -73,7 +76,8 @@ protected:
 	friend class LuaLevelDestructionListener;
 	//friend class BoundaryListener;
 	//friend class ContactListener;
-
+	
+	b2AABB aabb;
 	LuaState* luaPState;
 	LuaObject luaStepFunction;
 	b2BodyDef bodyDef;
@@ -100,6 +104,7 @@ protected:
 	b2Body* m_groundBody;
 	b2Body* playerBody;
 	b2Fixture* playerFeet;
+	b2Fixture* playerShield;
 
 	b2World* m_world;
 	LuaLevelDestructionListener m_destructionListener;
@@ -120,6 +125,8 @@ protected:
 	Graphics::Texture menuImage;
 	Graphics::Texture helpImage;
 	Graphics::Texture backdropImage;
+	Graphics::Texture winImage;
+	Graphics::Texture introImage;
 
 	vector<GLuint> uniqueTextures;
 

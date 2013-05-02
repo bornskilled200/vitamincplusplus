@@ -28,9 +28,9 @@ namespace
 	Settings settings;
 	int32 width = 640;
 	int32 height = 480;
-	int32 framePeriod = 16;
-	int32 mainWindow;
 	float settingsHz = 60.0; // target fps?
+	int32 framePeriod = (int)(1000/settingsHz);
+	int32 mainWindow;
 	bool rMouseDown;
 	b2Vec2 lastp;
 }
@@ -48,29 +48,52 @@ static void Resize(int32 w, int32 h)
 	glLoadIdentity();
 	float32 ratio = float32(height) / float32(width);
 
-	b2Vec2 extents(30.0f, 30.0f * ratio);
-	extents *= settings.getViewZoom();
+	float32 size = settings.getViewSize();
+	b2Vec2 extents;
+
+	if (ratio<1)
+		if (settings.isWidthIsMinimum())
+			extents.Set(size, size * ratio);
+		else
+			extents.Set(size / ratio, size);
+	else
+		if (settings.isWidthIsMinimum())
+			extents.Set(size*ratio, size);
+		else
+			extents.Set(size, size*ratio);
+
+
+	b2Vec2 viewportPosition = settings.getViewPosition();
+	extents += viewportPosition;
+	//extents *= settings.getViewZoom();
 
 	//b2Vec2 lower = settings.getViewCenter() - extents;
 	//b2Vec2 upper = settings.getViewCenter() + extents;
 
 	// L/R/B/T
-	gluOrtho2D(0, extents.x, 0, extents.y);//lower.x, upper.x, lower.y, upper.y);
+	gluOrtho2D(viewportPosition.x, extents.x, viewportPosition.y, extents.y);//lower.x, upper.x, lower.y, upper.y);
 	
 }
 
-void Settings::setViewCenter(b2Vec2 set)
+void Settings::setViewPosition(b2Vec2 set)
 {
-	viewCenter = set;
+	viewPosition = set;
 	Resize(width,height);
 }
 
-void Settings::setViewZoom(float32 set)
+void Settings::setWidthIsMinimum(bool set)
 {
-	viewZoom = set;
+	widthIsMinimum = set;
 	Resize(width,height);
 }
 
+void Settings::setViewSize(float32 set)
+{
+	viewSize = set;
+	Resize(width,height);
+}
+
+/*
 static b2Vec2 ConvertScreenToWorld(int32 x, int32 y)
 {
 	float32 u = x / float32(width);
@@ -88,6 +111,7 @@ static b2Vec2 ConvertScreenToWorld(int32 x, int32 y)
 	p.y = (1.0f - v) * 0 + v * extents.y;
 	return p;
 }
+*/
 
 // This is used to control the frame rate (60Hz).
 static void Timer(int)
@@ -120,13 +144,13 @@ static void Keyboard(unsigned char key, int x, int y)
 	{
 		// Press 'z' to zoom out.
 	case 'z':
-		settings.setViewZoom(b2Min(1.1f * settings.getViewZoom(), 20.0f));
+		settings.setViewSize(b2Min(1.1f * settings.getViewSize(), 20.0f));
 		Resize(width, height);
 		break;
 
 		// Press 'x' to zoom in.
 	case 'x':
-		settings.setViewZoom(b2Max(0.9f * settings.getViewZoom(), 0.02f));
+		settings.setViewSize(b2Max(0.9f * settings.getViewSize(), 0.02f));
 		Resize(width, height);
 		break;
 
@@ -154,7 +178,7 @@ static void KeyboardSpecial(int key, int x, int y)
 	B2_NOT_USED(x);
 	B2_NOT_USED(y);
 
-	b2Vec2 newViewCenter(settings.getViewCenter());
+	b2Vec2 newViewCenter = settings.getViewPosition();
 	switch (key)
 	{
 	case GLUT_ACTIVE_SHIFT:
@@ -162,31 +186,31 @@ static void KeyboardSpecial(int key, int x, int y)
 		// Press left to pan left.
 	case GLUT_KEY_LEFT:
 		newViewCenter.x -= .5f;
-		settings.setViewCenter(newViewCenter);
+		settings.setViewPosition(newViewCenter);
 		break;
 
 		// Press right to pan right.
 	case GLUT_KEY_RIGHT:
 		newViewCenter.x += .5f;
-		settings.setViewCenter(newViewCenter);
+		settings.setViewPosition(newViewCenter);
 		break;
 
 		// Press down to pan down.
 	case GLUT_KEY_DOWN:
 		newViewCenter.y -= .5f;
-		settings.setViewCenter(newViewCenter);
+		settings.setViewPosition(newViewCenter);
 		break;
 
 		// Press up to pan up.
 	case GLUT_KEY_UP:
 		newViewCenter.y += .5f;
-		settings.setViewCenter(newViewCenter);
+		settings.setViewPosition(newViewCenter);
 		break;
 
 		// Press home to reset the view.
 	case GLUT_KEY_HOME:
-		settings.setViewZoom(1.0f);
-		settings.setViewCenter(b2Vec2(0.0f, 20.0f));
+		settings.setViewSize(20.0f);
+		settings.setViewPosition(b2Vec2(0.0f, 0.0f));
 		break;
 	}
 }
@@ -201,6 +225,7 @@ static void KeyboardUp(unsigned char key, int x, int y)
 static void Mouse(int32 button, int32 state, int32 x, int32 y)
 {
 	// Use the mouse to move things around.
+	/*
 	if (button == GLUT_LEFT_BUTTON)
 	{
 		int mod = glutGetModifiers();
@@ -236,10 +261,12 @@ static void Mouse(int32 button, int32 state, int32 x, int32 y)
 			rMouseDown = false;
 		}
 	}
+	*/
 }
 
 static void MouseMotion(int32 x, int32 y)
 {
+	/*
 	b2Vec2 p = ConvertScreenToWorld(x, y);
 	//test->MouseMove(p);
 
@@ -252,6 +279,7 @@ static void MouseMotion(int32 x, int32 y)
 		settings.setViewCenter(viewCenter);
 		lastp = ConvertScreenToWorld(x, y);
 	}
+	*/
 }
 
 static void MouseWheel(int wheel, int direction, int x, int y)
@@ -261,11 +289,11 @@ static void MouseWheel(int wheel, int direction, int x, int y)
 	B2_NOT_USED(y);
 	if (direction > 0)
 	{
-		settings.setViewZoom(settings.getViewZoom()/ 1.1f);
+		settings.setViewSize(settings.getViewSize()/ 1.1f);
 	}
 	else
 	{
-		settings.setViewZoom(settings.getViewZoom()* 1.1f);
+		settings.setViewSize(settings.getViewSize()* 1.1f);
 	}
 }
 
@@ -305,11 +333,11 @@ int main(int argc, char** argv)
 
 	//LuaLevel aLuaLevel(&settings); // can we safely initlize the world in the stack rather in the heap?
 	luaLevel = new LuaLevel(&settings);
-	Sound music;
-	loadMp3File("title\\music.mp3", &music);
+	//Sound music;
+	//loadMp3File("title\\music.mp3", &music);
 	
 	glutMainLoop();
 	
-	Pa_AbortStream(music.pStream);
+	//Pa_AbortStream(music.pStream);
 	return EXIT_SUCCESS;
 }

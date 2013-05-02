@@ -13,10 +13,12 @@ struct Sound
 	Sound():mh(NULL),pStream(NULL){}
 	mpg123_handle *mh;
 	PaStream* pStream;
+	short* loaded;
+	int pos;
 };
 
-Sound* loadMp3File(const char* filename);
 Sound* loadMp3File(const char* filename, Sound* sound);
+Sound* playMp3File(const char* filename, Sound* sound);
 int audioCallback(const void *input, void *output, 
 				  unsigned long frameCount,
 				  const PaStreamCallbackTimeInfo* timeInfo,

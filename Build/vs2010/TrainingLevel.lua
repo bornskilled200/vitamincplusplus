@@ -1,5 +1,5 @@
 local WIDTH = 30
-local HEIGHT = 200
+local HEIGHT = 100
 local GRAVITY_Y = -30
 local PLAYER_SPAWN_X = 4
 local PLAYER_SPAWN_Y = 4
@@ -30,7 +30,6 @@ local currentTime = 0
 local nextCreate = 0
 math.randomseed(1)
 function step(delta)
---[[
 	if (nextCreate<=0) then
 		nextCreate = math.random()*.5
 		currentTime = currentTime + delta;
@@ -38,7 +37,6 @@ function step(delta)
 	else
 		nextCreate = nextCreate - delta;
 	end
-]]--
 end
 
 function compileLevelDisplayList()

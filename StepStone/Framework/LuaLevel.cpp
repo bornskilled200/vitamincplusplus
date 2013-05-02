@@ -26,79 +26,26 @@ using namespace std;
 void LuaLevelDestructionListener::SayGoodbye(b2Joint* joint)
 {
 }
-const static uint16 debrisBits = 0x0002 ;
-const static uint16 boundaryBits =0x0004;
-const static uint16 playerFeetBits =0x0008;
+const static uint16 debrisBits = 1<<1;
+const static uint16 boundaryBits =1<<2;
+const static uint16 playerFeetBits =1<<3;
+const static uint16 playerBodyBits =1<<4;
+const static uint16 playerSheildBits =1<<5;
 const static uint16 PLAYER_FEET_TOUCHING_BOUNDARY=playerFeetBits|boundaryBits;
 const static uint16 PLAYER_FEET_TOUCHING_DEBRIS=playerFeetBits|debrisBits;
+const static uint16 PLAYER_SHIELD_TOUCHING_DEBRIS=playerFeetBits|debrisBits;
 
 static char controlKeyLeft = 'a';
 static char controlKeyRight = 'd';
 static char controlKeyJump = 'w';
 
-LuaLevel::LuaLevel(Settings* settings)
+LuaLevel::LuaLevel(Settings* settings):m_world(NULL)
 {
 	framecount=0;
 	// Init Lua
 	luaPState = LuaState::Create(true);
 	//LuaState::Destroy(luaPState);
-
-	// Init Box2D World
-	b2Vec2 gravity;
-	gravity.Set(0.0f, -30.0f);
-	m_world = new b2World(gravity);
-
-	//~~LEVEL LOADING~~~~~~~~~~~~~~~~~~~~~~~~
-	b2BodyDef bodyDef;
-	bodyDef.type = b2_staticBody;
-	m_groundBody = m_world->CreateBody(&bodyDef);
-
-	loadLevelGlobals(luaPState);
-
-	// Open the Lua Script File
-	if (luaPState->DoFile("TrainingLevel.lua"))
-		std::cout << "An error occured: " << luaPState->StackTop().GetString() << std::endl;
-
-	/*
-	int luaError = luaPState->DoFile("Settings.lua");
-	if (luaError)
-		std::cout << "An error occured: " << luaPState->StackTop().GetString() << std::endl;
-	*/
-	//unloadLevelGlobals(luaPState);
-
-	//~~~~~~PLAYER STUFF
-	//~~~~~~~~~~~~~~~~~Box2D Stuff
-	bodyDef.type = b2_dynamicBody;
-	bodyDef.position.Set(2,2);
-	bodyDef.fixedRotation=true;
-	playerBody = m_world->CreateBody(&bodyDef);
-
-	//b2PolygonShape polygonShape;
-	fixtureDef.shape = &polygonShape;
-	polygonShape.SetAsBox(.76f,1.28f);
-	fixtureDef.friction=0;
-	fixtureDef.density=1;
-	playerBody->CreateFixture(&fixtureDef);
-
-	b2Vec2 center(0,-1.28f);
-	polygonShape.SetAsBox(.76f,.2f, center, 0);
-	fixtureDef.filter.categoryBits=playerFeetBits;
-	fixtureDef.density=0;
-	playerFeet = playerBody->CreateFixture(&fixtureDef);
-	//~~~~~~~~~~~~~~~~~User Interface
-	controlJump = false;
-	controlLeft= false;
-	controlRight=false;
-
-	uint32 flags = 0;
-	flags += b2Draw::e_shapeBit;
-	flags += b2Draw::e_jointBit;
-	m_debugDraw.SetFlags(flags);
-
-	m_destructionListener.luaLevel = this;
-	m_world->SetDestructionListener(&m_destructionListener);
-	m_world->SetDebugDraw(&m_debugDraw);
-
+	init();
 	vector<unsigned char> image;
 	image.reserve(1024*1024*4);
 	unsigned char* buffer=NULL;
@@ -135,9 +82,85 @@ LuaLevel::LuaLevel(Settings* settings)
 	loadATexture("helpscreen.png", &helpImage, image);					uniqueTextures.push_back(helpImage.id);
 	loadATexture("aboutscreen.png", &aboutImage, image);					uniqueTextures.push_back(aboutImage.id);
 	loadATexture("titlescreen.png", &menuImage, image);					uniqueTextures.push_back(menuImage.id);
+	loadATexture("CGs\\openingcgalex.png", &introImage, image);					uniqueTextures.push_back(introImage.id);
 	loadATexture("backdrops\\cloudyskies.png", &backdropImage, image);	uniqueTextures.push_back(backdropImage.id);
 	currentAnimatedTexture = animatedIdle;
 	setGameState(MENU, settings);
+}
+
+void LuaLevel::init()
+{
+	// Init Box2D World
+	b2Vec2 gravity;
+	gravity.Set(0.0f, -30.0f);
+	if (m_world)
+		delete m_world;
+	m_world = new b2World(gravity);
+
+	//~~LEVEL LOADING~~~~~~~~~~~~~~~~~~~~~~~~
+	b2BodyDef bodyDef;
+	bodyDef.type = b2_staticBody;
+	m_groundBody = m_world->CreateBody(&bodyDef);
+
+	loadLevelGlobals(luaPState);
+
+	// Open the Lua Script File
+	if (luaPState->DoFile("TrainingLevel.lua"))
+		std::cout << "An error occured: " << luaPState->StackTop().GetString() << std::endl;
+
+	/*
+	int luaError = luaPState->DoFile("Settings.lua");
+	if (luaError)
+		std::cout << "An error occured: " << luaPState->StackTop().GetString() << std::endl;
+	*/
+	unloadLevelGlobals(luaPState);
+
+	//~~~~~~PLAYER STUFF
+	//~~~~~~~~~~~~~~~~~Box2D Stuff
+	bodyDef.type = b2_dynamicBody;
+	bodyDef.position.Set(2,2);
+	bodyDef.fixedRotation=true;
+	playerBody = m_world->CreateBody(&bodyDef);
+
+	//b2PolygonShape polygonShape;
+	fixtureDef.shape = &polygonShape;
+	polygonShape.SetAsBox(.76f,1.28f);
+	fixtureDef.friction=0;
+	fixtureDef.density=1;
+	playerBody->CreateFixture(&fixtureDef);
+
+	b2Vec2 center(0,-1.28f);
+	polygonShape.SetAsBox(.76f,.2f, center, 0);
+	fixtureDef.filter.categoryBits=playerFeetBits;
+	fixtureDef.density=0;
+	playerFeet = playerBody->CreateFixture(&fixtureDef);
+
+	fixtureDef.isSensor = true;
+	circleShape.m_radius = .76f;
+	circleShape.m_p.Set(0,1.28f);
+	fixtureDef.shape = &circleShape;
+	playerShield = playerBody->CreateFixture(&fixtureDef);
+	
+
+	// Winning trigger
+	b2Vec2 d;
+	d.Set(15, 10);
+	b2Vec2 p(15,90);
+	aabb.lowerBound = p - d;
+	aabb.upperBound = p + d;
+	//~~~~~~~~~~~~~~~~~User Interface
+	controlJump = false;
+	controlLeft= false;
+	controlRight=false;
+
+	uint32 flags = 0;
+	flags += b2Draw::e_shapeBit;
+	flags += b2Draw::e_jointBit;
+	m_debugDraw.SetFlags(flags);
+
+	m_destructionListener.luaLevel = this;
+	m_world->SetDestructionListener(&m_destructionListener);
+	m_world->SetDebugDraw(&m_debugDraw);
 }
 
 GLuint LuaLevel::bindTexture(string file)
@@ -216,9 +239,9 @@ void LuaLevel::loadLevelGlobals(LuaState *pstate)
 	pstate->GetGlobals().SetObject("fixtureDef", fixtureDefObj);
 	*/
 	// Controls ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	//globals.SetString("controlKeyJump",&controlKeyJump, 1);
-	//globals.SetString("controlKeyRight",&controlKeyRight,1);
-	//globals.SetString("controlKeyLeft",&controlKeyLeft,1);
+	globals.SetString("controlKeyJump",&controlKeyJump, 1);
+	globals.SetString("controlKeyRight",&controlKeyRight,1);
+	globals.SetString("controlKeyLeft",&controlKeyLeft,1);
 }
 
 
@@ -356,22 +379,15 @@ inline void checkAndSetChar(char &aChar, LuaObject luaObject)
 void LuaLevel::unloadLevelGlobals(LuaState *pstate)
 {
 	//controls
-	//checkAndSetChar(controlKeyLeft, pstate->GetGlobal("controlKeyLeft"));
-	//checkAndSetChar(controlKeyRight, pstate->GetGlobal("controlKeyRight"));
-	//checkAndSetChar(controlKeyJump, pstate->GetGlobal("controlKeyJump"));
+	checkAndSetChar(controlKeyLeft, pstate->GetGlobal("controlKeyLeft"));
+	checkAndSetChar(controlKeyRight, pstate->GetGlobal("controlKeyRight"));
+	checkAndSetChar(controlKeyJump, pstate->GetGlobal("controlKeyJump"));
 	//functions
 	if (pstate->GetGlobal("step").IsFunction())
 	{
 		luaStepFunction = pstate->GetGlobal("step");
 	}
-	/*
-	pstate->GetGlobals().SetNil("box2DFactory");
-	pstate->GetGlobals().SetNil("controlKeyLeft");
-	pstate->GetGlobals().SetNil("controlKeyRight");
-	pstate->GetGlobals().SetNil("controlKeyJump");
-	pstate->GetGlobals().SetNil("bodyDef");
-	pstate->GetGlobals().SetNil("fixtureDef");
-	*/
+	
 }
 
 LuaLevel::~LuaLevel()
@@ -382,7 +398,8 @@ LuaLevel::~LuaLevel()
 	delete animatedRun;
 	delete animatedJump;
 
-	// Deleting our lua state/context
+	// Deleting our lua state/context, need to reset luastepfunction to destroy luastate
+	luaStepFunction.Reset();
 	LuaState::Destroy(luaPState);
 	delete m_world;
 }
@@ -405,8 +422,42 @@ void LuaLevel::drawGame(Settings* settings, float32 timeStep)
 	m_world->DrawDebugData();
 }
 
-void LuaLevel::processCollisionsForGame()
+class QueryCallback : public b2QueryCallback
 {
+public:
+	QueryCallback(b2Body* body)
+	{
+		m_body = body;
+	}
+
+	bool ReportFixture(b2Fixture* fixture)
+	{
+		b2Body* body = fixture->GetBody();
+		if (body == m_body)
+		{
+			m_body = NULL;
+			return false;
+		}
+
+		// Continue the query.
+		return true;
+	}
+
+	b2Body *m_body;
+};
+
+void LuaLevel::processCollisionsForGame(Settings* settings)
+{
+	QueryCallback callback(playerBody);
+	m_world->QueryAABB(&callback, aabb);
+
+	if (callback.m_body == NULL)
+	{
+		setGameState(GameState::MENU_ABOUT,settings);
+		init();
+		return;
+	}
+
 	isFeetTouchingBoundary = false;
 	b2WorldManifold worldManifold;
 	for (b2Contact *c = m_world->GetContactList() ; c ; c = c->GetNext())
@@ -415,17 +466,21 @@ void LuaLevel::processCollisionsForGame()
 			continue;
 
 		int collision = c->GetFixtureA()->GetFilterData().categoryBits | c->GetFixtureB()->GetFilterData().categoryBits;
-
+		if ((c->GetFixtureA()->GetBody() == playerBody && c->GetFixtureB()->GetFilterData().categoryBits==debrisBits) || (c->GetFixtureB()->GetBody() == playerBody && c->GetFixtureA()->GetFilterData().categoryBits==debrisBits))
+		{
+			b2Body* debrisBody = c->GetFixtureA()->GetFilterData().categoryBits==debrisBits?c->GetFixtureA()->GetBody():c->GetFixtureB()->GetBody();
+			if (debrisBody->GetLinearVelocity().LengthSquared()>15*15)
+			{
+				setGameState(MENU_HELP,settings);
+				init();
+				return;
+			}
+		}
 		if (PLAYER_FEET_TOUCHING_BOUNDARY == collision || PLAYER_FEET_TOUCHING_DEBRIS == collision) 
 		{
 			isFeetTouchingBoundary = true;
 			c->GetWorldManifold(&worldManifold);
 			float normalImpulse = c->GetManifold()->points->normalImpulse;
-			if (PLAYER_FEET_TOUCHING_DEBRIS == collision && (normalImpulse>5 || normalImpulse<-5))
-			{
-				cout<<c->GetManifold()->points->normalImpulse<<"\t"<<worldManifold.normal.y<<" from "<<
-									((c->GetFixtureA()->GetBody()==playerBody)?"player":"something")<<" to "<<((c->GetFixtureB()->GetBody()==playerBody)?"player":"something")<<endl;
-			}
 			if (worldManifold.normal.y != 0) {
 				canJump = true;
 				justKickedOff = false;
@@ -507,6 +562,9 @@ void LuaLevel::processInputForGame(Settings *settings, float32 timeStep)
 			wasMoving = true;
 		}
 	}
+	b2Vec2 viewportPosition = settings->getViewPosition();
+	viewportPosition.y = max(viewportPosition.y-(viewportPosition.y-(worldCenter.y-10)) * .2f,0.0f);
+	settings->setViewPosition(viewportPosition);
 }
 
 
@@ -526,9 +584,17 @@ void LuaLevel::Step(Settings* settings)
 		glColor4ub(255, 255, 255, 255);
 		drawImage(&helpImage);
 		break;
+	case GAME_WIN:
+		glColor4ub(255, 255, 255, 255);
+		drawImage(&winImage);
+		break;
+	case GAME_INTRO:
+		glColor4ub(255, 255, 255, 255);
+		drawImage(&introImage);
+		break;
 	case GAME:		
 		float32 timeStep = settings->getHz() > 0.0f ? 1.0f / settings->getHz() : float32(0.0f);
-		processCollisionsForGame();
+		processCollisionsForGame(settings);
 		processInputForGame(settings, timeStep);
 		
 		glEnable(GL_TEXTURE_2D);
@@ -557,8 +623,11 @@ void LuaLevel::Step(Settings* settings)
 		drawImage(&currentTexture);
 		glPopMatrix();
 
-		//static LuaFunction<void> stepFunction = luaStepFunction;
-		//stepFunction(timeStep);
+		if (luaStepFunction.IsFunction())
+		{
+			LuaFunction<void> stepFunction = luaStepFunction;
+			stepFunction(timeStep);
+		}
 		glDisable(GL_TEXTURE_2D);
 		drawGame(settings, timeStep);
 		break;
@@ -578,8 +647,9 @@ void LuaLevel::setGameState(GameState state, Settings* settings)
 	gameState = state;
 	if (gameState==GAME)
 	{
-		settings->setViewZoom(1);
-		settings->setViewCenter(b2Vec2(0,20));
+		settings->setViewSize(30);
+		settings->widthIsMinimum = true;
+		settings->setViewPosition(b2Vec2(0,0));
 		glClearColor(0,0,0,1);
 
 	}
@@ -587,19 +657,26 @@ void LuaLevel::setGameState(GameState state, Settings* settings)
 	{
 		glClearColor(97/255.f,117/255.f,113/255.f,1);
 		glEnable(GL_TEXTURE_2D);
-		settings->setViewCenter(b2Vec2(0,20));
+		settings->setViewPosition(b2Vec2(0,0));
 		//settings->setViewCenter(b2Vec2((float32)aboutImage.imageWidth/2,(float32)helpImage.imageHeight/2));
-		settings->setViewZoom(41);
+		//settings->setWidthIsMinimum(false);
+		settings->widthIsMinimum = false;
+		settings->setViewSize(1024);
 	}
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~	INPUT HANDLING	~```~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 void LuaLevel::Keyboard(unsigned char key, Settings* settings)
 {
+	if (gameState==GAME_INTRO)
+		setGameState(GAME, settings);
+	else if (gameState==GAME_WIN)
+		setGameState(MENU, settings);
+	else
 	switch (key)
 	{
 	case '1':
-		setGameState(GAME, settings);
+		setGameState(GAME_INTRO, settings);
 		break;
 	case 27: //ESCAPE KEY
 		if (gameState==MENU)
