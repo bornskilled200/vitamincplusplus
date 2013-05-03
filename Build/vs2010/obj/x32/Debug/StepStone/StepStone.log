@@ -1,5 +1,3 @@
-﻿  Main.cpp
-  Generating Code...
-  Skipping... (no relevant changes detected)
-  LuaLevel.cpp
+﻿  LuaLevel.cpp
+..\..\StepStone\Framework\LuaLevel.cpp(699): warning C4244: 'argument' : conversion from 'float32' to 'int', possible loss of data
   StepStone.vcxproj -> C:\Users\David\Dropbox\box2d\Build\vs2010\bin\Debug\StepStone.exe

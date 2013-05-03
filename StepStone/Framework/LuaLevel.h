@@ -105,6 +105,7 @@ protected:
 	b2Body* playerBody;
 	b2Fixture* playerFeet;
 	b2Fixture* playerShield;
+	bool slowDown;
 
 	b2World* m_world;
 	LuaLevelDestructionListener m_destructionListener;
@@ -117,7 +118,7 @@ protected:
 		controlJump;
 
 	//Game Variables
-	bool isFeetTouchingBoundary, canJump, justKickedOff, wasMoving;
+	bool isFeetTouchingBoundary, canJump, justJumped, justKickedOff, wasMoving;
 	float32 playerCanMoveUpwards;
 
 	//Texutres

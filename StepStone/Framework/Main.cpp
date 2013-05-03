@@ -331,13 +331,12 @@ int main(int argc, char** argv)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_ALPHA_TEST);
 
-	//LuaLevel aLuaLevel(&settings); // can we safely initlize the world in the stack rather in the heap?
 	luaLevel = new LuaLevel(&settings);
-	//Sound music;
-	//loadMp3File("title\\music.mp3", &music);
+	Sound music;
+	playMp3File("title\\music.mp3", &music);
 	
 	glutMainLoop();
 	
-	//Pa_AbortStream(music.pStream);
+	Pa_AbortStream(music.pStream);
 	return EXIT_SUCCESS;
 }
