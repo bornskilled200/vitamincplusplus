@@ -1,5 +1,4 @@
-﻿cl : Command line warning D9030: '/Gm' is incompatible with multiprocessing; ignoring /MP switch
-  freeglut_window.c
+﻿  freeglut_window.c
   freeglut_videoresize.c
   freeglut_teapot.c
   freeglut_structure.c

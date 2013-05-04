@@ -1,5 +1,4 @@
-﻿cl : Command line warning D9030: '/Gm' is incompatible with multiprocessing; ignoring /MP switch
-  b2Rope.cpp
+﻿  b2Rope.cpp
   b2WheelJoint.cpp
   b2WeldJoint.cpp
   b2RopeJoint.cpp

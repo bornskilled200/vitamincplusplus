@@ -337,10 +337,13 @@ int main(int argc, char** argv)
 
 	luaLevel = new LuaLevel(&settings);
 	Sound music;
-	playMp3File("title\\music.mp3", &music);
+	loadMp3File("title\\music.mp3", &music);
+	music.loop=true;
+	playMp3File(&music);
 	
 	glutMainLoop();
 	
 	Pa_AbortStream(music.pStream);
+	terminateSound();
 	return EXIT_SUCCESS;
 }
