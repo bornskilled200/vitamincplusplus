@@ -1,5 +1,5 @@
 local WIDTH = 30
-local HEIGHT = 100
+local HEIGHT = 60
 local GRAVITY_Y = -30
 local PLAYER_SPAWN_X = 4
 local PLAYER_SPAWN_Y = 4
@@ -31,7 +31,7 @@ local nextCreate = 0
 math.randomseed(1)
 function step(delta)
 	if (nextCreate<=0) then
-		nextCreate = math.random()*.5
+		nextCreate = math.random()*1
 		currentTime = currentTime + delta;
 		box2DFactory:createDebris(math.random()*WIDTH, HEIGHT)
 	else

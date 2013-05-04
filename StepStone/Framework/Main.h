@@ -22,6 +22,7 @@ public:
 	inline void setViewSize(float32 set);
 	inline bool isWidthIsMinimum() { return widthIsMinimum; }
 	inline void setWidthIsMinimum(bool set);
+	inline void setViewportSettings(b2Vec2 position, float32 size, bool widthIsMinimum);
 	inline float32 getHz() { return hz; }
 	inline void setHz(float32 set) { hz = set; }
 	inline int32 getPause() { return pause; }

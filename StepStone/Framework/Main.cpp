@@ -62,7 +62,7 @@ static void Resize(int32 w, int32 h)
 		else
 			extents.Set(size, size*ratio);
 
-
+	
 	b2Vec2 viewportPosition = settings.getViewPosition();
 	extents += viewportPosition;
 	//extents *= settings.getViewZoom();
@@ -159,9 +159,13 @@ static void Keyboard(unsigned char key, int x, int y)
 		delete luaLevel;
 		luaLevel = new LuaLevel(&settings);
 		break;
-
+		
 	case 'p':
 		settings.setPause(!settings.getPause());
+		break;
+	case '\n':
+	case '\r':
+		settings.setSingleStep(true);
 		break;
 
 	default:

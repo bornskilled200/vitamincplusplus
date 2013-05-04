@@ -104,6 +104,7 @@ protected:
 	b2Body* m_groundBody;
 	b2Body* playerBody;
 	b2Fixture* playerFeet;
+	b2Fixture* playerBox;
 	b2Fixture* playerShield;
 	bool slowDown;
 
@@ -118,7 +119,7 @@ protected:
 		controlJump;
 
 	//Game Variables
-	bool isFeetTouchingBoundary, canJump, justJumped, justKickedOff, wasMoving;
+	bool isFeetTouchingBoundary, canJump, justJumped, justKickedOff, wasMoving, canKickOff;
 	float32 playerCanMoveUpwards;
 
 	//Texutres

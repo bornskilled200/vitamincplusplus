@@ -41,6 +41,7 @@
     <CharacterSet>MultiByte</CharacterSet>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v110</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -73,28 +74,31 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">obj\x64\Debug\FreeGLUT\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">FreeGLUT</TargetName>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">bin\Release\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">obj\x32\Release\FreeGLUT\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">FreeGLUT</TargetName>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">obj\x32\Release\$(ProjectName)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectName)</TargetName>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">bin\Release\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">obj\x64\Release\FreeGLUT\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">FreeGLUT</TargetName>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <TargetExt>$(OutputType)</TargetExt>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <Optimization>Full</Optimization>
+      <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>false</MinimalRebuild>
-      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <ProgramDataBaseFileName>$(OutDir)FreeGLUT.pdb</ProgramDataBaseFileName>
       <CompileAs>Default</CompileAs>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -145,10 +149,13 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <DebugInformationFormat>
       </DebugInformationFormat>
       <CompileAs>CompileAsC</CompileAs>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
