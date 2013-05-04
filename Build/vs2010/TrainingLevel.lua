@@ -43,6 +43,8 @@ function compileLevelDisplayList()
 
 end
 
+music = "level1\\music.mp3"
+
 --world:setGravity(world:getGravity():set(0,GRAVITY_Y))
 --bodyDef.position:set(PLAYER_SPAWN_X,PLAYER_SPAWN_Y)
 

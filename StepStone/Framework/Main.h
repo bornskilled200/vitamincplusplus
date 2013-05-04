@@ -12,7 +12,7 @@ public:
 		hz(60.0f),
 		pause(0),
 		singleStep(0),
-		widthIsMinimum(true)
+		widthIsConstant(true)
 	{}
 	~Settings() {}
 	
@@ -20,9 +20,10 @@ public:
 	inline void setViewPosition(b2Vec2 set);
 	inline float32 getViewSize() { return viewSize; }
 	inline void setViewSize(float32 set);
-	inline bool isWidthIsMinimum() { return widthIsMinimum; }
-	inline void setWidthIsMinimum(bool set);
-	inline void setViewportSettings(b2Vec2 position, float32 size, bool widthIsMinimum);
+	inline void setViewSize(float32 set, bool widthIsConstant);
+	inline bool isWidthConstant() { return widthIsConstant; }
+	//inline void setIsWidthConstant(bool set); // this is only if width is constant, there is no is height constant
+	inline void setViewportSettings(b2Vec2 position, float32 size, bool setwic);
 	inline float32 getHz() { return hz; }
 	inline void setHz(float32 set) { hz = set; }
 	inline int32 getPause() { return pause; }
@@ -30,7 +31,7 @@ public:
 	inline int32 getSingleStep() { return singleStep; }
 	inline void setSingleStep(int32 set) { singleStep = set; }
 	
-	bool widthIsMinimum;
+	bool widthIsConstant;
 private:
 	b2Vec2 viewPosition;
 	float32 viewSize;

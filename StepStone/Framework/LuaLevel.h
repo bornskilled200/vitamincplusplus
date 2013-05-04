@@ -8,6 +8,7 @@
 #include <vector>
 #include "Graphics.h"
 #include "Main.h"
+#include "Sound.h"
 using namespace LuaPlus;
 
 #include <cstdlib>
@@ -45,7 +46,6 @@ public:
 	LuaLevel(Settings* settings);
 	~LuaLevel();
 
-	void DrawTitle(int x, int y, const char *string);
 	void drawGame(Settings* settings, float32 timeStep);
 	void Step(Settings* settings);
 	void Keyboard(unsigned char key, Settings* settings);
@@ -138,7 +138,10 @@ protected:
 
 	Graphics::AnimatedTexture* currentAnimatedTexture;
 	bool isFacingRight;
-	int framecount;
+	
+	Sound menuMusic;
+	Sound gameMusic;
+	Sound* currentMusic;
 };
 
 #endif

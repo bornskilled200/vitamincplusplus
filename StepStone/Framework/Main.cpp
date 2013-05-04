@@ -39,10 +39,7 @@ static void Resize(int32 w, int32 h)
 {
 	width = w;
 	height = h;
-	
-	//GLUI_Master.get_viewport_area(&tx, &ty, &tw, &th);
-	//cout<<tx<<", "<<ty<<", "<<tw<<", "<<th<<endl;
-	glViewport(0,0,width,height);//tx, ty, tw, th);
+	glViewport(0,0,width,height);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -52,27 +49,19 @@ static void Resize(int32 w, int32 h)
 	b2Vec2 extents;
 
 	if (ratio<1)
-		if (settings.isWidthIsMinimum())
+		if (settings.isWidthConstant())
 			extents.Set(size, size * ratio);
 		else
 			extents.Set(size / ratio, size);
 	else
-		if (settings.isWidthIsMinimum())
-			extents.Set(size*ratio, size);
-		else
-			extents.Set(size, size*ratio);
+		extents.Set(size, size * ratio);
 
-	
+
 	b2Vec2 viewportPosition = settings.getViewPosition();
 	extents += viewportPosition;
-	//extents *= settings.getViewZoom();
 
-	//b2Vec2 lower = settings.getViewCenter() - extents;
-	//b2Vec2 upper = settings.getViewCenter() + extents;
+	gluOrtho2D(viewportPosition.x, extents.x, viewportPosition.y, extents.y);
 
-	// L/R/B/T
-	gluOrtho2D(viewportPosition.x, extents.x, viewportPosition.y, extents.y);//lower.x, upper.x, lower.y, upper.y);
-	
 }
 
 void Settings::setViewPosition(b2Vec2 set)
@@ -81,11 +70,13 @@ void Settings::setViewPosition(b2Vec2 set)
 	Resize(width,height);
 }
 
-void Settings::setWidthIsMinimum(bool set)
+/*
+void Settings::setIsWidthConstant(bool set)
 {
-	widthIsMinimum = set;
+	widthIsConstant = set;
 	Resize(width,height);
 }
+*/
 
 void Settings::setViewSize(float32 set)
 {
@@ -93,30 +84,41 @@ void Settings::setViewSize(float32 set)
 	Resize(width,height);
 }
 
-/*
 static b2Vec2 ConvertScreenToWorld(int32 x, int32 y)
 {
+	//~~~~~~~~~~~~~~~~~~ HACK FOR WINDOWS 8???? if the window is not maximized the mouse is 8 pixels more up
+	if (glutGet(GLUT_WINDOW_Y)>19)
+		y+=8;
 	float32 u = x / float32(width);
 	float32 v = (height - y) / float32(height);
 
 	float32 ratio = float32(height) / float32(width);
-	b2Vec2 extents(30.0f, 30.0f * ratio);
-	extents *= settings.getViewZoom();
 
-	//b2Vec2 lower = settings.getViewCenter() - extents;
-	//b2Vec2 upper = settings.getViewCenter() + extents;
+	float32 size = settings.getViewSize();
+	b2Vec2 extents;
+
+	if (ratio<1)
+		if (settings.isWidthConstant())
+			extents.Set(size, size * ratio);
+		else
+			extents.Set(size / ratio, size);
+	else
+		extents.Set(size, size*ratio);
+
+
+	b2Vec2 viewportPosition = settings.getViewPosition();
 
 	b2Vec2 p;
-	p.x = (1.0f - u) * 0 + u * extents.x;
-	p.y = (1.0f - v) * 0 + v * extents.y;
+	p.x = viewportPosition.x + u * extents.x;
+	p.y = viewportPosition.y + v * extents.y;
 	return p;
-}
-*/
+}	
+
 
 // This is used to control the frame rate (60Hz).
 static void Timer(int)
 {
-	glutSetWindow(mainWindow);
+	//glutSetWindow(mainWindow);
 	glutPostRedisplay();
 	glutTimerFunc(framePeriod, Timer, 0);
 }
@@ -154,12 +156,6 @@ static void Keyboard(unsigned char key, int x, int y)
 		Resize(width, height);
 		break;
 
-		// Press 'r' to reset.
-	case 'r':
-		delete luaLevel;
-		luaLevel = new LuaLevel(&settings);
-		break;
-		
 	case 'p':
 		settings.setPause(!settings.getPause());
 		break;
@@ -229,7 +225,7 @@ static void KeyboardUp(unsigned char key, int x, int y)
 static void Mouse(int32 button, int32 state, int32 x, int32 y)
 {
 	// Use the mouse to move things around.
-	/*
+
 	if (button == GLUT_LEFT_BUTTON)
 	{
 		int mod = glutGetModifiers();
@@ -243,7 +239,7 @@ static void Mouse(int32 button, int32 state, int32 x, int32 y)
 			}
 			else
 			{
-				//test->MouseDown(p);
+				luaLevel->MouseDown(p);
 			}
 		}
 
@@ -265,7 +261,7 @@ static void Mouse(int32 button, int32 state, int32 x, int32 y)
 			rMouseDown = false;
 		}
 	}
-	*/
+
 }
 
 static void MouseMotion(int32 x, int32 y)
@@ -276,12 +272,12 @@ static void MouseMotion(int32 x, int32 y)
 
 	if (rMouseDown)
 	{
-		b2Vec2 diff = p - lastp;
-		b2Vec2 viewCenter = settings.getViewCenter();
-		viewCenter.x -= diff.x;
-		viewCenter.y -= diff.y;
-		settings.setViewCenter(viewCenter);
-		lastp = ConvertScreenToWorld(x, y);
+	b2Vec2 diff = p - lastp;
+	b2Vec2 viewCenter = settings.getViewCenter();
+	viewCenter.x -= diff.x;
+	viewCenter.y -= diff.y;
+	settings.setViewCenter(viewCenter);
+	lastp = ConvertScreenToWorld(x, y);
 	}
 	*/
 }
@@ -326,9 +322,10 @@ int main(int argc, char** argv)
 	glutMotionFunc(MouseMotion);
 	glutKeyboardUpFunc(KeyboardUp);
 
+
 	// Use a timer to control the frame rate.
 	glutTimerFunc(framePeriod, Timer, 0);
-	
+
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
@@ -336,14 +333,9 @@ int main(int argc, char** argv)
 	glDisable(GL_ALPHA_TEST);
 
 	luaLevel = new LuaLevel(&settings);
-	Sound music;
-	loadMp3File("title\\music.mp3", &music);
-	music.loop=true;
-	playMp3File(&music);
-	
+
 	glutMainLoop();
-	
-	Pa_AbortStream(music.pStream);
+
 	terminateSound();
 	return EXIT_SUCCESS;
 }

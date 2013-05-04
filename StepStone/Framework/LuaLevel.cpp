@@ -42,14 +42,11 @@ static char controlKeyJump = ' ';
 
 LuaLevel::LuaLevel(Settings* settings):m_world(NULL)
 {
-	framecount=0;
 	// Init Lua
 	luaPState = LuaState::Create(true);
-	//LuaState::Destroy(luaPState);
-	init();
+	//init();
 	vector<unsigned char> image;
 	image.reserve(1024*1024*4);
-	unsigned char* buffer=NULL;
 
 	vector<Graphics::Texture> textures(4);
 	vector<int> framesPerImage(4);
@@ -87,7 +84,15 @@ LuaLevel::LuaLevel(Settings* settings):m_world(NULL)
 	loadATexture("CGs\\final.png", &winImage, image);					uniqueTextures.push_back(winImage.id);
 	loadATexture("backdrops\\cloudyskies.png", &backdropImage, image);	uniqueTextures.push_back(backdropImage.id);
 	currentAnimatedTexture = animatedIdle;
+
+	//Menu Music
+	loadMp3File("title\\music.mp3", &menuMusic);
+	menuMusic.loop=true;
+	currentMusic = &menuMusic;
+	playMp3File(&menuMusic);
+
 	setGameState(MENU, settings);
+	
 }
 
 void LuaLevel::init()
@@ -174,15 +179,12 @@ GLuint LuaLevel::bindTexture(string file)
 	loadATexture(file,&texture);
 	return texture.id;
 }
-
+static const b2FixtureDef defaultFixtureDef;
 int LuaLevel::createAnEdge( float32 x1, float32 y1, float32 x2, float32 y2 )
 {
-	//cout<<x1<<", "<<y1<<", "<<x2<<", "<<y2<<endl;
-	b2FixtureDef fixtureDef;
+	fixtureDef = defaultFixtureDef;
 	fixtureDef.filter.categoryBits=boundaryBits;
-	b2EdgeShape edgeShape;
-	b2Vec2 from(x1,y1),to(x2,y2);
-	edgeShape.Set(from,to);
+	edgeShape.Set(b2Vec2(x1,y1),b2Vec2(x2,y2));
 	fixtureDef.shape = &edgeShape;
 	m_groundBody->CreateFixture(&fixtureDef);
 	return 0;
@@ -246,8 +248,465 @@ void LuaLevel::loadLevelGlobals(LuaState *pstate)
 	globals.SetString("controlKeyJump",&controlKeyJump, 1);
 	globals.SetString("controlKeyRight",&controlKeyRight,1);
 	globals.SetString("controlKeyLeft",&controlKeyLeft,1);
+
+	//Level specific stuff
+	globals.SetNil("music");
 }
 
+inline void checkAndSetChar(char &aChar, LuaObject luaObject)
+{
+	if (luaObject.IsString())
+		aChar = luaObject.GetString()[0];
+}
+
+inline void checkAndSetFloat(float &aFloat, LuaObject luaObject)
+{
+	if (luaObject.IsNumber())
+		aFloat = (float)luaObject.GetNumber();
+}
+
+void LuaLevel::unloadLevelGlobals(LuaState *pstate)
+{
+	//controls
+	checkAndSetChar(controlKeyLeft, pstate->GetGlobal("controlKeyLeft"));
+	checkAndSetChar(controlKeyRight, pstate->GetGlobal("controlKeyRight"));
+	checkAndSetChar(controlKeyJump, pstate->GetGlobal("controlKeyJump"));
+
+	//level specific stuffs
+	//music
+	if (pstate->GetGlobal("music").IsString())
+	{
+		loadMp3File(pstate->GetGlobal("music").GetString(),&gameMusic);
+	}
+
+	//functions
+	if (pstate->GetGlobal("step").IsFunction())
+	{
+		luaStepFunction = pstate->GetGlobal("step");
+	}
+
+}
+
+LuaLevel::~LuaLevel()
+{
+	// Deleting all of our textures in 1 fell swoop
+	glDeleteTextures(uniqueTextures.size(), &uniqueTextures[0]);
+	delete animatedIdle;
+	delete animatedRun;
+	delete animatedJump;
+
+	//need to reset luastepfunction to destroy luastate
+	luaStepFunction.Reset();
+	// Deleting our lua state/context,
+	LuaState::Destroy(luaPState);
+	delete m_world;
+
+	if (currentMusic)
+		Pa_AbortStream(currentMusic->pStream);
+	terminateSound();
+}
+
+void LuaLevel::drawGame(Settings* settings, float32 timeStep)
+{
+	if (settings->getPause())
+		if (settings->getSingleStep())
+			settings->setSingleStep(0);
+		else
+			timeStep = 0.0f;
+
+	m_world->Step(timeStep, 8, 3);
+
+	m_world->DrawDebugData();
+}
+
+void LuaLevel::processCollisionsForGame(Settings* settings)
+{
+	//winning
+	if (playerBody->GetPosition().y>60)
+	{
+		setGameState(GameState::GAME_WIN,settings);
+		//init();
+		return;
+	}
+
+	//Shield
+	if (playerBody->GetLinearVelocity().y<10)
+	{
+		playerShield->SetSensor(true);
+		playerShield->SetDensity(0);
+	}
+	else
+	{
+		playerShield->SetSensor(false);
+		playerShield->SetDensity(1);
+	}
+	playerBody->ResetMassData();
+
+	isFeetTouchingBoundary = canJump = canKickOff = false;
+	slowDown = false;
+	b2WorldManifold worldManifold;
+	for (b2ContactEdge *ce = playerBody->GetContactList() ; ce ; ce = ce->next)
+	{
+		b2Contact *c = ce->contact;
+		if (!c->IsTouching())
+			continue;
+
+		short collision = c->GetFixtureA()->GetFilterData().categoryBits | c->GetFixtureB()->GetFilterData().categoryBits;
+
+		// ~~~~~~~~~~~~~~ YOU LOOSE EFFECT && slowdown effect
+		if (collision == PLAYER_BODY_TOUCHING_DEBRIS || collision == PLAYER_SHIELD_TOUCHING_DEBRIS)
+		{
+			b2Body* debrisBody;
+			if (c->GetFixtureA()->GetFilterData().categoryBits==debrisBits)
+			{
+				debrisBody = c->GetFixtureA()->GetBody();
+			}
+			else
+			{
+				debrisBody = c->GetFixtureB()->GetBody();
+			}
+			b2Vec2 debrisSpeed = debrisBody->GetLinearVelocity();
+
+			// loose
+			if (collision == PLAYER_BODY_TOUCHING_DEBRIS)
+			{
+				if (playerBody->GetLinearVelocity().y<15 && debrisSpeed.Length()>15 && debrisBody->GetPosition().y>playerBody->GetPosition().y+1.28f)
+				{
+					settings->setPause(true);
+					//setGameState(MENU_HELP,settings);
+					//init();
+					return;
+				}
+			}
+			else if (collision == PLAYER_SHIELD_TOUCHING_DEBRIS)//slowdown
+			{
+				if (debrisBody->GetLinearVelocity().Length()>13)
+				{
+					slowDown = true;
+				}
+			}
+		}
+
+		if (PLAYER_FEET_TOUCHING_BOUNDARY == collision || PLAYER_FEET_TOUCHING_DEBRIS == collision) 
+		{
+			isFeetTouchingBoundary = true;
+			c->GetWorldManifold(&worldManifold);
+			b2Vec2 pos = playerBody->GetPosition();
+			bool below = true, side = true;
+			for(int j = 0; j < c->GetManifold()->pointCount; j++) {
+				below &= (worldManifold.points[j].y < pos.y - 1.28f);
+				side &= (worldManifold.points[j].x < pos.x - .76f) | (worldManifold.points[j].x > pos.x + .76f);
+			}
+
+			if (below)
+			{
+				canJump = true;
+			}
+			else if (side) {
+				canKickOff = true;
+				justJumped = false;
+			}
+		}
+	}
+
+	if (isFeetTouchingBoundary == false) {
+		justKickedOff = false;
+		justJumped = false;
+	}
+}
+
+void LuaLevel::processInputForGame(Settings *settings, float32 timeStep)
+{
+	b2Vec2 worldCenter = playerBody->GetWorldCenter();
+	b2Vec2 linearVelocity = playerBody->GetLinearVelocity();
+
+	// JUMPING
+	if (playerCanMoveUpwards>=0) playerCanMoveUpwards -= timeStep;
+	if (controlJump) {
+		if (canJump && justJumped==false)
+		{
+			playerBody->ApplyLinearImpulse(b2Vec2(0,15), worldCenter);
+			playerCanMoveUpwards = .3f;
+			justJumped = true;
+		}
+		else if (canKickOff && justKickedOff==false)
+		{
+			playerBody->ApplyLinearImpulse(b2Vec2(0,20), worldCenter);
+			justKickedOff = true;
+		}
+		else if (playerCanMoveUpwards > 0)
+		{
+			playerBody->ApplyLinearImpulse(b2Vec2(0,2.2f), worldCenter);
+			if (currentAnimatedTexture!=animatedJump)
+				currentAnimatedTexture=animatedJump;
+		}
+	}
+	// HORIZONTAL MOVEMENT
+	float32 vx = 0;
+	if (controlLeft)
+		vx += -200;
+	if (controlRight)
+		vx += 200;
+
+	if (vx == 0) {
+		playerFeet->SetFriction(5);
+		if (currentAnimatedTexture!=animatedIdle && isFeetTouchingBoundary == true)
+			currentAnimatedTexture=animatedIdle;
+		if (wasMoving) {
+			for (b2ContactEdge *c = playerBody->GetContactList() ; c ; c = c->next)
+			{
+				c->contact->ResetFriction();
+			}
+			wasMoving = false;
+		}
+	} else {
+		b2Vec2 force(vx, 0);
+		if (vx > 0 && linearVelocity.x < 8) {
+			playerBody->ApplyForce(force, worldCenter);
+			isFacingRight = true;
+			//moving right
+		} else if (vx < 0 && linearVelocity.x > -8) {
+			playerBody->ApplyForce(force, worldCenter);
+			//moving left
+			isFacingRight = false;
+		}
+		playerFeet->SetFriction(0);
+		if (currentAnimatedTexture!=animatedRun && isFeetTouchingBoundary == true)
+			currentAnimatedTexture=animatedRun;
+		if (!wasMoving) {
+			for (b2ContactEdge *c = playerBody->GetContactList() ; c ; c = c->next)
+			{
+				c->contact->ResetFriction();
+			}
+			wasMoving = true;
+		}
+	}
+	b2Vec2 viewportPosition = settings->getViewPosition();
+	viewportPosition.y = max(viewportPosition.y-(viewportPosition.y-(worldCenter.y-10)) * .2f,0.0f);
+	settings->setViewPosition(viewportPosition);
+}
+
+
+b2Vec2 mouse;
+void LuaLevel::Step(Settings* settings)
+{
+	switch (gameState)
+	{
+	case MENU:
+		glColor4ub(255, 255, 255, 255);
+		drawImage(&menuImage);
+		break;
+	case MENU_ABOUT:
+		glColor4ub(255, 255, 255, 255);
+		drawImage(&aboutImage);
+		break;
+	case MENU_HELP:
+		glColor4ub(255, 255, 255, 255);
+		drawImage(&helpImage);
+		break;
+	case GAME_WIN:
+		glColor4ub(255, 255, 255, 255);
+		drawImage(&winImage);
+		break;
+	case GAME_INTRO:
+		glColor4ub(255, 255, 255, 255);
+		drawImage(&introImage);
+		break;
+	case GAME:		
+		float32 timeStep = settings->getHz() > 0.0f ? 1.0f / settings->getHz() : float32(0.0f);
+
+		processCollisionsForGame(settings);
+		if (slowDown)
+			timeStep/=20;
+		processInputForGame(settings, timeStep);
+
+		glEnable(GL_TEXTURE_2D);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		glColor4f(1,1,1,1);
+		/*
+		glPushMatrix();
+		const float backdropSize = 30.f/1;
+		const float backdropScale = backdropSize/backdropImage.imageWidth;
+		glScalef(backdropScale,backdropScale,1);
+		for (int i = 0; i<1; i++)
+		{
+		drawImage(&backdropImage);
+		glTranslatef((float)backdropImage.imageWidth,0,0);
+		}
+		glPopMatrix();
+		*/
+		b2Vec2 worldCenter = playerBody->GetWorldCenter();
+		glPushMatrix();
+		if (playerBody->GetLinearVelocity().y>15)
+			glColor4f(1,1,1,.5f);
+		glTranslatef(worldCenter.x,worldCenter.y-1.28f-.2f*2,0);
+		const float32 scale = .025f;
+		glScalef(scale*(isFacingRight?1:-1),scale,scale);
+		Graphics::Texture currentTexture = currentAnimatedTexture->updateAndGetTexture();
+		glTranslatef(currentTexture.imageWidth/(-2.0f),0,0);
+		drawImage(&currentTexture);
+		glPopMatrix();
+
+		if (luaStepFunction.IsFunction())
+		{
+			LuaFunction<void> stepFunction = luaStepFunction;
+			stepFunction(timeStep);
+		}
+		//glDisable(GL_TEXTURE_2D);
+		drawGame(settings, timeStep);
+		break;
+	}
+	m_debugDraw.DrawPoint(mouse, 2, b2Color(1,1,1));
+	//m_debugDraw.DrawPoint(mouse, 2, b2Color(1,1,1));
+	if (settings->getPause())
+	{
+
+		m_debugDraw.DrawString(200,200,"%d",glutGet(GLUT_WINDOW_HEIGHT));
+		for (b2Body *body = m_world->GetBodyList() ; body ; body = body->GetNext())
+		{
+			b2Vec2 pos = body->GetPosition();
+			b2Vec2 vel = body->GetLinearVelocity();
+			m_debugDraw.DrawString(int(pos.x*(640/30)), 480-int(pos.y*(480/25)), "%.2f, %.2f", vel.x, vel.y);
+
+		}
+
+
+		m_debugDraw.DrawString(0, 15, "key 1: Game");
+		m_debugDraw.DrawString(0, 30, "key 2: Menu");
+		m_debugDraw.DrawString(0, 45, "key 3: About");
+		m_debugDraw.DrawString(0, 60, "key 4: Help");
+		m_debugDraw.DrawString(0, 75, "isplayerfeettouchingground %s", isFeetTouchingBoundary?"true":"false");
+		m_debugDraw.DrawString(0, 90, "canJump %s", canJump?"true":"false");
+		m_debugDraw.DrawString(0, 105, "justJumped %s", justJumped?"true":"false");
+		m_debugDraw.DrawString(0, 130, "playerCanMoveUpwards %f",playerCanMoveUpwards);
+	}
+}
+
+void LuaLevel::setGameState(GameState state, Settings* settings)
+{
+	gameState = state;
+	if (gameState==GAME)
+	{
+		settings->setViewSize(30);
+		settings->widthIsConstant = true;
+		settings->setViewPosition(b2Vec2(0,0));
+		glClearColor(0,0,0,1);
+		if (currentMusic != &gameMusic)
+		{
+			if (currentMusic)
+				Pa_AbortStream(currentMusic->pStream);
+			if (gameMusic.loaded.size()!=0)
+			{
+				gameMusic.pos = 0;
+				currentMusic = &gameMusic;
+				playMp3File(&gameMusic);
+			}
+		}
+	}
+	else
+	{
+		glClearColor(97/255.f,117/255.f,113/255.f,1);
+		glEnable(GL_TEXTURE_2D);
+		settings->setViewPosition(b2Vec2(0,0));
+		settings->widthIsConstant = false;
+		settings->setViewSize(1024);
+
+		if (state!=GAME_WIN || state!= GAME_INTRO)
+		{
+			if (currentMusic != &menuMusic)
+			{
+				if (currentMusic)
+					Pa_AbortStream(currentMusic->pStream);
+
+				menuMusic.pos = 0;
+				currentMusic = &menuMusic;
+				playMp3File(&menuMusic);
+			}
+		}
+	}
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~	INPUT HANDLING	~```~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+void LuaLevel::Keyboard(unsigned char key, Settings* settings)
+{
+	if (gameState==GAME_INTRO)
+	{
+		init();
+		setGameState(GAME, settings);
+	}
+	else if (gameState==GAME_WIN && key==27)
+		setGameState(MENU, settings);
+	else
+		switch (key)
+	{
+		case '1':
+			setGameState(GAME_INTRO, settings);
+			break;
+		case 27: //ESCAPE KEY
+			if (gameState==MENU)
+				glutLeaveMainLoop();
+		case '2':
+			setGameState(MENU, settings);
+			break;
+		case '3':
+			setGameState(MENU_ABOUT, settings);
+			break;
+		case '4':
+			setGameState(MENU_HELP, settings);
+			break;
+		case 'r':
+			setGameState(GAME,settings);
+			settings->setPause(0);
+			break;
+		case '5':
+			if (luaPState->DoFile("testscript.lua"))
+				std::cout << "An error occured: " << luaPState->StackTop().GetString() << std::endl;
+			break;
+		default:
+			if (key==controlKeyLeft)
+				controlLeft = true;
+			else if (key==controlKeyRight)
+				controlRight = true;
+			else if (key==controlKeyJump)
+				controlJump= true;
+			break;
+	}
+}
+
+void LuaLevel::KeyboardUp(unsigned char key)
+{
+	if (key==controlKeyLeft)
+		controlLeft = false;
+	else if (key==controlKeyRight)
+		controlRight = false;
+	else if (key==controlKeyJump)
+		controlJump= false;
+}
+
+void LuaLevel::MouseDown(const b2Vec2& p)
+{
+	mouse = p;
+
+}
+
+void LuaLevel::ShiftMouseDown(const b2Vec2& p)
+{
+	//m_mouseWorld = p;
+}
+
+void LuaLevel::MouseUp(const b2Vec2& p)
+{
+	//m_mouseWorld = p;
+}
+
+void LuaLevel::MouseMove(const b2Vec2& p)
+{
+	//m_mouseWorld = p;
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~ LUA STUFF
 
 int LuaLevel::BodyDefIndex(LuaState* pState){
 	// Table, Key
@@ -370,435 +829,4 @@ int circleShapeIndex(LuaState* pState)
 int circleShapeNewIndex(LuaState* pState)
 {
 	return 0;
-}
-
-inline void checkAndSetChar(char &aChar, LuaObject luaObject)
-{
-	if (luaObject.IsString())
-		aChar = luaObject.GetString()[0];
-}
-
-void LuaLevel::unloadLevelGlobals(LuaState *pstate)
-{
-	//controls
-	checkAndSetChar(controlKeyLeft, pstate->GetGlobal("controlKeyLeft"));
-	checkAndSetChar(controlKeyRight, pstate->GetGlobal("controlKeyRight"));
-	checkAndSetChar(controlKeyJump, pstate->GetGlobal("controlKeyJump"));
-	//functions
-	if (pstate->GetGlobal("step").IsFunction())
-	{
-		luaStepFunction = pstate->GetGlobal("step");
-	}
-
-}
-
-LuaLevel::~LuaLevel()
-{
-	// Deleting all of our textures in 1 fell swoop
-	glDeleteTextures(uniqueTextures.size(), &uniqueTextures[0]);
-	delete animatedIdle;
-	delete animatedRun;
-	delete animatedJump;
-
-	// Deleting our lua state/context, need to reset luastepfunction to destroy luastate
-	luaStepFunction.Reset();
-	LuaState::Destroy(luaPState);
-	delete m_world;
-}
-
-void LuaLevel::DrawTitle(int x, int y, const char *string)
-{
-	m_debugDraw.DrawString(x, y, string);
-}
-
-void LuaLevel::drawGame(Settings* settings, float32 timeStep)
-{
-	if (settings->getPause())
-		if (settings->getSingleStep())
-			settings->setSingleStep(0);
-		else
-			timeStep = 0.0f;
-
-	m_world->Step(timeStep, 8, 3);
-
-	m_world->DrawDebugData();
-}
-
-class QueryCallback : public b2QueryCallback
-{
-public:
-	QueryCallback(b2Body* body)
-	{
-		m_body = body;
-	}
-
-	bool ReportFixture(b2Fixture* fixture)
-	{
-		b2Body* body = fixture->GetBody();
-		if (body == m_body)
-		{
-			m_body = NULL;
-			return false;
-		}
-
-		// Continue the query.
-		return true;
-	}
-
-	b2Body *m_body;
-};
-
-void LuaLevel::processCollisionsForGame(Settings* settings)
-{
-	//winning
-	if (playerBody->GetPosition().y>60)
-	{
-		setGameState(GameState::GAME_WIN,settings);
-		init();
-		return;
-	}
-	if (playerBody->GetLinearVelocity().y<10)
-	{
-		playerShield->SetSensor(true);
-		playerShield->SetDensity(0);
-		//playerBody->SetType(b2_dynamicBody);
-	}
-	else
-	{
-		playerShield->SetSensor(false);
-		playerShield->SetDensity(1);
-	}
-	playerBody->ResetMassData();
-
-	isFeetTouchingBoundary = canJump = canKickOff = false;
-	slowDown = false;
-	b2WorldManifold worldManifold;
-	for (b2ContactEdge *ce = playerBody->GetContactList() ; ce ; ce = ce->next)
-	{
-		b2Contact *c = ce->contact;
-		if (!c->IsTouching())
-			continue;
-
-		short collision = c->GetFixtureA()->GetFilterData().categoryBits | c->GetFixtureB()->GetFilterData().categoryBits;
-		// ~~~~~~~~~~~~~~ YOU LOOSE EFFECT && slowdown effect
-
-		if (collision == PLAYER_BODY_TOUCHING_DEBRIS || collision == PLAYER_SHIELD_TOUCHING_DEBRIS)
-		{
-			b2Body* debrisBody;
-			if (c->GetFixtureA()->GetFilterData().categoryBits==debrisBits)
-			{
-				debrisBody = c->GetFixtureA()->GetBody();
-			}
-			else
-			{
-				debrisBody = c->GetFixtureB()->GetBody();
-			}
-			b2Vec2 debrisSpeed = debrisBody->GetLinearVelocity();
-
-			// loose
-			if (collision == PLAYER_BODY_TOUCHING_DEBRIS)
-			{
-				if (playerBody->GetLinearVelocity().y<15 && debrisSpeed.Length()>15 && debrisBody->GetPosition().y>playerBody->GetPosition().y+1.28f)
-				{
-					settings->setPause(true);
-					//setGameState(MENU_HELP,settings);
-					//init();
-					return;
-				}
-			}
-			else if (collision == PLAYER_SHIELD_TOUCHING_DEBRIS)//slowdown
-			{
-				if (debrisBody->GetLinearVelocity().Length()>13)
-				{
-					slowDown = true;
-				}
-			}
-		}
-
-		if (PLAYER_FEET_TOUCHING_BOUNDARY == collision || PLAYER_FEET_TOUCHING_DEBRIS == collision) 
-		{
-			isFeetTouchingBoundary = true;
-			c->GetWorldManifold(&worldManifold);
-			b2Vec2 pos = playerBody->GetPosition();
-			bool below = true, side = true;
-			for(int j = 0; j < c->GetManifold()->pointCount; j++) {
-				below &= (worldManifold.points[j].y < pos.y - 1.28f);
-				side &= (worldManifold.points[j].x < pos.x - .76f) | (worldManifold.points[j].x > pos.x + .76f);
-			}
-
-			if (below)
-			{
-				canJump = true;
-			}
-			else if (side) {
-				canKickOff = true;
-				justJumped = false;
-			}
-		}
-	}
-
-	if (isFeetTouchingBoundary == false) {
-		justKickedOff = false;
-		justJumped = false;
-	}
-}
-
-void LuaLevel::processInputForGame(Settings *settings, float32 timeStep)
-{
-	b2Vec2 worldCenter = playerBody->GetWorldCenter();
-	b2Vec2 linearVelocity = playerBody->GetLinearVelocity();
-
-	// JUMPING
-	if (playerCanMoveUpwards>=0) playerCanMoveUpwards -= timeStep;
-	if (controlJump) {
-		if (canJump && justJumped==false)
-		{
-			playerBody->ApplyLinearImpulse(b2Vec2(0,15), worldCenter);
-			playerCanMoveUpwards = .3f;
-			justJumped = true;
-			m_debugDraw.DrawString(0, 15, "Jumping");
-		}
-		else if (canKickOff && justKickedOff==false)
-		{
-			playerBody->ApplyLinearImpulse(b2Vec2(0,30), worldCenter);
-			justKickedOff = true;
-			m_debugDraw.DrawString(0, 15, "Kicking Off");
-		}
-		else if (playerCanMoveUpwards > 0)
-		{
-			playerBody->ApplyLinearImpulse(b2Vec2(0,2.2f), worldCenter);
-			m_debugDraw.DrawString(0, 15, "Floating");
-			if (currentAnimatedTexture!=animatedJump)
-				currentAnimatedTexture=animatedJump;
-		}
-	}
-	// HORIZONTAL MOVEMENT
-	float32 vx = 0;
-	if (controlLeft)
-		vx += -200;
-	if (controlRight)
-		vx += 200;
-
-	if (vx == 0) {
-		playerFeet->SetFriction(5);
-		if (currentAnimatedTexture!=animatedIdle && isFeetTouchingBoundary == true)
-			currentAnimatedTexture=animatedIdle;
-		if (wasMoving) {
-			for (b2ContactEdge *c = playerBody->GetContactList() ; c ; c = c->next)
-			{
-				c->contact->ResetFriction();
-			}
-			wasMoving = false;
-		}
-	} else {
-		b2Vec2 force(vx, 0);
-		if (vx > 0 && linearVelocity.x < 8) {
-			playerBody->ApplyForce(force, worldCenter);
-			isFacingRight = true;
-			//moving right
-		} else if (vx < 0 && linearVelocity.x > -8) {
-			playerBody->ApplyForce(force, worldCenter);
-			//moving left
-			isFacingRight = false;
-		}
-		playerFeet->SetFriction(0);
-		if (currentAnimatedTexture!=animatedRun && isFeetTouchingBoundary == true)
-			currentAnimatedTexture=animatedRun;
-		if (!wasMoving) {
-			for (b2ContactEdge *c = playerBody->GetContactList() ; c ; c = c->next)
-			{
-				c->contact->ResetFriction();
-			}
-			wasMoving = true;
-		}
-	}
-	b2Vec2 viewportPosition = settings->getViewPosition();
-	viewportPosition.y = max(viewportPosition.y-(viewportPosition.y-(worldCenter.y-10)) * .2f,0.0f);
-	settings->setViewPosition(viewportPosition);
-}
-
-
-void LuaLevel::Step(Settings* settings)
-{
-	switch (gameState)
-	{
-	case MENU:
-		glColor4ub(255, 255, 255, 255);
-		drawImage(&menuImage);
-		break;
-	case MENU_ABOUT:
-		glColor4ub(255, 255, 255, 255);
-		drawImage(&aboutImage);
-		break;
-	case MENU_HELP:
-		glColor4ub(255, 255, 255, 255);
-		drawImage(&helpImage);
-		break;
-	case GAME_WIN:
-		glColor4ub(255, 255, 255, 255);
-		drawImage(&winImage);
-		break;
-	case GAME_INTRO:
-		glColor4ub(255, 255, 255, 255);
-		drawImage(&introImage);
-		break;
-	case GAME:		
-		float32 timeStep = settings->getHz() > 0.0f ? 1.0f / settings->getHz() : float32(0.0f);
-
-		processCollisionsForGame(settings);
-		if (slowDown)
-			timeStep/=20;
-		processInputForGame(settings, timeStep);
-
-		glEnable(GL_TEXTURE_2D);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		glColor4f(1,1,1,1);
-		/*
-		glPushMatrix();
-		const float backdropSize = 30.f/1;
-		const float backdropScale = backdropSize/backdropImage.imageWidth;
-		glScalef(backdropScale,backdropScale,1);
-		for (int i = 0; i<1; i++)
-		{
-		drawImage(&backdropImage);
-		glTranslatef((float)backdropImage.imageWidth,0,0);
-		}
-		glPopMatrix();
-		*/
-		b2Vec2 worldCenter = playerBody->GetWorldCenter();
-		glPushMatrix();
-		if (playerBody->GetLinearVelocity().y>15)
-			glColor4f(1,1,1,.5f);
-		glTranslatef(worldCenter.x,worldCenter.y-1.28f-.2f*2,0);
-		const float32 scale = .025f;
-		glScalef(scale*(isFacingRight?1:-1),scale,scale);
-		Graphics::Texture currentTexture = currentAnimatedTexture->updateAndGetTexture();
-		glTranslatef(currentTexture.imageWidth/(-2.0f),0,0);
-		drawImage(&currentTexture);
-		glPopMatrix();
-
-		if (luaStepFunction.IsFunction())
-		{
-			LuaFunction<void> stepFunction = luaStepFunction;
-			stepFunction(timeStep);
-		}
-		//glDisable(GL_TEXTURE_2D);
-		drawGame(settings, timeStep);
-		break;
-	}
-
-	if (settings->getPause())
-	{
-		for (b2Body *body = m_world->GetBodyList() ; body ; body = body->GetNext())
-		{
-			b2Vec2 pos = body->GetPosition();
-			b2Vec2 vel = body->GetLinearVelocity();
-			m_debugDraw.DrawString(int(pos.x*(640/30)), 480-int(pos.y*(480/25)), "%.2f, %.2f", vel.x, vel.y);
-
-		}
-
-
-		m_debugDraw.DrawString(0, 15, "key 1: Game");
-		m_debugDraw.DrawString(0, 30, "key 2: Menu");
-		m_debugDraw.DrawString(0, 45, "key 3: About");
-		m_debugDraw.DrawString(0, 60, "key 4: Help");
-		m_debugDraw.DrawString(0, 75, "isplayerfeettouchingground %s", isFeetTouchingBoundary?"true":"false");
-		m_debugDraw.DrawString(0, 90, "canJump %s", canJump?"true":"false");
-		m_debugDraw.DrawString(0, 105, "justJumped %s", justJumped?"true":"false");
-		m_debugDraw.DrawString(0, 130, "playerCanMoveUpwards %f",playerCanMoveUpwards);
-	}
-}
-
-void LuaLevel::setGameState(GameState state, Settings* settings)
-{
-	gameState = state;
-	if (gameState==GAME)
-	{
-		settings->setViewSize(30);
-		settings->widthIsMinimum = true;
-		settings->setViewPosition(b2Vec2(0,0));
-		glClearColor(0,0,0,1);
-
-	}
-	else
-	{
-		glClearColor(97/255.f,117/255.f,113/255.f,1);
-		glEnable(GL_TEXTURE_2D);
-		settings->setViewPosition(b2Vec2(0,0));
-		settings->widthIsMinimum = false;
-		settings->setViewSize(1024);
-	}
-}
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~	INPUT HANDLING	~```~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-void LuaLevel::Keyboard(unsigned char key, Settings* settings)
-{
-	if (gameState==GAME_INTRO)
-		setGameState(GAME, settings);
-	else if (gameState==GAME_WIN && key==27)
-		setGameState(MENU, settings);
-	else
-		switch (key)
-	{
-		case '1':
-			setGameState(GAME_INTRO, settings);
-			break;
-		case 27: //ESCAPE KEY
-			if (gameState==MENU)
-				glutLeaveMainLoop();
-		case '2':
-			setGameState(MENU, settings);
-			break;
-		case '3':
-			setGameState(MENU_ABOUT, settings);
-			break;
-		case '4':
-			setGameState(MENU_HELP, settings);
-			break;
-		case '5':
-			if (luaPState->DoFile("testscript.lua"))
-				std::cout << "An error occured: " << luaPState->StackTop().GetString() << std::endl;
-			break;
-		default:
-			if (key==controlKeyLeft)
-				controlLeft = true;
-			else if (key==controlKeyRight)
-				controlRight = true;
-			else if (key==controlKeyJump)
-				controlJump= true;
-			break;
-	}
-}
-
-void LuaLevel::KeyboardUp(unsigned char key)
-{
-	if (key==controlKeyLeft)
-		controlLeft = false;
-	else if (key==controlKeyRight)
-		controlRight = false;
-	else if (key==controlKeyJump)
-		controlJump= false;
-}
-
-
-void LuaLevel::MouseDown(const b2Vec2& p)
-{
-	//m_mouseWorld = p;
-}
-
-void LuaLevel::ShiftMouseDown(const b2Vec2& p)
-{
-	//m_mouseWorld = p;
-}
-
-void LuaLevel::MouseUp(const b2Vec2& p)
-{
-	//m_mouseWorld = p;
-}
-
-void LuaLevel::MouseMove(const b2Vec2& p)
-{
-	//m_mouseWorld = p;
 }
