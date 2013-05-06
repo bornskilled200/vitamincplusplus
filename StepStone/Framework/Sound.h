@@ -4,6 +4,7 @@
 #include "mpg123\mpg123.h"
 #include "portaudio\portaudio.h"
 #include <iostream>
+#include <vector>
 
 #define INBUFF  16384
 #define OUTBUFF 32768
@@ -13,6 +14,7 @@ struct Sound
 	Sound():mh(NULL),pStream(NULL){}
 	mpg123_handle *mh;
 	PaStream* pStream;
+	std::vector<unsigned char> buffer;
 };
 
 Sound* loadMp3File(const char* filename);

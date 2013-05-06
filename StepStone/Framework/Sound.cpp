@@ -1,25 +1,63 @@
 #include "Sound.h"
 
-Sound* loadMp3File(const char* filename)
-{
-	return loadMp3File(filename, new Sound());
-}
+bool soundInitialized = false;
 
 Sound* loadMp3File(const char* filename, Sound* sound)
 {
-	if (Pa_Initialize() != paNoError) {
-        std::cout << "Failed to initialize PortAudio." << std::endl;
-        return NULL;
-    };
-
     int err;
-    int channels, encoding;
-    long rate;
+	if (soundInitialized==false)
+	{
+		if (Pa_Initialize() != paNoError) {
+			std::cout << "Failed to initialize PortAudio." << std::endl;
+			return NULL;
+		};
+		if ((err = mpg123_init())!=MPG123_OK){
+			std::cout<<"An error occurred: "<<mpg123_plain_strerror(err)<<std::endl;
+			return NULL;
+		}
+		soundInitialized = true;
+	}
 
-    if ((err = mpg123_init())!=MPG123_OK){
+	sound->mh = mpg123_new(NULL, &err);
+	if (err!=MPG123_OK) 
+	{
 		std::cout<<"An error occurred: "<<mpg123_plain_strerror(err)<<std::endl;
 		return NULL;
 	}
+
+    /* open the file and get the decoding format */
+    if ((err = mpg123_open(sound->mh, filename))!=MPG123_OK)
+	{
+		std::cout<<"An error occurred: "<<mpg123_plain_strerror(err)<<std::endl;
+		mpg123_delete(sound->mh);
+		return NULL;
+	}
+	sound->buffer.resize(mpg123_safe_buffer());
+	size_t done = 0;
+	//framecount, channel = 2
+	std::cout<<mpg123_read(sound->mh, &sound->buffer[0], sound->buffer.size(), &done)<<" ok="<<MPG123_OK<<" done="<<MPG123_DONE<<std::endl;
+	return sound;
+}
+
+Sound* playMp3File(const char* filename, Sound* sound)
+{
+    int err;
+	if (soundInitialized==false)
+	{
+		if (Pa_Initialize() != paNoError) {
+			std::cout << "Failed to initialize PortAudio." << std::endl;
+			return NULL;
+		};
+		if ((err = mpg123_init())!=MPG123_OK){
+			std::cout<<"An error occurred: "<<mpg123_plain_strerror(err)<<std::endl;
+			return NULL;
+		}
+		soundInitialized = true;
+	}
+
+    int channels, encoding;
+    long rate;
+
     sound->mh = mpg123_new(NULL, &err);
 	if (err!=MPG123_OK) 
 	{
@@ -31,7 +69,6 @@ Sound* loadMp3File(const char* filename, Sound* sound)
     if ((err = mpg123_open(sound->mh, filename))!=MPG123_OK)
 	{
 		std::cout<<"An error occurred: "<<mpg123_plain_strerror(err)<<std::endl;
-		mpg123_close(sound->mh);
 		mpg123_delete(sound->mh);
 		return NULL;
 	}
@@ -134,5 +171,4 @@ void finishedCallback( void *userData )
     }
     mpg123_close(sound->mh);
     mpg123_delete(sound->mh);
-    mpg123_exit();
 }

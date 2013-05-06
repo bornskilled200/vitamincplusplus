@@ -28,7 +28,7 @@ namespace
 	Settings settings;
 	int32 width = 640;
 	int32 height = 480;
-	int32 framePeriod = 16;
+	int32 framePeriod = int(1000/60.0);
 	int32 mainWindow;
 	float settingsHz = 60.0; // target fps?
 	bool rMouseDown;
@@ -154,6 +154,7 @@ static void KeyboardSpecial(int key, int x, int y)
 	B2_NOT_USED(x);
 	B2_NOT_USED(y);
 
+	/*
 	b2Vec2 newViewCenter(settings.getViewCenter());
 	switch (key)
 	{
@@ -189,6 +190,7 @@ static void KeyboardSpecial(int key, int x, int y)
 		settings.setViewCenter(b2Vec2(0.0f, 20.0f));
 		break;
 	}
+	*/
 }
 
 static void KeyboardUp(unsigned char key, int x, int y)
@@ -274,13 +276,17 @@ static void Pause(int)
 	settings.setPause(!settings.getPause());
 }
 
+static void processMenuEvents(int option)
+{
+}
+
 //Uncomment the next line if you do not want to see the console.
 //#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
-
 int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);// | GLUT_MULTISAMPLE);
+	glutInitContextFlags(GLUT_DEBUG);
 	glutInitWindowSize(width, height);
 	mainWindow = glutCreateWindow("StepStone");
 
@@ -307,9 +313,10 @@ int main(int argc, char** argv)
 	luaLevel = new LuaLevel(&settings);
 	Sound music;
 	loadMp3File("title\\music.mp3", &music);
+
+	//glutMainLoop();
 	
-	glutMainLoop();
-	
-	Pa_AbortStream(music.pStream);
+	//Pa_AbortStream(music.pStream);
+	system("PAUSE");
 	return EXIT_SUCCESS;
 }
