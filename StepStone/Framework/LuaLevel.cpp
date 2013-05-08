@@ -278,6 +278,30 @@ void LuaLevel::unloadLevelGlobals(LuaState *pstate)
 	{
 		loadMp3File(pstate->GetGlobal("music").GetString(),&gameMusic);
 	}
+	if (pstate->GetGlobal("tile1ImageFile").IsString())
+	{
+		Graphics::loadATexture(pstate->GetGlobal("tile1ImageFile").GetString(),&tile1Image);
+		if (pstate->GetGlobal("tile1ImageWidth").IsNumber())
+			tile1Image.imageWidth = (unsigned int)pstate->GetGlobal("tile1ImageWidth").GetNumber();
+		if (pstate->GetGlobal("tile1ImageHeight").IsNumber())
+			tile1Image.imageHeight = (unsigned int)pstate->GetGlobal("tile1ImageHeight").GetNumber();
+	}
+	if (pstate->GetGlobal("tile2ImageFile").IsString())
+	{
+		Graphics::loadATexture(pstate->GetGlobal("tile2ImageFile").GetString(),&tile2Image);
+		if (pstate->GetGlobal("tile2ImageWidth").IsNumber())
+			tile2Image.imageWidth = (unsigned int)pstate->GetGlobal("tile2ImageWidth").GetNumber();
+		if (pstate->GetGlobal("tile2ImageHeight").IsNumber())
+			tile2Image.imageHeight = (unsigned int)pstate->GetGlobal("tile2ImageHeight").GetNumber();
+	}
+	if (pstate->GetGlobal("backgroundImageFile").IsString())
+	{
+		Graphics::loadATexture(pstate->GetGlobal("backgroundImageFile").GetString(),&backgroundImage);
+		if (pstate->GetGlobal("backgroundImageWidth").IsNumber())
+			backgroundImage.imageWidth = (unsigned int)pstate->GetGlobal("backgroundImageWidth").GetNumber();
+		if (pstate->GetGlobal("backgroundImageHeight").IsNumber())
+			backgroundImage.imageHeight = (unsigned int)pstate->GetGlobal("backgroundImageHeight").GetNumber();
+	}
 
 	//functions
 	if (pstate->GetGlobal("step").IsFunction())
@@ -314,6 +338,12 @@ void LuaLevel::drawGame(Settings* settings, float32 timeStep)
 		else
 			timeStep = 0.0f;
 
+	if (luaStepFunction.IsFunction())
+	{
+		LuaFunction<void> stepFunction = luaStepFunction;
+		stepFunction(timeStep);
+	}
+
 	m_world->Step(timeStep, 8, 3);
 
 	m_world->DrawDebugData();
@@ -324,12 +354,13 @@ void LuaLevel::processCollisionsForGame(Settings* settings)
 	//winning
 	if (playerBody->GetPosition().y>60)
 	{
-		setGameState(GameState::GAME_WIN,settings);
+		setGameState(GAME_WIN,settings);
 		//init();
 		return;
 	}
 
 	//Shield
+	/*
 	if (playerBody->GetLinearVelocity().y<10)
 	{
 		playerShield->SetSensor(true);
@@ -341,7 +372,7 @@ void LuaLevel::processCollisionsForGame(Settings* settings)
 		playerShield->SetDensity(1);
 	}
 	playerBody->ResetMassData();
-
+	*/
 	isFeetTouchingBoundary = canJump = canKickOff = false;
 	slowDown = false;
 	b2WorldManifold worldManifold;
@@ -532,11 +563,14 @@ void LuaLevel::Step(Settings* settings)
 		glScalef(backdropScale,backdropScale,1);
 		for (int i = 0; i<1; i++)
 		{
-		drawImage(&backdropImage);
+		
 		glTranslatef((float)backdropImage.imageWidth,0,0);
 		}
 		glPopMatrix();
 		*/
+		//Graphics::drawImage(&backdropImage,10,10);
+		if (Graphics::isValidTexture(backgroundImage))
+			Graphics::drawImage(&backgroundImage);
 		b2Vec2 worldCenter = playerBody->GetWorldCenter();
 		glPushMatrix();
 		if (playerBody->GetLinearVelocity().y>15)
@@ -548,12 +582,6 @@ void LuaLevel::Step(Settings* settings)
 		glTranslatef(currentTexture.imageWidth/(-2.0f),0,0);
 		drawImage(&currentTexture);
 		glPopMatrix();
-
-		if (luaStepFunction.IsFunction())
-		{
-			LuaFunction<void> stepFunction = luaStepFunction;
-			stepFunction(timeStep);
-		}
 		//glDisable(GL_TEXTURE_2D);
 		drawGame(settings, timeStep);
 		break;

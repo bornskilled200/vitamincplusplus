@@ -1,4 +1,29 @@
-﻿  LuaLevel.cpp
-  Generating code
-  Finished generating code
-  StepStone.vcxproj -> C:\Users\David\Dropbox\box2d\Build\vs2010\bin\Debug\StepStone.exe
+﻿Build started 5/8/2013 7:55:29 AM.
+     1>Project "C:\Users\David Park\Desktop\New folder (2)\Build\vs2010\StepStone.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "obj\x32\Debug\StepStone\StepStone.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I..\.. /Zi /nologo /W3 /WX- /Od /Oy- /D _CRT_SECURE_NO_WARNINGS /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"obj\x32\Debug\StepStone\\" /Fd"bin\Debug\StepStone.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\StepStone\Framework\Graphics.cpp ..\..\StepStone\Framework\LuaLevel.cpp ..\..\StepStone\Framework\Main.cpp
+         Graphics.cpp
+         LuaLevel.cpp
+     1>..\..\StepStone\Framework\LuaLevel.cpp(357): warning C4482: nonstandard extension used: enum 'GameState' used in qualified name
+         Main.cpp
+         Generating Code...
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"bin\Debug\StepStone.exe" /INCREMENTAL:NO /NOLOGO bin\Debug\Box2D.lib bin\Debug\FreeGLUT.lib bin\Debug\LuaPlusFramework.lib bin\Debug\LodePNG.lib bin\Debug\PortAudio.lib bin\Debug\mpg123.lib glu32.lib opengl32.lib winmm.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"obj\x32\Debug\StepStone\StepStone.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\David Park\Desktop\New folder (2)\Build\vs2010\bin\Debug\StepStone.pdb" /SUBSYSTEM:CONSOLE /LTCG /TLBID:1 /ENTRY:"mainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:"bin\Debug\StepStone.lib" /MACHINE:X86 obj\x32\Debug\StepStone\Graphics.obj
+         obj\x32\Debug\StepStone\LuaLevel.obj
+         obj\x32\Debug\StepStone\Main.obj
+         obj\x32\Debug\StepStone\Sound.obj
+         obj\x32\Debug\StepStone\Render.obj
+         LINK : /LTCG specified but no code generation required; remove /LTCG from the link command line to improve linker performance
+         StepStone.vcxproj -> C:\Users\David Park\Desktop\New folder (2)\Build\vs2010\bin\Debug\StepStone.exe
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"bin\Debug\StepStone.exe;#1" /manifest obj\x32\Debug\StepStone\StepStone.exe.intermediate.manifest
+       FinalizeBuildStatus:
+         Deleting file "obj\x32\Debug\StepStone\StepStone.unsuccessfulbuild".
+         Touching "obj\x32\Debug\StepStone\StepStone.lastbuildstate".
+     1>Done Building Project "C:\Users\David Park\Desktop\New folder (2)\Build\vs2010\StepStone.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:02.50

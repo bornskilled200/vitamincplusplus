@@ -87,8 +87,8 @@ void Settings::setViewSize(float32 set)
 static b2Vec2 ConvertScreenToWorld(int32 x, int32 y)
 {
 	//~~~~~~~~~~~~~~~~~~ HACK FOR WINDOWS 8???? if the window is not maximized the mouse is 8 pixels more up
-	if (glutGet(GLUT_WINDOW_Y)>19)
-		y+=8;
+	//if (glutGet(GLUT_WINDOW_Y)>19)
+	//	y+=8;
 	float32 u = x / float32(width);
 	float32 v = (height - y) / float32(height);
 
@@ -295,11 +295,6 @@ static void MouseWheel(int wheel, int direction, int x, int y)
 	{
 		settings.setViewSize(settings.getViewSize()* 1.1f);
 	}
-}
-
-static void Pause(int)
-{
-	settings.setPause(!settings.getPause());
 }
 
 //Uncomment the next line if you do not want to see the console.

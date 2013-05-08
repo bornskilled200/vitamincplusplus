@@ -61,10 +61,12 @@ Sound* loadMp3File(const char* filename, Sound* sound)
 	sound->rate = rate;
 	sound->channels = channels;
 
+	std::cout<<"going to scan"<<std::endl;
 	if (mpg123_scan(mh)==MPG123_OK)
 	{
+		std::cout<<"scanned"<<std::endl;
 		sound->loaded.resize(mpg123_length(mh) * sound->bits * sound->channels);
-		std::cout<<sound->loaded.size()<<std::endl;
+		std::cout<<"resized to\t"<<mpg123_length(mh) * sound->bits * sound->channels<<std::endl<<"sized to\t"<<sound->loaded.size()<<std::endl;
 		size_t done;
 		mpg123_read(mh, &sound->loaded[0], sound->loaded.size(), &done);
 	}

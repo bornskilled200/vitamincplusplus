@@ -129,6 +129,10 @@ protected:
 	Graphics::Texture backdropImage;
 	Graphics::Texture winImage;
 	Graphics::Texture introImage;
+	
+	Graphics::Texture tile1Image;
+	Graphics::Texture tile2Image;
+	Graphics::Texture backgroundImage;
 
 	vector<GLuint> uniqueTextures;
 

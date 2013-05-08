@@ -16,7 +16,7 @@ namespace Graphics
 
 	struct Texture
 	{
-		Texture():imageWidth(0),imageHeight(0),scaledImageWidth(0),scaledImageHeight(0),id(0){}
+		Texture():imageWidth(0),imageHeight(0),scaledImageWidth(0),scaledImageHeight(0),id(0){}  //we can safely? assume that 0 is a non initialized texture
 		unsigned int imageWidth, imageHeight;
 		float scaledImageWidth, scaledImageHeight;
 		unsigned int id;
@@ -93,6 +93,17 @@ namespace Graphics
 		glBindTexture(GL_TEXTURE_2D, texture->id);
 		drawImage(texture->imageWidth,texture->imageHeight,texture->scaledImageWidth,texture->scaledImageHeight);
 	}
+	
+	inline void drawImage(Graphics::Texture *texture, unsigned int projectedWidth, unsigned int projectedHeight)
+	{
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, texture->id);
+		drawImage(projectedWidth,projectedHeight,texture->scaledImageWidth,texture->scaledImageHeight);
+	}
 
+	inline GLboolean isValidTexture(Graphics::Texture &texture)
+	{
+		return glIsTexture(texture.id);
+	}
 }
 #endif
