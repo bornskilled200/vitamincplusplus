@@ -239,13 +239,13 @@ static void Mouse(int32 button, int32 state, int32 x, int32 y)
 			}
 			else
 			{
-				luaLevel->MouseDown(p);
+				luaLevel->MouseDown(p,&settings);
 			}
 		}
 
 		if (state == GLUT_UP)
 		{
-			//test->MouseUp(p);
+			luaLevel->MouseUp(p);
 		}
 	}
 	else if (button == GLUT_RIGHT_BUTTON)
@@ -266,10 +266,9 @@ static void Mouse(int32 button, int32 state, int32 x, int32 y)
 
 static void MouseMotion(int32 x, int32 y)
 {
-	/*
 	b2Vec2 p = ConvertScreenToWorld(x, y);
-	//test->MouseMove(p);
-
+	luaLevel->MouseMove(p);
+	/*
 	if (rMouseDown)
 	{
 	b2Vec2 diff = p - lastp;
@@ -314,7 +313,7 @@ int main(int argc, char** argv)
 	glutSpecialFunc(KeyboardSpecial);
 	glutMouseFunc(Mouse);
 	glutMouseWheelFunc(MouseWheel);
-	glutMotionFunc(MouseMotion);
+	glutPassiveMotionFunc(MouseMotion);
 	glutKeyboardUpFunc(KeyboardUp);
 
 

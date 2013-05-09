@@ -247,7 +247,8 @@ int preloadedAudioCallback(const void *input, void *output,
 	unsigned long bufferSize = frameCount*sound->channels*sound->bits;
 	size_t next = std::min(bufferSize,(unsigned long)sound->loaded.size()-sound->pos);
 	memcpy(output,&sound->loaded[sound->pos],next);
-	if (bufferSize-next)
+	sound->pos+=next;
+	if (bufferSize-next>=0 && sound->pos>sound->loaded.size())
 	{
 		if (sound->loop)
 		{
@@ -260,7 +261,6 @@ int preloadedAudioCallback(const void *input, void *output,
 			return paComplete;
 		}
 	}
-	sound->pos+=next;
 	return paContinue;
 }
 

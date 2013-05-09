@@ -39,6 +39,18 @@ enum GameState
 	GAME_INTRO
 };
 
+struct Button
+{
+	Button(float tx, float ty, Graphics::Texture aHovering, Graphics::Texture aStandard, int aState):
+		x(tx),y(ty),
+		hovering(aHovering),
+		standard(aStandard),
+	state(aState){}
+	int state; // should really be GameState
+	Graphics::Texture hovering, standard;
+	float x,y;
+};
+
 class LuaLevel
 {
 public:
@@ -51,7 +63,7 @@ public:
 	void Keyboard(unsigned char key, Settings* settings);
 	void KeyboardUp(unsigned char key);
 	void ShiftMouseDown(const b2Vec2& p);
-	void MouseDown(const b2Vec2& p);
+	void MouseDown(const b2Vec2& p,  Settings *settings);
 	void MouseUp(const b2Vec2& p);
 	void MouseMove(const b2Vec2& p);
 	// Let derived tests know that a joint was destroyed.
@@ -64,10 +76,12 @@ public:
 	
 	// Lua hooked methods
 	int createAnEdge(float32 x1, float32 y1, float32 x2, float32 y2);
+	int createBox( float32 x, float32 y, float32 hw, float32 hh);
 	int createDebris(float32 x, float32 y);
 	void init();
-
+	int createButton(float x, float y, const char* file1,const char* file2, int state);
 protected:
+	vector<Button> buttons;
 	inline void processCollisionsForGame(Settings* settings);
 	inline void processInputForGame(Settings *settings, float32 timeStep);
 
@@ -131,7 +145,9 @@ protected:
 	Graphics::Texture introImage;
 	
 	Graphics::Texture tile1Image;
+	LuaObject tile1ImageDrawList;
 	Graphics::Texture tile2Image;
+	LuaObject tile2ImageDrawList;
 	Graphics::Texture backgroundImage;
 
 	vector<GLuint> uniqueTextures;

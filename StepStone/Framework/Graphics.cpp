@@ -68,3 +68,13 @@ void Graphics::drawImage(unsigned int width, unsigned int height, GLfloat scaled
 	//glDisable(GL_TEXTURE_2D);
 }
 
+void Graphics::drawImage(unsigned int x, unsigned int y, unsigned int width, unsigned int height, GLfloat scaledWidth, GLfloat scaledHeight)
+{
+	glBegin(GL_QUADS);
+	glTexCoord2f(		   0, scaledHeight); glVertex2i(	x	 ,	    y);
+	glTexCoord2f(scaledWidth, scaledHeight); glVertex2i(x + width,	    y);
+	glTexCoord2f(scaledWidth,			 0); glVertex2i(x+ width , y + height);
+	glTexCoord2f(		   0,			 0); glVertex2i(	x	 , y + height);
+	glEnd();
+}
+

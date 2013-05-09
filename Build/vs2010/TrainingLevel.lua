@@ -29,6 +29,7 @@ box2DFactory:createEdge(15, 0, 20, 2)
 local currentTime = 0
 local nextCreate = 0
 math.randomseed(1)
+--[[
 function step(delta)
 	if (nextCreate<=0) then
 		nextCreate = math.random()*1
@@ -37,16 +38,29 @@ function step(delta)
 	else
 		nextCreate = nextCreate - delta;
 	end
-end
+end]]--
 
 function compileLevelDisplayList()
 
 end
 
+tile1ImageDrawList = {}
+function createBox(x,y,width,height) -- this way i can just call 1 method for creating a tile + box2d box
+	tile1ImageDrawList[#tile1ImageDrawList+1]=x
+	tile1ImageDrawList[#tile1ImageDrawList+1]=y
+	tile1ImageDrawList[#tile1ImageDrawList+1]=width
+	tile1ImageDrawList[#tile1ImageDrawList+1]=height
+	box2DFactory:createBox(x,y,width,height)
+end
+
 music = "level1\\music.mp3"
-backgroundImageFile = "backdrops\\cloudyskies.png"
+--backgroundImageFile = "backdrops\\cloudyskies.png"
 backgroundImageWidth = 30
 backgroundImageHeight = 30
+tile1ImageFile = "backdrops\\cloudyskies.png"
+--x,y,width,height
+createBox(0,0,2,2)
+createBox(15,15,2,2)
 
 --world:setGravity(world:getGravity():set(0,GRAVITY_Y))
 --bodyDef.position:set(PLAYER_SPAWN_X,PLAYER_SPAWN_Y)
