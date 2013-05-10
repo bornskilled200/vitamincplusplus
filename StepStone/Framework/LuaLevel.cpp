@@ -401,7 +401,7 @@ void LuaLevel::processCollisionsForGame(Settings* settings)
 			// loose
 			if (collision == PLAYER_BODY_TOUCHING_DEBRIS)
 			{
-				if (playerBody->GetLinearVelocity().y<15 && debrisSpeed.Length()>15 && debrisBody->GetPosition().y>playerBody->GetPosition().y+1.28f)
+				if (playerBody->GetLinearVelocity().y<15 && debrisSpeed.Length()>15 && debrisBody->GetPosition().y>playerBody->GetPosition().y+1.f)
 				{
 					settings->setPause(true);
 					//setGameState(MENU_HELP,settings);
@@ -445,12 +445,13 @@ void LuaLevel::processCollisionsForGame(Settings* settings)
 		justJumped = false;
 	}
 }
-
+static float slowdownBy = 50;
 void LuaLevel::processInputForGame(Settings *settings, float32 timeStep)
 {
 	b2Vec2 worldCenter = playerBody->GetWorldCenter();
 	b2Vec2 linearVelocity = playerBody->GetLinearVelocity();
-
+	if (controlSlowDown)
+		slowDown = true;
 	// JUMPING
 	if (playerCanMoveUpwards>=0) playerCanMoveUpwards -= timeStep;
 	if (controlJump) {
@@ -475,9 +476,9 @@ void LuaLevel::processInputForGame(Settings *settings, float32 timeStep)
 	// HORIZONTAL MOVEMENT
 	float32 vx = 0;
 	if (controlLeft)
-		vx += -200;
+		vx += -200*pow(slowdownBy,slowDown?1:0);
 	if (controlRight)
-		vx += 200;
+		vx += 200*pow(slowdownBy,slowDown?1:0);
 
 	if (vx == 0) {
 		playerFeet->SetFriction(5);
@@ -492,11 +493,11 @@ void LuaLevel::processInputForGame(Settings *settings, float32 timeStep)
 		}
 	} else {
 		b2Vec2 force(vx, 0);
-		if (vx > 0 && linearVelocity.x < 8) {
+		if (vx > 0 && linearVelocity.x < 8*pow(slowdownBy,slowDown?1:0)) {
 			playerBody->ApplyForce(force, worldCenter);
 			isFacingRight = true;
 			//moving right
-		} else if (vx < 0 && linearVelocity.x > -8) {
+		} else if (vx < 0 && linearVelocity.x > -8*pow(slowdownBy,slowDown?1:0)) {
 			playerBody->ApplyForce(force, worldCenter);
 			//moving left
 			isFacingRight = false;
@@ -547,9 +548,9 @@ void LuaLevel::Step(Settings* settings)
 		float32 timeStep = settings->getHz() > 0.0f ? 1.0f / settings->getHz() : float32(0.0f);
 
 		processCollisionsForGame(settings);
-		if (slowDown)
-			timeStep/=20;
 		processInputForGame(settings, timeStep);
+		if (slowDown)
+			timeStep/=slowdownBy;
 
 		glEnable(GL_TEXTURE_2D);
 		glEnable(GL_BLEND);
@@ -699,6 +700,8 @@ void LuaLevel::Keyboard(unsigned char key, Settings* settings)
 				controlRight = true;
 			else if (key==controlKeyJump)
 				controlJump= true;
+			else if (key=='q')
+				controlSlowDown = true;
 			break;
 	}
 }
@@ -711,6 +714,8 @@ void LuaLevel::KeyboardUp(unsigned char key)
 		controlRight = false;
 	else if (key==controlKeyJump)
 		controlJump= false;
+	else if (key=='q')
+		controlSlowDown = false;
 }
 
 void LuaLevel::MouseDown(const b2Vec2& p)

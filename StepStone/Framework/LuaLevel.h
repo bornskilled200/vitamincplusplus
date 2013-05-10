@@ -116,7 +116,8 @@ protected:
 	//UI
 	bool controlLeft,
 		controlRight,
-		controlJump;
+		controlJump,
+		controlSlowDown;
 
 	//Game Variables
 	bool isFeetTouchingBoundary, canJump, justJumped, justKickedOff, wasMoving, canKickOff;
