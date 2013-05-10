@@ -66,22 +66,22 @@ namespace Graphics
 			return textureCount;
 		}
 	};
-
-	GLuint loadTexture(vector<unsigned char> &image, string fileName, unsigned int &imageWidth, unsigned int &imageHeight, float &scaledImageWidth, float &scaledImageHeight);
+	
+GLuint loadTexture(vector<unsigned char> &image, string fileName, unsigned int &imageWidth, unsigned int &imageHeight, float &scaledImageWidth, float &scaledImageHeight, bool buildMipMaps=false);
 	//void loadTextures(vector<unsigned char> &image, vector<string> fileName, vector<Texture> textures);
 	
 	//This draws the texture flipped, so perfect for a directly loaded png!
 	void drawImage(unsigned int width, unsigned int height, GLfloat scaledWidth, GLfloat scaledHeight);
 
-	inline void loadATexture(string fileName, Texture *texture,vector<unsigned char> &image)
+	inline void loadATexture(string fileName, Texture *texture,vector<unsigned char> &image, bool buildMipMaps=false)
 	{
-		texture->id = loadTexture(image, fileName, texture->imageWidth,texture->imageHeight,texture->scaledImageWidth,texture->scaledImageHeight);
+		texture->id = loadTexture(image, fileName, texture->imageWidth,texture->imageHeight,texture->scaledImageWidth,texture->scaledImageHeight, buildMipMaps);
 	}
 	
-	inline void loadATexture(string fileName, Texture *texture)
+	inline void loadATexture(string fileName, Texture *texture, bool buildMipMaps=false)
 	{
 		vector<unsigned char> image;
-		texture->id = loadTexture(image, fileName, texture->imageWidth,texture->imageHeight,texture->scaledImageWidth,texture->scaledImageHeight);
+		texture->id = loadTexture(image, fileName, texture->imageWidth,texture->imageHeight,texture->scaledImageWidth,texture->scaledImageHeight, buildMipMaps);
 	}
 
 	/* This method assumes that this is the only method that is being called to draw textures */

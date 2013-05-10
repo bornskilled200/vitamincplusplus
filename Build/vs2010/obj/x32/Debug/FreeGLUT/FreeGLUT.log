@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 ﻿Build started 5/6/2013 9:26:09 AM.
      1>Project "C:\Users\David Park\Desktop\New folder (2)\Build\vs2010\FreeGLUT.vcxproj" on node 5 (build target(s)).
+=======
+﻿Build started 5/2/2013 1:02:07 PM.
+     1>Project "C:\Users\David Park\Desktop\New folder (2)\Build\vs2010\FreeGLUT.vcxproj" on node 4 (build target(s)).
+>>>>>>> master
      1>InitializeBuildStatus:
          Creating "obj\x32\Debug\FreeGLUT\FreeGLUT.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
          All outputs are up-to-date.
+<<<<<<< HEAD
          C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W0 /WX- /Ox /Ot /Oy /D _CRT_SECURE_NO_WARNINGS /D _MBCS /Gm /EHsc /MDd /GS /Gy /fp:fast /Zc:wchar_t /Zc:forScope /Fo"obj\x32\Debug\FreeGLUT\\" /Fd"bin\Debug\FreeGLUT.pdb" /Gd /TC /analyze- /errorReport:prompt ..\..\freeglut\freeglut_callbacks.c ..\..\freeglut\freeglut_cursor.c ..\..\freeglut\freeglut_display.c ..\..\freeglut\freeglut_ext.c ..\..\freeglut\freeglut_font.c ..\..\freeglut\freeglut_font_data.c ..\..\freeglut\freeglut_gamemode.c ..\..\freeglut\freeglut_geometry.c ..\..\freeglut\freeglut_glutfont_definitions.c ..\..\freeglut\freeglut_init.c ..\..\freeglut\freeglut_input_devices.c ..\..\freeglut\freeglut_joystick.c ..\..\freeglut\freeglut_main.c ..\..\freeglut\freeglut_menu.c ..\..\freeglut\freeglut_misc.c ..\..\freeglut\freeglut_overlay.c ..\..\freeglut\freeglut_spaceball.c ..\..\freeglut\freeglut_state.c ..\..\freeglut\freeglut_stroke_mono_roman.c ..\..\freeglut\freeglut_stroke_roman.c ..\..\freeglut\freeglut_structure.c ..\..\freeglut\freeglut_teapot.c ..\..\freeglut\freeglut_videoresize.c ..\..\freeglut\freeglut_window.c
          freeglut_window.c
          freeglut_videoresize.c
@@ -57,6 +63,10 @@
          obj\x32\Debug\FreeGLUT\freeglut_teapot.obj
          obj\x32\Debug\FreeGLUT\freeglut_videoresize.obj
          obj\x32\Debug\FreeGLUT\freeglut_window.obj
+=======
+       Lib:
+         All outputs are up-to-date.
+>>>>>>> master
          FreeGLUT.vcxproj -> C:\Users\David Park\Desktop\New folder (2)\Build\vs2010\bin\Debug\FreeGLUT.lib
        FinalizeBuildStatus:
          Deleting file "obj\x32\Debug\FreeGLUT\FreeGLUT.unsuccessfulbuild".
@@ -65,4 +75,8 @@
 
 Build succeeded.
 
+<<<<<<< HEAD
 Time Elapsed 00:00:05.14
+=======
+Time Elapsed 00:00:00.07
+>>>>>>> master

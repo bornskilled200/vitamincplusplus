@@ -14,12 +14,16 @@ struct Sound
 	Sound():mh(NULL),pStream(NULL),pos(0){}
 	mpg123_handle *mh;
 	PaStream* pStream;
+<<<<<<< HEAD
 	std::vector<unsigned char> loaded;
 	int pos;
 	bool loop;
 	int channels;
 	int rate;
 	int bits;
+=======
+	std::vector<unsigned char> buffer;
+>>>>>>> master
 };
 
 Sound* loadMp3File(const char* filename, Sound* sound);

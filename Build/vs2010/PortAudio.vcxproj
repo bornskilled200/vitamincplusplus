@@ -25,7 +25,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v100</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -46,7 +46,11 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>bin\Release\</OutDir>
     <IntDir>obj\x32\Release\$(ProjectName)\</IntDir>
+<<<<<<< HEAD
     <TargetExt>$(TargetExt)</TargetExt>
+=======
+    <TargetExt>.lib</TargetExt>
+>>>>>>> master
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -74,10 +78,15 @@
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+<<<<<<< HEAD
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <FloatingPointModel>Fast</FloatingPointModel>
       <PreprocessorDefinitions>WIN32;_USRDLL;_CRT_SECURE_NO_DEPRECATE;PAWIN_USE_WDMKS_DEVICE_INFO;PA_USE_ASIO=0;PA_USE_DS=0;PA_USE_WMME=1;PA_USE_WASAPI=1;PA_USE_WDMKS=1;PA_WDMKS_NO_KSGUID_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\portaudio\hostapi\asio\ASIOSDK\host\pc;..\..\portaudio\hostapi\asio\ASIOSDK\host;..\..\portaudio\os\win;..\..\PortAudio;..\..\PortAudio\common;..\..\portaudio\hostapi\asio\ASIOSDK\common</AdditionalIncludeDirectories>
+=======
+      <AdditionalIncludeDirectories>..\..\portaudio\hostapi\asio\ASIOSDK\host\pc;..\..\portaudio\hostapi\asio\ASIOSDK\host;..\..\portaudio\os\win;..\..\PortAudio;..\..\PortAudio\common;..\..\portaudio\hostapi\asio\ASIOSDK\common</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_USRDLL;_CRT_SECURE_NO_DEPRECATE;PAWIN_USE_WDMKS_DEVICE_INFO;PA_USE_ASIO=0;PA_USE_DS=0;PA_USE_WMME=1;PA_USE_WASAPI=1;PA_USE_WDMKS=1;PA_WDMKS_NO_KSGUID_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+>>>>>>> master
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

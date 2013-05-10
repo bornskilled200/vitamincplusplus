@@ -28,6 +28,11 @@ namespace
 	Settings settings;
 	int32 width = 640;
 	int32 height = 480;
+<<<<<<< HEAD
+=======
+	int32 framePeriod = int(1000/60.0);
+	int32 mainWindow;
+>>>>>>> master
 	float settingsHz = 60.0; // target fps?
 	int32 framePeriod = (int)(1000/settingsHz);
 	int32 mainWindow;
@@ -178,7 +183,12 @@ static void KeyboardSpecial(int key, int x, int y)
 	B2_NOT_USED(x);
 	B2_NOT_USED(y);
 
+<<<<<<< HEAD
 	b2Vec2 newViewCenter = settings.getViewPosition();
+=======
+	/*
+	b2Vec2 newViewCenter(settings.getViewCenter());
+>>>>>>> master
 	switch (key)
 	{
 	case GLUT_ACTIVE_SHIFT:
@@ -213,6 +223,7 @@ static void KeyboardSpecial(int key, int x, int y)
 		settings.setViewPosition(b2Vec2(0.0f, 0.0f));
 		break;
 	}
+	*/
 }
 
 static void KeyboardUp(unsigned char key, int x, int y)
@@ -297,13 +308,25 @@ static void MouseWheel(int wheel, int direction, int x, int y)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void Pause(int)
+{
+	settings.setPause(!settings.getPause());
+}
+
+static void processMenuEvents(int option)
+{
+}
+
+>>>>>>> master
 //Uncomment the next line if you do not want to see the console.
 //#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
-
 int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);// | GLUT_MULTISAMPLE);
+	glutInitContextFlags(GLUT_DEBUG);
 	glutInitWindowSize(width, height);
 	mainWindow = glutCreateWindow("StepStone");
 
@@ -328,9 +351,19 @@ int main(int argc, char** argv)
 	glDisable(GL_ALPHA_TEST);
 
 	luaLevel = new LuaLevel(&settings);
+<<<<<<< HEAD
 
 	glutMainLoop();
 
 	terminateSound();
+=======
+	Sound music;
+	loadMp3File("title\\music.mp3", &music);
+
+	//glutMainLoop();
+	
+	//Pa_AbortStream(music.pStream);
+	system("PAUSE");
+>>>>>>> master
 	return EXIT_SUCCESS;
 }

@@ -1,6 +1,6 @@
 #include "Graphics.h"
 
-GLuint Graphics::loadTexture(vector<unsigned char> &image, string fileName, unsigned int &imageWidth, unsigned int &imageHeight, float &scaledImageWidth, float &scaledImageHeight)
+GLuint Graphics::loadTexture(vector<unsigned char> &image, string fileName, unsigned int &imageWidth, unsigned int &imageHeight, float &scaledImageWidth, float &scaledImageHeight, bool buildMipMaps)
 {
 		image.clear();
 
@@ -27,8 +27,10 @@ GLuint Graphics::loadTexture(vector<unsigned char> &image, string fileName, unsi
 		glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
 		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
 		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+		//glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE) 
 		if (u2==imageWidth && v2 == imageHeight)
 		{
+			//gluBuild2DMipmaps(GL_TEXTURE_2D, 4, u2, v2, GL_RGBA,GL_UNSIGNED_BYTE, &image[0]);
 			glTexImage2D(GL_TEXTURE_2D, 0, 4, u2, v2, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
 		}
 		else // Make power of two version of the image.
