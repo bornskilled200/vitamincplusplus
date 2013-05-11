@@ -61,12 +61,9 @@ Sound* loadMp3File(const char* filename, Sound* sound)
 	sound->rate = rate;
 	sound->channels = channels;
 
-	std::cout<<"going to scan"<<std::endl;
 	if (mpg123_scan(mh)==MPG123_OK)
 	{
-		std::cout<<"scanned"<<std::endl;
 		sound->loaded.resize(mpg123_length(mh) * sound->bits * sound->channels);
-		std::cout<<"resized to\t"<<mpg123_length(mh) * sound->bits * sound->channels<<std::endl<<"sized to\t"<<sound->loaded.size()<<std::endl;
 		size_t done;
 		mpg123_read(mh, &sound->loaded[0], sound->loaded.size(), &done);
 	}
@@ -84,6 +81,8 @@ Sound* loadMp3File(const char* filename, Sound* sound)
 		} 
 	}
 
+	mpg123_close(mh);
+	mpg123_delete(mh);
 	return sound;
 }
 
@@ -235,6 +234,7 @@ Sound* playMp3File(const char* filename)
 
 	return sound;
 }
+
 #include <algorithm>
 int preloadedAudioCallback(const void *input, void *output, 
 						   unsigned long frameCount,
@@ -247,7 +247,8 @@ int preloadedAudioCallback(const void *input, void *output,
 	unsigned long bufferSize = frameCount*sound->channels*sound->bits;
 	size_t next = std::min(bufferSize,(unsigned long)sound->loaded.size()-sound->pos);
 	memcpy(output,&sound->loaded[sound->pos],next);
-	if (bufferSize-next)
+	sound->pos+=next;
+	if (sound->pos>=sound->loaded.size())
 	{
 		if (sound->loop)
 		{
@@ -260,7 +261,6 @@ int preloadedAudioCallback(const void *input, void *output,
 			return paComplete;
 		}
 	}
-	sound->pos+=next;
 	return paContinue;
 }
 
@@ -300,6 +300,8 @@ void finishedCallback( void *userData )
 
 void terminateSound()
 {
+	if (soundInitialized)
+	{
 	// Tell the PortAudio library that we're all done with it.
 	if (Pa_Terminate() != paNoError)
 	{
@@ -308,4 +310,5 @@ void terminateSound()
 	}
 
 	mpg123_exit();
+	}
 }

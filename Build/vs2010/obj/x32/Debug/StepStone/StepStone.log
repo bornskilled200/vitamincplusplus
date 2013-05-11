@@ -1,10 +1,10 @@
-﻿Build started 5/10/2013 10:52:51 PM.
+﻿Build started 5/11/2013 2:12:06 AM.
      1>Project "C:\Users\David Park\Desktop\New folder (2)\Build\vs2010\StepStone.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "obj\x32\Debug\StepStone\StepStone.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I..\.. /Zi /nologo /W3 /WX- /Od /Oy- /D _CRT_SECURE_NO_WARNINGS /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"obj\x32\Debug\StepStone\\" /Fd"bin\Debug\StepStone.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\StepStone\Framework\LuaLevel.cpp
-         LuaLevel.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I..\.. /Zi /nologo /W3 /WX- /Od /Oy- /D _CRT_SECURE_NO_WARNINGS /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"obj\x32\Debug\StepStone\\" /Fd"bin\Debug\StepStone.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\StepStone\Framework\Main.cpp
+         Main.cpp
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"bin\Debug\StepStone.exe" /INCREMENTAL:NO /NOLOGO bin\Debug\Box2D.lib bin\Debug\FreeGLUT.lib bin\Debug\LuaPlusFramework.lib bin\Debug\LodePNG.lib bin\Debug\PortAudio.lib bin\Debug\mpg123.lib glu32.lib opengl32.lib winmm.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"obj\x32\Debug\StepStone\StepStone.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\David Park\Desktop\New folder (2)\Build\vs2010\bin\Debug\StepStone.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /ENTRY:"mainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:"bin\Debug\StepStone.lib" /MACHINE:X86 obj\x32\Debug\StepStone\Graphics.obj
          obj\x32\Debug\StepStone\LuaLevel.obj
@@ -21,4 +21,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.59
+Time Elapsed 00:00:01.46

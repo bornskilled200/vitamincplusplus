@@ -39,6 +39,18 @@ enum GameState
 	GAME_INTRO
 };
 
+struct Button
+{
+	Button(float tx, float ty, Graphics::Texture aHovering, Graphics::Texture aStandard, int aState):
+		x(tx),y(ty),
+		hovering(aHovering),
+		standard(aStandard),
+	state(aState){}
+	int state; // should really be GameState
+	Graphics::Texture hovering, standard;
+	float x,y;
+};
+
 class LuaLevel
 {
 public:
@@ -51,7 +63,7 @@ public:
 	void Keyboard(unsigned char key, Settings* settings);
 	void KeyboardUp(unsigned char key);
 	void ShiftMouseDown(const b2Vec2& p);
-	void MouseDown(const b2Vec2& p);
+	void MouseDown(const b2Vec2& p,  Settings *settings);
 	void MouseUp(const b2Vec2& p);
 	void MouseMove(const b2Vec2& p);
 	// Let derived tests know that a joint was destroyed.
@@ -64,48 +76,28 @@ public:
 	
 	// Lua hooked methods
 	int createAnEdge(float32 x1, float32 y1, float32 x2, float32 y2);
-	int createDebris(float32 x, float32 y);
+	int createFrictionlessEdge(float32 x1, float32 y1, float32 x2, float32 y2);
+	int createBox( float32 x, float32 y, float32 hw, float32 hh);
+	int createDebris( float32 x, float32 y,  float32 w, float32 h);
 	void init();
-
+	int createButton(float x, float y, const char* file1,const char* file2, int state);
 protected:
+	vector<Button> buttons;
+
+	//helper methods to break up code
 	inline void processCollisionsForGame(Settings* settings);
 	inline void processInputForGame(Settings *settings, float32 timeStep);
-
-	GLuint bindTexture(string file);
-
-	friend class LuaLevelDestructionListener;
-	//friend class BoundaryListener;
-	//friend class ContactListener;
 	
-	b2AABB aabb;
 	LuaState* luaPState;
 	LuaObject luaStepFunction;
-	b2BodyDef bodyDef;
-	LuaObject bodyDefObj;
-	int BodyDefIndex(LuaState* pState);
-	int BodyDefNewIndex(LuaState* pState);
-	b2FixtureDef fixtureDef;
-	LuaObject fixtureDefObj;
-	int FixtureDefIndex(LuaState* pState);
-	int FixtureDefNewIndex(LuaState* pState);
-	b2PolygonShape polygonShape;
-	LuaObject polygonShapeObj;
-	int PolygonShapeIndex(LuaState* pState);
-	int PolygonShapeNewIndex(LuaState* pState);
-	b2EdgeShape edgeShape;
-	LuaObject edgeShapeObj;
-	int edgeShapeIndex(LuaState* pState);
-	int edgeShapeNewIndex(LuaState* pState);
-	b2CircleShape circleShape;
-	LuaObject circleShapeObj;
-	int circleShapeIndex(LuaState* pState);
-	int circleShapeNewIndex(LuaState* pState);
 
 	b2Body* m_groundBody;
+
 	b2Body* playerBody;
 	b2Fixture* playerFeet;
 	b2Fixture* playerBox;
 	b2Fixture* playerShield;
+
 	bool slowDown;
 
 	b2World* m_world;
@@ -132,10 +124,13 @@ protected:
 	Graphics::Texture introImage;
 	
 	Graphics::Texture tile1Image;
+	LuaObject tile1ImageDrawList;
 	Graphics::Texture tile2Image;
+	LuaObject tile2ImageDrawList;
 	Graphics::Texture backgroundImage;
-
+	
 	vector<GLuint> uniqueTextures;
+	vector<GLuint> levelTextures;
 
 	Graphics::AnimatedTexture* animatedIdle;
 	Graphics::AnimatedTexture* animatedRun;
