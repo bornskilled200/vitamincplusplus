@@ -1,15 +1,9 @@
-<<<<<<< HEAD
-﻿Build started 5/6/2013 9:26:02 AM.
+﻿Build started 5/9/2013 11:34:52 PM.
      1>Project "C:\Users\David Park\Desktop\New folder (2)\Build\vs2010\Box2D.vcxproj" on node 4 (build target(s)).
-=======
-﻿Build started 5/2/2013 1:02:07 PM.
-     1>Project "C:\Users\David Park\Desktop\New folder (2)\Build\vs2010\Box2D.vcxproj" on node 5 (build target(s)).
->>>>>>> master
      1>InitializeBuildStatus:
          Creating "obj\x32\Debug\Box2D\Box2D.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
          All outputs are up-to-date.
-<<<<<<< HEAD
          C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I..\.. /Zi /nologo /W0 /WX- /Ox /Ot /Oy /D _CRT_SECURE_NO_WARNINGS /D _MBCS /Gm /EHsc /MDd /GS /Gy /fp:fast /Zc:wchar_t /Zc:forScope /Fo"obj\x32\Debug\Box2D\\" /Fd"bin\Debug\Box2D.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\Box2D\Collision\b2BroadPhase.cpp ..\..\Box2D\Collision\b2CollideCircle.cpp ..\..\Box2D\Collision\b2CollideEdge.cpp ..\..\Box2D\Collision\b2CollidePolygon.cpp ..\..\Box2D\Collision\b2Collision.cpp ..\..\Box2D\Collision\b2Distance.cpp ..\..\Box2D\Collision\b2DynamicTree.cpp ..\..\Box2D\Collision\b2TimeOfImpact.cpp ..\..\Box2D\Collision\Shapes\b2ChainShape.cpp ..\..\Box2D\Collision\Shapes\b2CircleShape.cpp ..\..\Box2D\Collision\Shapes\b2EdgeShape.cpp ..\..\Box2D\Collision\Shapes\b2PolygonShape.cpp ..\..\Box2D\Common\b2BlockAllocator.cpp ..\..\Box2D\Common\b2Draw.cpp ..\..\Box2D\Common\b2Math.cpp ..\..\Box2D\Common\b2Settings.cpp ..\..\Box2D\Common\b2StackAllocator.cpp ..\..\Box2D\Common\b2Timer.cpp ..\..\Box2D\Dynamics\b2Body.cpp ..\..\Box2D\Dynamics\b2ContactManager.cpp ..\..\Box2D\Dynamics\b2Fixture.cpp ..\..\Box2D\Dynamics\b2Island.cpp ..\..\Box2D\Dynamics\b2World.cpp ..\..\Box2D\Dynamics\b2WorldCallbacks.cpp ..\..\Box2D\Dynamics\Contacts\b2ChainAndCircleContact.cpp ..\..\Box2D\Dynamics\Contacts\b2ChainAndPolygonContact.cpp ..\..\Box2D\Dynamics\Contacts\b2CircleContact.cpp ..\..\Box2D\Dynamics\Contacts\b2Contact.cpp ..\..\Box2D\Dynamics\Contacts\b2ContactSolver.cpp ..\..\Box2D\Dynamics\Contacts\b2EdgeAndCircleContact.cpp ..\..\Box2D\Dynamics\Contacts\b2EdgeAndPolygonContact.cpp ..\..\Box2D\Dynamics\Contacts\b2PolygonAndCircleContact.cpp ..\..\Box2D\Dynamics\Contacts\b2PolygonContact.cpp ..\..\Box2D\Dynamics\Joints\b2DistanceJoint.cpp ..\..\Box2D\Dynamics\Joints\b2FrictionJoint.cpp ..\..\Box2D\Dynamics\Joints\b2GearJoint.cpp ..\..\Box2D\Dynamics\Joints\b2Joint.cpp ..\..\Box2D\Dynamics\Joints\b2MouseJoint.cpp ..\..\Box2D\Dynamics\Joints\b2PrismaticJoint.cpp ..\..\Box2D\Dynamics\Joints\b2PulleyJoint.cpp ..\..\Box2D\Dynamics\Joints\b2RevoluteJoint.cpp ..\..\Box2D\Dynamics\Joints\b2RopeJoint.cpp ..\..\Box2D\Dynamics\Joints\b2WeldJoint.cpp ..\..\Box2D\Dynamics\Joints\b2WheelJoint.cpp ..\..\Box2D\Rope\b2Rope.cpp
          b2Rope.cpp
          b2WheelJoint.cpp
@@ -107,10 +101,6 @@
          obj\x32\Debug\Box2D\b2WeldJoint.obj
          obj\x32\Debug\Box2D\b2WheelJoint.obj
          obj\x32\Debug\Box2D\b2Rope.obj
-=======
-       Lib:
-         All outputs are up-to-date.
->>>>>>> master
          Box2D.vcxproj -> C:\Users\David Park\Desktop\New folder (2)\Build\vs2010\bin\Debug\Box2D.lib
        FinalizeBuildStatus:
          Deleting file "obj\x32\Debug\Box2D\Box2D.unsuccessfulbuild".
@@ -119,8 +109,4 @@
 
 Build succeeded.
 
-<<<<<<< HEAD
-Time Elapsed 00:00:13.19
-=======
-Time Elapsed 00:00:00.17
->>>>>>> master
+Time Elapsed 00:00:17.76

@@ -1,7 +1,6 @@
 #include "Sound.h"
 
 bool soundInitialized = false;
-<<<<<<< HEAD
 
 int audioCallback(const void *input, void *output, 
 				  unsigned long frameCount,
@@ -18,23 +17,13 @@ void finishedCallback( void *userData );
 Sound* loadMp3File(const char* filename, Sound* sound)
 {
 	int err;
-=======
-
-Sound* loadMp3File(const char* filename, Sound* sound)
-{
-    int err;
->>>>>>> master
 	if (soundInitialized==false)
 	{
 		if (Pa_Initialize() != paNoError) {
 			std::cout << "Failed to initialize PortAudio." << std::endl;
 			return NULL;
-<<<<<<< HEAD
 		}
 
-=======
-		};
->>>>>>> master
 		if ((err = mpg123_init())!=MPG123_OK){
 			std::cout<<"An error occurred: "<<mpg123_plain_strerror(err)<<std::endl;
 			return NULL;
@@ -42,20 +31,15 @@ Sound* loadMp3File(const char* filename, Sound* sound)
 		soundInitialized = true;
 	}
 
-<<<<<<< HEAD
 	int channels, encoding;
 	long rate;
 	mpg123_handle* mh = mpg123_new(NULL, &err);
-=======
-	sound->mh = mpg123_new(NULL, &err);
->>>>>>> master
 	if (err!=MPG123_OK) 
 	{
 		std::cout<<"An error occurred: "<<mpg123_plain_strerror(err)<<std::endl;
 		return NULL;
 	}
 
-<<<<<<< HEAD
 	/* open the file and get the decoding format */
 	if ((err = mpg123_open(mh, filename))!=MPG123_OK)
 	{
@@ -106,36 +90,13 @@ Sound* loadMp3File(const char* filename, Sound* sound)
 Sound* playMp3File(Sound *sound)
 {
 	int err;
-=======
-    /* open the file and get the decoding format */
-    if ((err = mpg123_open(sound->mh, filename))!=MPG123_OK)
-	{
-		std::cout<<"An error occurred: "<<mpg123_plain_strerror(err)<<std::endl;
-		mpg123_delete(sound->mh);
-		return NULL;
-	}
-	sound->buffer.resize(mpg123_safe_buffer());
-	size_t done = 0;
-	//framecount, channel = 2
-	std::cout<<mpg123_read(sound->mh, &sound->buffer[0], sound->buffer.size(), &done)<<" ok="<<MPG123_OK<<" done="<<MPG123_DONE<<std::endl;
-	return sound;
-}
-
-Sound* playMp3File(const char* filename, Sound* sound)
-{
-    int err;
->>>>>>> master
 	if (soundInitialized==false)
 	{
 		if (Pa_Initialize() != paNoError) {
 			std::cout << "Failed to initialize PortAudio." << std::endl;
 			return NULL;
-<<<<<<< HEAD
 		}
 
-=======
-		};
->>>>>>> master
 		if ((err = mpg123_init())!=MPG123_OK){
 			std::cout<<"An error occurred: "<<mpg123_plain_strerror(err)<<std::endl;
 			return NULL;
@@ -143,7 +104,6 @@ Sound* playMp3File(const char* filename, Sound* sound)
 		soundInitialized = true;
 	}
 
-<<<<<<< HEAD
 	if (Pa_OpenDefaultStream(&sound->pStream, 
 		0, // No input channels
 		sound->channels, // 2 output channel
@@ -198,12 +158,6 @@ Sound* playMp3File(const char* filename)
 	long rate;
 	Sound *sound = new Sound;
 	sound->mh = mpg123_new(NULL, &err);
-=======
-    int channels, encoding;
-    long rate;
-
-    sound->mh = mpg123_new(NULL, &err);
->>>>>>> master
 	if (err!=MPG123_OK) 
 	{
 		std::cout<<"An error occurred: "<<mpg123_plain_strerror(err)<<std::endl;
@@ -214,6 +168,7 @@ Sound* playMp3File(const char* filename)
 	if ((err = mpg123_open(sound->mh, filename))!=MPG123_OK)
 	{
 		std::cout<<"An error occurred: "<<mpg123_plain_strerror(err)<<std::endl;
+		mpg123_close(sound->mh);
 		mpg123_delete(sound->mh);
 		return NULL;
 	}
@@ -332,7 +287,6 @@ void finishedCallback( void *userData )
 {
 	Sound* sound = static_cast<Sound*>(userData);
 
-<<<<<<< HEAD
 	// Tell the PortAudio library that we're all done with it.
 	if (Pa_Terminate() != paNoError)
 	{
@@ -354,14 +308,4 @@ void terminateSound()
 	}
 
 	mpg123_exit();
-=======
-    // Tell the PortAudio library that we're all done with it.
-    if (Pa_Terminate() != paNoError)
-    {
-        std::cout << "Failed to terminate PortAudio." << std::endl;
-        return;
-    }
-    mpg123_close(sound->mh);
-    mpg123_delete(sound->mh);
->>>>>>> master
 }
