@@ -1,17 +1,1 @@
-﻿Build started 5/11/2013 1:15:24 AM.
-     1>Project "C:\Users\David Park\Desktop\New folder (2)\Build\vs2010\FreeGLUT.vcxproj" on node 3 (build target(s)).
-     1>InitializeBuildStatus:
-         Creating "obj\x32\Debug\FreeGLUT\FreeGLUT.unsuccessfulbuild" because "AlwaysCreate" was specified.
-       ClCompile:
-         All outputs are up-to-date.
-       Lib:
-         All outputs are up-to-date.
-         FreeGLUT.vcxproj -> C:\Users\David Park\Desktop\New folder (2)\Build\vs2010\bin\Debug\FreeGLUT.lib
-       FinalizeBuildStatus:
-         Deleting file "obj\x32\Debug\FreeGLUT\FreeGLUT.unsuccessfulbuild".
-         Touching "obj\x32\Debug\FreeGLUT\FreeGLUT.lastbuildstate".
-     1>Done Building Project "C:\Users\David Park\Desktop\New folder (2)\Build\vs2010\FreeGLUT.vcxproj" (build target(s)).
-
-Build succeeded.
-
-Time Elapsed 00:00:00.47
+﻿  FreeGLUT.vcxproj -> C:\Users\David\Desktop\newmaster\Build\vs2010\bin\Debug\FreeGLUT.lib

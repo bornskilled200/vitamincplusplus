@@ -36,19 +36,21 @@ enum GameState
 	MENU_HELP,
 	GAME,
 	GAME_WIN,
-	GAME_INTRO
+	GAME_INTRO,
+	EXIT // not really a state
 };
 
 struct Button
 {
-	Button(float tx, float ty, Graphics::Texture aHovering, Graphics::Texture aStandard, int aState):
+	Button(float tx, float ty, Graphics::Texture aHovering, Graphics::Texture aStandard, int aState, vector<GameState> asts):
 		x(tx),y(ty),
 		hovering(aHovering),
 		standard(aStandard),
-	state(aState){}
+	state(aState), statesToShow(asts){}
 	int state; // should really be GameState
 	Graphics::Texture hovering, standard;
 	float x,y;
+	vector<GameState> statesToShow;
 };
 
 class LuaLevel
@@ -80,7 +82,7 @@ public:
 	int createBox( float32 x, float32 y, float32 hw, float32 hh);
 	int createDebris( float32 x, float32 y,  float32 w, float32 h);
 	void init();
-	int createButton(float x, float y, const char* file1,const char* file2, int state);
+	int createButton(float x, float y, const char* file1,const char* file2, int state, LuaStackObject statesToShow);
 protected:
 	vector<Button> buttons;
 
@@ -90,6 +92,7 @@ protected:
 	
 	LuaState* luaPState;
 	LuaObject luaStepFunction;
+	string currentLevelLuaFile;
 
 	b2Body* m_groundBody;
 

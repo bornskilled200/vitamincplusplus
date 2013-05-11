@@ -1,17 +1,1 @@
-﻿Build started 5/11/2013 1:15:24 AM.
-     1>Project "C:\Users\David Park\Desktop\New folder (2)\Build\vs2010\Box2D.vcxproj" on node 2 (build target(s)).
-     1>InitializeBuildStatus:
-         Creating "obj\x32\Debug\Box2D\Box2D.unsuccessfulbuild" because "AlwaysCreate" was specified.
-       ClCompile:
-         All outputs are up-to-date.
-       Lib:
-         All outputs are up-to-date.
-         Box2D.vcxproj -> C:\Users\David Park\Desktop\New folder (2)\Build\vs2010\bin\Debug\Box2D.lib
-       FinalizeBuildStatus:
-         Deleting file "obj\x32\Debug\Box2D\Box2D.unsuccessfulbuild".
-         Touching "obj\x32\Debug\Box2D\Box2D.lastbuildstate".
-     1>Done Building Project "C:\Users\David Park\Desktop\New folder (2)\Build\vs2010\Box2D.vcxproj" (build target(s)).
-
-Build succeeded.
-
-Time Elapsed 00:00:00.42
+﻿  Box2D.vcxproj -> C:\Users\David\Desktop\newmaster\Build\vs2010\bin\Debug\Box2D.lib

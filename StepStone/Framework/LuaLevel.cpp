@@ -42,7 +42,7 @@ static char controlKeyJump = ' ';
 static char controlKeySlowDown = '\0';
 static float slowdownBy = 50;
 
-LuaLevel::LuaLevel(Settings* settings):m_world(NULL)
+LuaLevel::LuaLevel(Settings* settings):m_world(NULL),currentLevelLuaFile("TrainingLevel.lua")
 {
 	// Init Lua
 	luaPState = LuaState::Create(true);
@@ -95,6 +95,12 @@ LuaLevel::LuaLevel(Settings* settings):m_world(NULL)
 
 
 	luaPState->GetGlobals().SetNumber("GAME",GAME);
+	luaPState->GetGlobals().SetNumber("GAME_WIN",GAME_WIN) ;
+	luaPState->GetGlobals().SetNumber("GAME_INTRO",GAME_INTRO);
+	luaPState->GetGlobals().SetNumber("MENU",MENU);
+	luaPState->GetGlobals().SetNumber("MENU_HELP",MENU_HELP);
+	luaPState->GetGlobals().SetNumber("MENU_ABOUT",MENU_ABOUT);
+	luaPState->GetGlobals().SetNumber("EXIT",EXIT);
 	luaPState->GetGlobals().RegisterDirect("createButton", *this, &LuaLevel::createButton);
 	//menu lua
 	if (luaPState->DoFile("Menu.lua"))
@@ -141,7 +147,7 @@ void LuaLevel::init()
 	loadLevelGlobals(luaPState);
 
 	// Open the Lua Script File
-	if (luaPState->DoFile("TrainingLevel.lua"))
+	if (luaPState->DoFile(currentLevelLuaFile.c_str()))
 		std::cout << "An error occured: " << luaPState->StackTop().GetString() << std::endl;
 
 
@@ -223,7 +229,16 @@ void LuaLevel::processCollisionsForGame(Settings* settings)
 	//Check for winnning
 	if (playerBody->GetPosition().y>60)
 	{
-		setGameState(GAME_WIN,settings);
+		//setGameState(GAME_WIN,settings);
+		if (luaPState->GetGlobal("afterWin").IsInteger())
+		{
+			setGameState((GameState)luaPState->GetGlobal("afterWin").GetInteger(), settings);
+		}
+		else if (luaPState->GetGlobal("afterWin").IsString())
+		{
+			currentLevelLuaFile = luaPState->GetGlobal("afterWin").GetString();
+			setGameState(GAME_INTRO, settings);
+		}
 		return;
 	}
 
@@ -388,14 +403,6 @@ void LuaLevel::Step(Settings* settings)
 	case MENU:
 		glColor4ub(255, 255, 255, 255);
 		drawImage(&menuImage);
-		for (unsigned int i = 0; i<buttons.size();i++)
-		{
-			if (mouse.x>buttons[i].x && mouse.x<buttons[i].x+buttons[i].standard.imageWidth &&
-				mouse.y>buttons[i].y && mouse.y<buttons[i].y+buttons[i].standard.imageHeight)
-				Graphics::drawImage(&buttons[i].hovering,(unsigned int)buttons[i].x,(unsigned int)buttons[i].y,buttons[i].hovering.imageWidth,buttons[i].hovering.imageHeight);
-			else	
-				Graphics::drawImage(&buttons[i].standard,(unsigned int)buttons[i].x,(unsigned int)buttons[i].y,buttons[i].hovering.imageWidth,buttons[i].hovering.imageHeight);
-		}
 		break;
 	case MENU_ABOUT:
 		glColor4ub(255, 255, 255, 255);
@@ -417,6 +424,8 @@ void LuaLevel::Step(Settings* settings)
 		float32 timeStep = settings->getHz() > 0.0f ? 1.0f / settings->getHz() : float32(0.0f);
 
 		processCollisionsForGame(settings);
+		if (gameState!=GAME) // check to see if this is still the game state
+			break;
 		processInputForGame(settings, timeStep);
 		if (slowDown)
 			timeStep/=slowdownBy;
@@ -427,8 +436,11 @@ void LuaLevel::Step(Settings* settings)
 
 		glColor4f(1,1,1,1);
 
+		// ~~~~~~~~~~~~~ background drawing
 		if (Graphics::isValidTexture(backgroundImage))
 			Graphics::drawImage(&backgroundImage);
+
+		// ~~~~~~~~~~~~~ tile drawing
 		if (Graphics::isValidTexture(tile1Image))
 		{
 			if (tile1ImageDrawList.IsTable())
@@ -442,6 +454,8 @@ void LuaLevel::Step(Settings* settings)
 				}
 			}
 		}
+
+		// ~~~~~~~~~~~~~ player drawing
 		b2Vec2 worldCenter = playerBody->GetWorldCenter();
 		glPushMatrix();
 		if (playerBody->GetLinearVelocity().y>15)
@@ -454,8 +468,18 @@ void LuaLevel::Step(Settings* settings)
 		drawImage(&currentTexture);
 		glPopMatrix();
 
+		// ~~~~~~~~~~~~~ box2d drawing
 		drawGame(settings, timeStep);
 		break;
+	}
+	for (unsigned int i = 0; i<buttons.size();i++)
+	{
+		if (find(buttons[i].statesToShow.begin(),buttons[i].statesToShow.end(),gameState)!=buttons[i].statesToShow.end())
+			if (mouse.x>buttons[i].x && mouse.x<buttons[i].x+buttons[i].standard.imageWidth &&
+				mouse.y>buttons[i].y && mouse.y<buttons[i].y+buttons[i].standard.imageHeight)
+				Graphics::drawImage(&buttons[i].hovering,(unsigned int)buttons[i].x,(unsigned int)buttons[i].y,buttons[i].hovering.imageWidth,buttons[i].hovering.imageHeight);
+			else	
+				Graphics::drawImage(&buttons[i].standard,(unsigned int)buttons[i].x,(unsigned int)buttons[i].y,buttons[i].hovering.imageWidth,buttons[i].hovering.imageHeight);
 	}
 
 	if (settings->getPause())
@@ -503,6 +527,7 @@ void LuaLevel::setGameState(GameState state, Settings* settings)
 	gameState = state;
 	if (gameState==GAME)
 	{
+		init();
 		settings->setViewSize(30);
 		settings->widthIsConstant = true;
 		settings->setViewPosition(b2Vec2(0,0));
@@ -539,6 +564,11 @@ void LuaLevel::setGameState(GameState state, Settings* settings)
 				playMp3File(&menuMusic);
 			}
 		}
+
+		if (state==MENU)
+		{
+			currentLevelLuaFile = "TrainingLevel.lua";
+		}
 	}
 }
 
@@ -554,28 +584,13 @@ void LuaLevel::Keyboard(unsigned char key, Settings* settings)
 	else
 		switch (key)
 	{
-		case '1':
-			setGameState(GAME_INTRO, settings);
-			break;
 		case 27: //ESCAPE KEY
 			if (gameState==MENU)
 				glutLeaveMainLoop();
-		case '2':
 			setGameState(MENU, settings);
 			break;
-		case '3':
-			setGameState(MENU_ABOUT, settings);
-			break;
-		case '4':
-			setGameState(MENU_HELP, settings);
-			break;
 		case 'r':
-			setGameState(GAME,settings);
-			settings->setPause(0);
-			break;
-		case '5':
-			if (luaPState->DoFile("testscript.lua"))
-				std::cout << "An error occured: " << luaPState->StackTop().GetString() << std::endl;
+			init();
 			break;
 		default:
 			if (key==controlKeyLeft)
@@ -608,11 +623,14 @@ void LuaLevel::MouseDown(const b2Vec2& p, Settings *settings)
 
 	for (unsigned int i = 0; i<buttons.size();i++)
 	{
-		if (mouse.x>buttons[i].x && mouse.x<buttons[i].x+buttons[i].standard.imageWidth &&
+		if (find(buttons[i].statesToShow.begin(),buttons[i].statesToShow.end(),gameState)!=buttons[i].statesToShow.end() &&
+			mouse.x>buttons[i].x && mouse.x<buttons[i].x+buttons[i].standard.imageWidth &&
 			mouse.y>buttons[i].y && mouse.y<buttons[i].y+buttons[i].standard.imageHeight)
-			setGameState((GameState)buttons[i].state, settings);
-		else	
-			Graphics::drawImage(&buttons[i].standard,(unsigned int)buttons[i].x,(unsigned int)buttons[i].y,buttons[i].hovering.imageWidth,buttons[i].hovering.imageHeight);
+		{
+			if (buttons[i].state!=EXIT)
+				setGameState((GameState)buttons[i].state, settings);
+			else glutLeaveMainLoop();
+		}
 	}
 }
 
@@ -812,13 +830,20 @@ int LuaLevel::createDebris( float32 x, float32 y,  float32 w, float32 h)
 	return 0;
 }
 
-int LuaLevel::createButton(float x, float y, const char* file1, const char* file2, int state)
+int LuaLevel::createButton(float x, float y, const char* file1, const char* file2, int state, LuaStackObject statesToShow)
 {
 	Graphics::Texture hovering,standard;
 	Graphics::loadATexture(file1, &standard);
 	Graphics::loadATexture(file2, &hovering);
 	uniqueTextures.push_back(hovering.id);
 	uniqueTextures.push_back(standard.id);
-	buttons.push_back(Button(x,y,hovering,standard, state));
+	vector<GameState> statesToShowVector;
+	if (statesToShow.IsTable())
+	{
+		int size = statesToShow.GetCount();
+		for (int i = 1; i <= size; i++)
+			statesToShowVector.push_back((GameState)statesToShow.GetByIndex(i).GetInteger());
+	}
+	buttons.push_back(Button(x,y,hovering,standard, state, statesToShowVector));
 	return 0;
 }

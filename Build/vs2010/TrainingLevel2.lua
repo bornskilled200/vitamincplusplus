@@ -61,7 +61,8 @@ tile1ImageFile = "backdrops\\cloudyskies.png"
 --x,y,width,height
 createBox(0,0,2,2)
 createBox(15,15,2,2)
-afterWin='TrainingLevel2.lua'
+afterWin=GAME_WIN
+
 --world:setGravity(world:getGravity():set(0,GRAVITY_Y))
 --bodyDef.position:set(PLAYER_SPAWN_X,PLAYER_SPAWN_Y)
 
