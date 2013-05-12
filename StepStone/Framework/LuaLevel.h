@@ -53,7 +53,7 @@ struct Button
 	vector<GameState> statesToShow;
 };
 
-class LuaLevel
+class LuaLevel : b2ContactListener
 {
 public:
 
@@ -83,6 +83,15 @@ public:
 	int createDebris( float32 x, float32 y,  float32 w, float32 h);
 	void init();
 	int createButton(float x, float y, const char* file1,const char* file2, int state, LuaStackObject statesToShow);
+
+	virtual void BeginContact(b2Contact* contact) { B2_NOT_USED(contact); }
+	virtual void EndContact(b2Contact* contact) { B2_NOT_USED(contact); }
+	virtual void PreSolve(b2Contact* contact, const b2Manifold* oldManifold) 
+	{
+		B2_NOT_USED(contact); 
+		B2_NOT_USED(oldManifold);
+	}
+	virtual void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse);
 protected:
 	vector<Button> buttons;
 
@@ -99,9 +108,6 @@ protected:
 	b2Body* playerBody;
 	b2Fixture* playerFeet;
 	b2Fixture* playerBox;
-	b2Fixture* playerShield;
-
-	bool slowDown;
 
 	b2World* m_world;
 	LuaLevelDestructionListener m_destructionListener;
@@ -111,8 +117,16 @@ protected:
 	//UI
 	bool controlLeft,
 		controlRight,
-		controlJump,
-		controlSlowDown;
+		controlJump;
+	//cheats
+	bool slowDown;
+	float invincibility;
+	float invincibilityEffectTimer;
+	float invincibilityEffectShow;
+	bool uncollidable;
+	
+	char controlKeyLeft, controlKeyRight, controlKeyJump, controlKeySlowDown, controlKeyUncollidable, controlKeyInvincibility;
+    float slowdownBy;
 
 	//Game Variables
 	bool isFeetTouchingBoundary, canJump, justJumped, justKickedOff, wasMoving, canKickOff;
@@ -141,9 +155,13 @@ protected:
 
 	Graphics::AnimatedTexture* currentAnimatedTexture;
 	bool isFacingRight;
+	float viewportMaximumX;
 	
 	Sound menuMusic;
+
 	Sound gameMusic;
+	Sound deathSound;
+	
 	Sound* currentMusic;
 };
 

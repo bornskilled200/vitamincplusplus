@@ -1,4 +1,4 @@
-local WIDTH = 30
+local WIDTH = 120
 local HEIGHT = 60
 local GRAVITY_Y = -30
 local PLAYER_SPAWN_X = 4
@@ -28,16 +28,16 @@ box2DFactory:createFrictionlessEdge(15, 0, 20, 2)
 local currentTime = 0
 local nextCreate = 0
 math.randomseed(1)
---[[
+
 function step(delta)
 	if (nextCreate<=0) then
 		nextCreate = math.random()*1
 		currentTime = currentTime + delta;
-		box2DFactory:createDebris(math.random()*WIDTH, HEIGHT)
+		box2DFactory:createDebris(math.random()*WIDTH, HEIGHT, math.random()*.8+.2,math.random()*.8+.2)
 	else
 		nextCreate = nextCreate - delta;
 	end
-end]]--
+end
 
 function compileLevelDisplayList()
 
@@ -65,3 +65,6 @@ afterWin='TrainingLevel2.lua'
 --world:setGravity(world:getGravity():set(0,GRAVITY_Y))
 --bodyDef.position:set(PLAYER_SPAWN_X,PLAYER_SPAWN_Y)
 
+character='Alex'
+viewportMaximumX = WIDTH
+introImageFile = "CGs\\openingcg"..character..".png"

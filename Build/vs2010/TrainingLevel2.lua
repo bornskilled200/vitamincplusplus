@@ -28,7 +28,6 @@ box2DFactory:createFrictionlessEdge(15, 0, 20, 2)
 local currentTime = 0
 local nextCreate = 0
 math.randomseed(1)
---[[
 function step(delta)
 	if (nextCreate<=0) then
 		nextCreate = math.random()*1
@@ -37,7 +36,7 @@ function step(delta)
 	else
 		nextCreate = nextCreate - delta;
 	end
-end]]--
+end
 
 function compileLevelDisplayList()
 
@@ -62,6 +61,7 @@ tile1ImageFile = "backdrops\\cloudyskies.png"
 createBox(0,0,2,2)
 createBox(15,15,2,2)
 afterWin=GAME_WIN
+introImageFile = nil
 
 --world:setGravity(world:getGravity():set(0,GRAVITY_Y))
 --bodyDef.position:set(PLAYER_SPAWN_X,PLAYER_SPAWN_Y)

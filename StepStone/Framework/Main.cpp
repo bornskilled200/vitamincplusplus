@@ -296,9 +296,10 @@ static void MouseWheel(int wheel, int direction, int x, int y)
 	}
 }
 
+#ifdef NDEBUG
 //Uncomment the next line if you do not want to see the console.
-//#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
-
+#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
+#endif //NDEBUG
 int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
@@ -310,6 +311,7 @@ int main(int argc, char** argv)
 	glutDisplayFunc(SimulationLoop);
 	glutReshapeFunc(Resize);
 	glutKeyboardFunc(Keyboard);
+	glutIgnoreKeyRepeat(true);
 	glutSpecialFunc(KeyboardSpecial);
 	glutMouseFunc(Mouse);
 	glutMouseWheelFunc(MouseWheel);

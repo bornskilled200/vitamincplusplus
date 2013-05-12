@@ -258,6 +258,7 @@ int preloadedAudioCallback(const void *input, void *output,
 		else
 		{
 			memset((unsigned char*)output+next,0,bufferSize-next);
+			sound->pos = 0;
 			return paComplete;
 		}
 	}
