@@ -587,7 +587,7 @@ void LuaLevel::setGameState(GameState state, Settings* settings)
 			Pa_AbortStream(currentMusic->pStream);
 			currentMusic = NULL;
 		}
-		luaStepFunction;
+		luaStepFunction.Reset();
 		gameMusic.loaded.resize(0);
 		m_world = NULL;
 	}
@@ -702,6 +702,11 @@ void LuaLevel::Keyboard(unsigned char key, Settings* settings)
 				playerFeet->SetFilterData(feetFilter);
 				playerBox->SetFilterData(bodyFilter);
 			}
+			else if (key==controlKeyThrusters)
+			{
+				b2Vec2 worldCenter = playerBody->GetWorldCenter();
+				playerBody->ApplyLinearImpulse(b2Vec2(0,50), worldCenter);
+			}
 			break;
 	}
 }
@@ -785,10 +790,14 @@ void LuaLevel::loadLevelGlobals(LuaState *pstate)
 	globals.SetString("controlKeyRight","d",1);
 	globals.SetString("controlKeyLeft","a",1);
 	globals.SetString("controlSlowDown","\0",1);
-	globals.SetString("controlKeyInvincibility","s",1);
-	globals.SetString("controlKeyUncollidable","e",1);
+	globals.SetString("controlKeyInvincibility","\0",1);
+	globals.SetString("controlKeyUncollidable","\0",1);
+	globals.SetString("controlKeyThrusters","\0",1);
+
+
 	globals.SetString("character","Alex",4);
 	globals.SetNumber("viewportMaximumX",30);
+	
 
 
 	//Level specific stuff
@@ -820,6 +829,7 @@ void LuaLevel::unloadLevelGlobals(LuaState *pstate)
 	checkAndSetChar(controlKeySlowDown, pstate->GetGlobal("controlKeySlowDown"));
 	checkAndSetChar(controlKeyInvincibility, pstate->GetGlobal("controlKeyInvincibility"));
 	checkAndSetChar(controlKeyUncollidable, pstate->GetGlobal("controlKeyUncollidable"));
+	checkAndSetChar(controlKeyThrusters, pstate->GetGlobal("controlKeyThrusters"));
 
 	//level specific stuffs
 	//music

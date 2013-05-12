@@ -32,7 +32,7 @@ function step(delta)
 	if (nextCreate<=0) then
 		nextCreate = math.random()*1
 		currentTime = currentTime + delta;
-		box2DFactory:createDebris(math.random()*WIDTH, HEIGHT)
+		box2DFactory:createDebris(math.random()*WIDTH, HEIGHT,math.random()*.8+.2,math.random()*.8+.2)
 	else
 		nextCreate = nextCreate - delta;
 	end

@@ -125,7 +125,7 @@ protected:
 	float invincibilityEffectShow;
 	bool uncollidable;
 	
-	char controlKeyLeft, controlKeyRight, controlKeyJump, controlKeySlowDown, controlKeyUncollidable, controlKeyInvincibility;
+	char controlKeyLeft, controlKeyRight, controlKeyJump, controlKeySlowDown, controlKeyUncollidable, controlKeyInvincibility,controlKeyThrusters;
     float slowdownBy;
 
 	//Game Variables
