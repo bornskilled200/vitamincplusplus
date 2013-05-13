@@ -202,7 +202,7 @@ void LuaLevel::init()
 		levelTextures.push_back(introImage.id);
 	}
 	else introImage.id=0;
-	loadMp3File(("common\\" + character + "death.mp3").c_str(),&deathSound);
+	loadMp3File(("common\\" + character + "Death.mp3").c_str(),&deathSound);
 	deathSound.loop = false;
 	currentAnimatedTexture = animatedIdle;
 
@@ -697,7 +697,6 @@ void LuaLevel::setGameState(GameState state, Settings* settings)
 		luaStepFunction.Reset();
 		gameMusic.loaded.clear();
 		introMusic.loaded.clear();
-		deathSound.loaded.clear();
 
 		m_world = NULL;
 		if (state!=GAME_WIN)
