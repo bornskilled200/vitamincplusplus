@@ -72,7 +72,8 @@ namespace Graphics
 	
 	//This draws the texture flipped, so perfect for a directly loaded png!
 	void drawImage(unsigned int width, unsigned int height, GLfloat scaledWidth, GLfloat scaledHeight);
-	void drawImage(unsigned int x, unsigned int y, unsigned int width, unsigned int height, GLfloat scaledWidth, GLfloat scaledHeight);
+	void drawImage(int x, int y, int width, int height, GLfloat scaledWidth, GLfloat scaledHeight);
+	void drawImage(unsigned int x, unsigned int y, float width, float height, GLfloat scaledWidth, GLfloat scaledHeight);
 
 	inline void loadATexture(string fileName, Texture *texture,vector<unsigned char> &image)
 	{
@@ -103,7 +104,15 @@ namespace Graphics
 	}
 
 	
-	inline void drawImage(Graphics::Texture *texture, unsigned int projectedX, unsigned int projectedY, unsigned int projectedWidth, unsigned int projectedHeight)
+	inline void drawImage(Graphics::Texture *texture, int projectedX, int projectedY, int projectedWidth, int projectedHeight)
+	{
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, texture->id);
+		drawImage(projectedX, projectedY, projectedWidth,projectedHeight,texture->scaledImageWidth,texture->scaledImageHeight);
+	}
+
+	
+	inline void drawImage(Graphics::Texture *texture, unsigned int projectedX, unsigned int projectedY, float projectedWidth, float projectedHeight)
 	{
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, texture->id);

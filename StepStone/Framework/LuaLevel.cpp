@@ -35,7 +35,7 @@ const static uint16 PLAYER_FEET_TOUCHING_BOUNDARY=playerFeetBits|boundaryBits;
 const static uint16 PLAYER_FEET_TOUCHING_DEBRIS=playerFeetBits|debrisBits;
 const static uint16 PLAYER_BODY_TOUCHING_DEBRIS=playerBodyBits|debrisBits;
 
-LuaLevel::LuaLevel(Settings* settings):m_world(NULL),currentLevelLuaFile("TrainingLevel.lua"),slowdownBy(50),currentVoice(NULL)
+LuaLevel::LuaLevel(Settings* settings):m_world(NULL),currentLevelLuaFile("TrainingLevel.lua"),slowdownBy(50),currentVoice(NULL),secret(false)
 {
 	// Init Lua
 	luaPState = LuaState::Create(true);
@@ -44,13 +44,18 @@ LuaLevel::LuaLevel(Settings* settings):m_world(NULL),currentLevelLuaFile("Traini
 	image.reserve(1024*1024*4);
 
 	loadATexture("helpscreen.png", &helpImage, image);					uniqueTextures.push_back(helpImage.id);
-	loadATexture("aboutscreen.png", &aboutImage, image);					uniqueTextures.push_back(aboutImage.id);
+	loadATexture("aboutscreen.png", &aboutImage, image);				uniqueTextures.push_back(aboutImage.id);
 	loadATexture("titlescreen.png", &menuImage, image);					uniqueTextures.push_back(menuImage.id);
-	loadATexture("CGs\\final.png", &winImage, image);					uniqueTextures.push_back(winImage.id);
-	loadATexture("backdrops\\cloudyskies.png", &backdropImage, image);	uniqueTextures.push_back(backdropImage.id);
+	loadATexture("wizard\\idle.png", &wizardImage, image);				uniqueTextures.push_back(wizardImage.id);
 
 	//Menu Music
 	loadMp3File("title\\music.mp3", &menuMusic);
+	loadMp3File("level3\\ending.mp3", &endMusic);
+	endMusic.loop = true;
+	loadMp3File("common\\debrisHit.mp3", &debrisHitSound);
+	loadMp3File("common\\weirdMagic.mp3", &strangeSound);
+	strangeSound.loop = false;
+	debrisHitSound.loop = false;
 	menuMusic.loop=true;
 	currentMusic = &menuMusic;
 	playMp3File(&menuMusic);
@@ -79,19 +84,18 @@ LuaLevel::~LuaLevel()
 {
 	// Deleting all of our textures in 1 fell swoop
 	glDeleteTextures(uniqueTextures.size(), &uniqueTextures[0]);
-	delete animatedIdle;
-	delete animatedRun;
-	delete animatedJump;
 
 	//need to reset luastepfunction to destroy luastate
 	luaStepFunction.Reset();
+	tile1ImageDrawList.Reset();
+	tile2ImageDrawList.Reset();
 	// Deleting our lua state/context,
 	LuaState::Destroy(luaPState);
 	if (m_world)
 		delete m_world;
 
 	if (currentMusic)
-		Pa_AbortStream(currentMusic->pStream);
+		Pa_CloseStream(currentMusic->pStream);
 	terminateSound();
 }
 
@@ -163,48 +167,48 @@ void LuaLevel::init()
 
 	vector<Graphics::Texture> textures(4);
 	vector<int> framesPerImage(4);
-	loadATexture(character + "\\idle\\1.png", &textures[0], image);  framesPerImage[0]=8;  uniqueTextures.push_back(textures[0].id);
-	loadATexture(character + "\\idle\\2.png", &textures[1], image);  framesPerImage[1]=30; uniqueTextures.push_back(textures[1].id);
+	loadATexture(character + "\\idle\\1.png", &textures[0], image);  framesPerImage[0]=8;  levelTextures.push_back(textures[0].id);
+	loadATexture(character + "\\idle\\2.png", &textures[1], image);  framesPerImage[1]=30; levelTextures.push_back(textures[1].id);
 	textures[2]=textures[0];						         framesPerImage[2]=8;
-	loadATexture(character + "\\idle\\3.png", &textures[3], image);  framesPerImage[3]=30; uniqueTextures.push_back(textures[3].id);
+	loadATexture(character + "\\idle\\3.png", &textures[3], image);  framesPerImage[3]=30; levelTextures.push_back(textures[3].id);
 	animatedIdle = new Graphics::AnimatedTexture(textures,4,framesPerImage);
 
 	textures.resize(8);
 	framesPerImage.resize(8);
-	loadATexture(character + "\\run\\1.png", &textures[0], image); framesPerImage[0]=5; uniqueTextures.push_back(textures[0].id);
-	loadATexture(character + "\\run\\2.png", &textures[1], image); framesPerImage[1]=5; uniqueTextures.push_back(textures[1].id);
-	loadATexture(character + "\\run\\3.png", &textures[2], image); framesPerImage[2]=5; uniqueTextures.push_back(textures[2].id);
-	loadATexture(character + "\\run\\4.png", &textures[3], image); framesPerImage[3]=7; uniqueTextures.push_back(textures[3].id);
-	loadATexture(character + "\\run\\5.png", &textures[4], image); framesPerImage[4]=5; uniqueTextures.push_back(textures[4].id);
-	loadATexture(character + "\\run\\6.png", &textures[5], image); framesPerImage[5]=5; uniqueTextures.push_back(textures[5].id);
-	loadATexture(character + "\\run\\7.png", &textures[6], image); framesPerImage[6]=5; uniqueTextures.push_back(textures[6].id);
-	loadATexture(character + "\\run\\8.png", &textures[7], image); framesPerImage[7]=7; uniqueTextures.push_back(textures[7].id);
+	loadATexture(character + "\\run\\1.png", &textures[0], image); framesPerImage[0]=5; levelTextures.push_back(textures[0].id);
+	loadATexture(character + "\\run\\2.png", &textures[1], image); framesPerImage[1]=5; levelTextures.push_back(textures[1].id);
+	loadATexture(character + "\\run\\3.png", &textures[2], image); framesPerImage[2]=5; levelTextures.push_back(textures[2].id);
+	loadATexture(character + "\\run\\4.png", &textures[3], image); framesPerImage[3]=7; levelTextures.push_back(textures[3].id);
+	loadATexture(character + "\\run\\5.png", &textures[4], image); framesPerImage[4]=5; levelTextures.push_back(textures[4].id);
+	loadATexture(character + "\\run\\6.png", &textures[5], image); framesPerImage[5]=5; levelTextures.push_back(textures[5].id);
+	loadATexture(character + "\\run\\7.png", &textures[6], image); framesPerImage[6]=5; levelTextures.push_back(textures[6].id);
+	loadATexture(character + "\\run\\8.png", &textures[7], image); framesPerImage[7]=7; levelTextures.push_back(textures[7].id);
 	animatedRun = new Graphics::AnimatedTexture(textures,8,framesPerImage);
 
 	textures.resize(5);
 	framesPerImage.resize(5);
-	loadATexture(character + "\\jump\\1.png", &textures[0], image); framesPerImage[0]=10; uniqueTextures.push_back(textures[0].id);
-	loadATexture(character + "\\jump\\2.png", &textures[1], image); framesPerImage[1]=10; uniqueTextures.push_back(textures[1].id);
-	loadATexture(character + "\\jump\\3.png", &textures[2], image); framesPerImage[2]=10; uniqueTextures.push_back(textures[2].id);
-	loadATexture(character + "\\jump\\4.png", &textures[3], image); framesPerImage[3]=10; uniqueTextures.push_back(textures[3].id);
-	loadATexture(character + "\\jump\\5.png", &textures[4], image); framesPerImage[4]=10; uniqueTextures.push_back(textures[4].id);
+	loadATexture(character + "\\jump\\1.png", &textures[0], image); framesPerImage[0]=10; levelTextures.push_back(textures[0].id);
+	loadATexture(character + "\\jump\\2.png", &textures[1], image); framesPerImage[1]=10; levelTextures.push_back(textures[1].id);
+	loadATexture(character + "\\jump\\3.png", &textures[2], image); framesPerImage[2]=10; levelTextures.push_back(textures[2].id);
+	loadATexture(character + "\\jump\\4.png", &textures[3], image); framesPerImage[3]=10; levelTextures.push_back(textures[3].id);
+	loadATexture(character + "\\jump\\5.png", &textures[4], image); framesPerImage[4]=10; levelTextures.push_back(textures[4].id);
 	animatedJump = new Graphics::AnimatedTexture(textures,5,framesPerImage);
 
+	loadATexture("CGs\\final"+character+".png", &winImage, image);					
 	//loadATexture("CGs\\openingcg"+character+".png", &introImage, image);					uniqueTextures.push_back(introImage.id);
 	if (luaPState->GetGlobal("introImageFile").IsString())
 	{
-		cout<<luaPState->GetGlobal("introImageFile").GetString()<<endl;
 		loadATexture(luaPState->GetGlobal("introImageFile").GetString(), &introImage, image);
+		levelTextures.push_back(introImage.id);
 	}
 	else introImage.id=0;
 	loadMp3File(("common\\" + character + "death.mp3").c_str(),&deathSound);
 	deathSound.loop = false;
-	cout<<("common\\" + character + "death.mp3")<<endl;
 	currentAnimatedTexture = animatedIdle;
 
 	//~~~~~~~~~~~~~~~~~Box2D Stuff
 	bodyDef.type = b2_dynamicBody;
-	bodyDef.position.Set(2,2);
+	bodyDef.position.Set((float)luaPState->GetGlobal("playerPositionX").GetNumber(),2);
 	bodyDef.fixedRotation=true;
 	playerBody = m_world->CreateBody(&bodyDef);
 
@@ -256,15 +260,12 @@ void LuaLevel::drawGame(Settings* settings, float32 timeStep)
 	}
 
 	m_world->Step(timeStep, 8, 3);
-#ifdef _DEBUG
-	m_world->DrawDebugData();
-#endif
 }
 
 void LuaLevel::processCollisionsForGame(Settings* settings)
 {
 	//Check for winnning
-	if (playerBody->GetPosition().y>60)
+	if (playerBody->GetPosition().y>winHeight)
 	{
 		if (luaPState->GetGlobal("afterWin").IsInteger())
 		{
@@ -456,6 +457,32 @@ void LuaLevel::Step(Settings* settings)
 	case GAME_WIN:
 		glColor4ub(255, 255, 255, 255);
 		drawImage(&winImage);
+		m_debugDraw.DrawString(0,1024,"Congratulations! Press the Space Bar in the main menu for a suprise!");
+
+
+		if (!currentVoice)
+		{
+			if (luaPState->GetGlobal("endDialogFile").IsTable())
+			{
+				LuaObject table = luaPState->GetGlobal("endDialogFile");
+				int size = table.GetCount();
+				if (currentDialog<=size)
+				{
+					currentVoice = new Sound;
+					loadMp3File(table.GetByIndex(currentDialog).GetString(),currentVoice);
+					currentVoice->loop=false;
+					playMp3File(currentVoice);
+				}
+			}
+		}
+		else if (currentVoice->pStream==0)
+		{
+			LuaObject table = luaPState->GetGlobal("endDialogFile");
+			int size = table.GetCount();
+			delete currentVoice;
+			currentVoice = NULL;
+			currentDialog++;
+		}
 		break;
 	case GAME_INTRO:
 		if (isValidTexture(introImage))
@@ -485,8 +512,6 @@ void LuaLevel::Step(Settings* settings)
 			int size = table.GetCount();
 			delete currentVoice;
 			currentVoice = NULL;
-			if (size==currentDialog)
-				setGameState(GAME,settings);
 			currentDialog++;
 		}
 		break;
@@ -500,15 +525,34 @@ void LuaLevel::Step(Settings* settings)
 		if (slowDown)
 			timeStep/=slowdownBy;
 
+
+		if (invincibility)
+		{
+			invincibility-=.2f;
+			if (invincibility<0)
+				invincibility = 0;
+		}
+
+
 		glEnable(GL_TEXTURE_2D);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		glColor4f(1,1,1,1);
-
 		// ~~~~~~~~~~~~~ background drawing
 		if (Graphics::isValidTexture(backgroundImage))
 			Graphics::drawImage(&backgroundImage);
+
+		// ~~~~~~~~~~~~~ box2d drawing
+		drawGame(settings, timeStep);
+
+		if (playerBody->GetUserData())
+		{
+			playMp3File(&debrisHitSound);
+			playMp3File(&deathSound);
+			setGameState(GAME_INTRO,settings);
+		}
+
 
 		// ~~~~~~~~~~~~~ tile drawing
 		if (Graphics::isValidTexture(tile1Image))
@@ -519,17 +563,12 @@ void LuaLevel::Step(Settings* settings)
 				for (int i = 1; i <= drawListLength-3; i+=4)
 				{
 					Graphics::drawImage(&tile1Image, 
-						(unsigned int)tile1ImageDrawList.GetByIndex(i).GetInteger(),(unsigned int)tile1ImageDrawList.GetByIndex(i+1).GetInteger(),
-						(unsigned int)tile1ImageDrawList.GetByIndex(i+2).GetInteger(),(unsigned int)tile1ImageDrawList.GetByIndex(i+3).GetInteger());
+						(int)tile1ImageDrawList.GetByIndex(i).GetInteger(),(int)tile1ImageDrawList.GetByIndex(i+1).GetInteger(),
+						(int)tile1ImageDrawList.GetByIndex(i+2).GetInteger(),(int)tile1ImageDrawList.GetByIndex(i+3).GetInteger());
 				}
 			}
 		}
-		if (invincibility)
-		{
-			invincibility-=.2f;
-			if (invincibility<0)
-				invincibility = 0;
-		}
+
 		// ~~~~~~~~~~~~~ player drawing
 		if (!invincibility || (invincibility && invincibilityEffectShow))
 		{
@@ -544,7 +583,9 @@ void LuaLevel::Step(Settings* settings)
 			glTranslatef(currentTexture.imageWidth/(-2.0f),0,0);
 			drawImage(&currentTexture);
 			glPopMatrix();
-		} else {glPushMatrix();glPopMatrix();}
+		}
+
+
 		if (invincibility)
 		{
 			invincibilityEffectTimer-=.2f;
@@ -554,16 +595,49 @@ void LuaLevel::Step(Settings* settings)
 				invincibilityEffectTimer = 2;
 			}
 		}
-		//else glLoadIdentity();
-		// ~~~~~~~~~~~~~ box2d drawing
-		drawGame(settings, timeStep);
-		if ((bool)playerBody->GetUserData())
+
+		//wizard drawing
+		glPushMatrix();
+		if (uncollidable)
+			glColor4f(1,1,1,.5f);
+		glTranslatef((float)wizardPositionX,(float)wizardPositionY,0);
+		const float32 scale = .025f;
+		glScalef(scale*(wizardIsFacingRight?1:-1),scale,scale);
+		Graphics::drawImage(&wizardImage);
+		glPopMatrix();
+
+		// ~~~~~~~~~~~~~ debris drawing
+		for (int i = 0; i < debris.size(); i++)
 		{
-			playMp3File(&deathSound);
-			setGameState(GAME_INTRO,settings);
+			Graphics::Texture* texture = (Graphics::Texture*)debris[i]->GetUserData();
+			//b2Vec2 halfSize(texture->imageWidth/2.f,texture->imageHeight/2.f);
+
+			b2Vec2 pos;
+			pos = debris[i]->GetWorldCenter();
+			float size = 1/128.f * (int)(debris[i]->GetFixtureList()->GetUserData())/100.f;
+			b2Vec2 bottomLeftCorner = pos;//-halfSize;
+
+			glPushMatrix();
+			glTranslatef(pos.x,pos.y,0);
+			glRotatef(debris[i]->GetAngle()*180/3.14f,0,0,1);
+			glTranslatef(texture->imageWidth*-size,texture->imageHeight*-size,0);
+			//glTranslatef(pos.x,pos.y,0);
+			//glTranslatef(pos.x-texture->imageWidth,pos.y-texture->imageHeight,0);
+			glScalef(size*2,size*2,size*2);
+			Graphics::drawImage(texture,0,0,texture->imageWidth,texture->imageHeight);
+			glPopMatrix();
 		}
+
+
+#ifdef _DEBUG
+		//glColor4f(1,1,1,1);
+		glDisable(GL_TEXTURE_2D);
+		m_world->DrawDebugData();
+#endif
 		break;
 	}
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	for (unsigned int i = 0; i<buttons.size();i++)
 	{
 		if (find(buttons[i].statesToShow.begin(),buttons[i].statesToShow.end(),gameState)!=buttons[i].statesToShow.end())
@@ -587,7 +661,6 @@ void LuaLevel::Step(Settings* settings)
 
 		}
 
-
 		m_debugDraw.DrawString(0, 15, "key 1: Game");
 		m_debugDraw.DrawString(0, 30, "key 2: Menu");
 		m_debugDraw.DrawString(0, 45, "key 3: About");
@@ -604,28 +677,60 @@ void LuaLevel::setGameState(GameState state, Settings* settings)
 	if (gameState==GAME && state!=GAME)
 	{
 		delete m_world;
-		if (tile1Image.id)
-			glDeleteTextures(1,&tile1Image.id);
-		if (tile2Image.id)
-			glDeleteTextures(1,&tile2Image.id);
-		if (backgroundImage.id)
-			glDeleteTextures(1,&tile2Image.id);
+		glDeleteTextures(levelTextures.size(),&levelTextures[0]);
+		levelTextures.clear();
+		debrisList.clear();
+		debris.clear();
+		introImage.id = 0;
+		backgroundImage.id  = 0;
+		tile1Image.id = 0;
+		tile2Image.id = 0;
 		if (currentMusic==&gameMusic)
 		{
-			Pa_AbortStream(currentMusic->pStream);
+			Pa_CloseStream(currentMusic->pStream);
 			currentMusic = NULL;
 		}
+		delete animatedJump;
+		delete animatedIdle;
+		delete animatedRun;
+		animatedJump=animatedIdle=animatedRun=NULL;
 		luaStepFunction.Reset();
-		gameMusic.loaded.resize(0);
+		gameMusic.loaded.clear();
+		introMusic.loaded.clear();
+		deathSound.loaded.clear();
+
 		m_world = NULL;
+		if (state!=GAME_WIN)
+		{
+			if (winImage.id)
+			{
+				glDeleteTextures(1,&winImage.id);
+				winImage.id=0;
+			}
+		}
 	}
 	if (gameState==GAME_INTRO && state!=GAME_INTRO)
 	{
 		if (currentVoice && currentVoice->pStream)
 		{
-			Pa_AbortStream(currentVoice->pStream);
+			Pa_CloseStream(currentVoice->pStream);
 			delete currentVoice;
 			currentVoice = NULL;
+		}
+	}
+
+	if (gameState==GAME_WIN && state!=GAME_WIN)
+	{
+		if (currentVoice && currentVoice->pStream)
+		{
+			Pa_CloseStream(currentVoice->pStream);
+			delete currentVoice;
+			currentVoice = NULL;
+		}
+		if (winImage.id)
+		{
+			glDeleteTextures(1,&winImage.id);
+			winImage.id=0;
 		}
 	}
 	gameState = state;
@@ -634,11 +739,11 @@ void LuaLevel::setGameState(GameState state, Settings* settings)
 		settings->setViewSize(30);
 		settings->widthIsConstant = true;
 		settings->setViewPosition(b2Vec2(0,0));
-		glClearColor(0,0,0,1);
+		glClearColor(201/255.f,229/255.f,245/255.f,1);
 		if (currentMusic != &gameMusic)
 		{
 			if (currentMusic)
-				Pa_AbortStream(currentMusic->pStream);
+				Pa_CloseStream(currentMusic->pStream);
 			if (gameMusic.loaded.size()!=0)
 			{
 				gameMusic.pos = 0;
@@ -663,19 +768,32 @@ void LuaLevel::setGameState(GameState state, Settings* settings)
 			if (currentMusic != &menuMusic)
 			{
 				if (currentMusic)
-					Pa_AbortStream(currentMusic->pStream);
+					Pa_CloseStream(currentMusic->pStream);
 
 				menuMusic.pos = 0;
 				currentMusic = &menuMusic;
 				playMp3File(&menuMusic);
 			}
 		}
-		if (state==GAME_WIN || state== GAME_INTRO)
+		if (state==GAME_WIN)
 		{
 			if (currentMusic)
+				Pa_CloseStream(currentMusic->pStream);
+
+			endMusic.pos = 0;
+			currentMusic = &endMusic;
+			playMp3File(&endMusic);
+			currentDialog=1;
+		}else if (state==GAME_INTRO)
+		{
+			if (currentMusic)
+				Pa_CloseStream(currentMusic->pStream);
+
+			if (introMusic.loaded.size()!=0)
 			{
-				Pa_AbortStream(currentMusic->pStream);
-				currentMusic = NULL;
+				introMusic.pos = 0;
+				currentMusic = &introMusic;
+				playMp3File(&introMusic);
 			}
 		}
 
@@ -691,10 +809,18 @@ void LuaLevel::Keyboard(unsigned char key, Settings* settings)
 {
 	if (gameState==GAME_INTRO)
 	{
-		setGameState(GAME, settings);
+		if (key=='\r' || key=='\n')
+			setGameState(GAME, settings);
 	}
-	else if (gameState==GAME_WIN && key==27)
+	else if (gameState==GAME_WIN && (key==27 || key=='\r' || key=='\n'))
 		setGameState(MENU, settings);
+	else if (key==' ' && gameState==MENU)
+	{
+		if (secret=!secret)
+		{
+			playMp3File(&strangeSound);
+		}
+	}
 	else
 		switch (key)
 	{
@@ -832,8 +958,12 @@ void LuaLevel::loadLevelGlobals(LuaState *pstate)
 	globals.SetString("controlKeyThrusters","\0",1);
 
 
-	globals.SetString("character","Alex",4);
+	globals.SetString("character",secret?"Angela":"Alex");
 	globals.SetNumber("viewportMaximumX",30);
+	globals.SetNumber("playerPositionX",2);
+	globals.SetNumber("wizardPositionX",-50);
+	globals.SetNumber("wizardPositionY",-50);
+	globals.SetNumber("winHeight",60);
 
 
 
@@ -855,6 +985,7 @@ void LuaLevel::loadLevelGlobals(LuaState *pstate)
 	globals.SetNil("step");
 
 	globals.SetNil("afterWin");
+	globals.SetNil("debrisList");
 }
 
 void LuaLevel::unloadLevelGlobals(LuaState *pstate)
@@ -874,6 +1005,10 @@ void LuaLevel::unloadLevelGlobals(LuaState *pstate)
 	{
 		loadMp3File(pstate->GetGlobal("music").GetString(),&gameMusic);
 	}
+	if (pstate->GetGlobal("introMusic").IsString())
+	{
+		loadMp3File(pstate->GetGlobal("introMusic").GetString(),&introMusic);
+	}
 	if (pstate->GetGlobal("musicLoop").IsBoolean())
 	{
 		gameMusic.loop = pstate->GetGlobal("musicLoop").GetBoolean();
@@ -882,12 +1017,24 @@ void LuaLevel::unloadLevelGlobals(LuaState *pstate)
 	{
 		viewportMaximumX = (float)pstate->GetGlobal("viewportMaximumX").GetNumber();
 	}
+	if (pstate->GetGlobal("winHeight").IsNumber())
+	{
+		winHeight = (float)pstate->GetGlobal("winHeight").GetNumber();
+	}
 
-
+	if (pstate->GetGlobal("wizardPositionX").IsInteger())
+	{
+		wizardPositionX = pstate->GetGlobal("wizardPositionX").GetInteger();
+	}
+	if (pstate->GetGlobal("wizardPositionY").IsInteger())
+	{
+		wizardPositionY = pstate->GetGlobal("wizardPositionY").GetInteger();
+	}
 	//Tiles
 	if (pstate->GetGlobal("tile1ImageFile").IsString())
 	{
 		Graphics::loadATexture(pstate->GetGlobal("tile1ImageFile").GetString(),&tile1Image);
+		levelTextures.push_back(tile1Image.id);
 		if (pstate->GetGlobal("tile1ImageWidth").IsNumber())
 			tile1Image.imageWidth = (unsigned int)pstate->GetGlobal("tile1ImageWidth").GetNumber();
 		if (pstate->GetGlobal("tile1ImageHeight").IsNumber())
@@ -903,6 +1050,7 @@ void LuaLevel::unloadLevelGlobals(LuaState *pstate)
 	if (pstate->GetGlobal("tile2ImageFile").IsString())
 	{
 		Graphics::loadATexture(pstate->GetGlobal("tile2ImageFile").GetString(),&tile2Image);
+		levelTextures.push_back(tile1Image.id);
 		if (pstate->GetGlobal("tile2ImageWidth").IsNumber())
 			tile2Image.imageWidth = (unsigned int)pstate->GetGlobal("tile2ImageWidth").GetNumber();
 		if (pstate->GetGlobal("tile2ImageHeight").IsNumber())
@@ -918,11 +1066,26 @@ void LuaLevel::unloadLevelGlobals(LuaState *pstate)
 	if (pstate->GetGlobal("backgroundImageFile").IsString())
 	{
 		Graphics::loadATexture(pstate->GetGlobal("backgroundImageFile").GetString(),&backgroundImage);
+		levelTextures.push_back(backgroundImage.id);
 		if (pstate->GetGlobal("backgroundImageWidth").IsNumber())
 			backgroundImage.imageWidth = (unsigned int)pstate->GetGlobal("backgroundImageWidth").GetNumber();
 		if (pstate->GetGlobal("backgroundImageHeight").IsNumber())
 			backgroundImage.imageHeight = (unsigned int)pstate->GetGlobal("backgroundImageHeight").GetNumber();
 	}
+
+	if (pstate->GetGlobal("debrisList").IsTable())
+	{
+		tile2ImageDrawList = pstate->GetGlobal("debrisList");
+		int size = tile2ImageDrawList.GetN();
+		for (int i = 1; i<=size; i++)
+		{
+			Graphics::Texture debris;
+			Graphics::loadATexture(tile2ImageDrawList.GetByIndex(i).GetString(), &debris);
+			levelTextures.push_back(debris.id);
+			debrisList.push_back(debris);
+		}
+	}
+
 
 	//functions
 	if (pstate->GetGlobal("step").IsFunction())
@@ -978,7 +1141,7 @@ int LuaLevel::createBox( float32 x, float32 y, float32 w, float32 h)
 	return 0;
 }
 
-int LuaLevel::createDebris( float32 x, float32 y,  float32 w, float32 h)
+int LuaLevel::createDebris( float32 x, float32 y)
 {
 	b2BodyDef bodyDef;
 	b2FixtureDef fixtureDef;
@@ -998,9 +1161,15 @@ int LuaLevel::createDebris( float32 x, float32 y,  float32 w, float32 h)
 	fixtureDef.friction = .4f;
 	fixtureDef.shape = &polygonShape;
 
-	polygonShape.SetAsBox(w,h);
-
+	int index = rand()%debrisList.size();
+	Graphics::Texture debrisTexture = debrisList[index];
+	r = ((float) rand() / (RAND_MAX))*.5f+.8f;
+	polygonShape.SetAsBox(debrisTexture.imageWidth/128.f*r,debrisTexture.imageHeight/128.f*r);
+	body->SetUserData(&debrisList[index]);
+	debris.push_back(body);
+	fixtureDef.userData = (void*)((int)(r*100));
 	body->CreateFixture(&fixtureDef);
+
 
 	return 0;
 }

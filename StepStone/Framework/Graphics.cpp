@@ -8,7 +8,7 @@ GLuint Graphics::loadTexture(vector<unsigned char> &image, string fileName, unsi
 		//if there's an error, display it
 		if(error) 
 		{
-			std::cout << "decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
+			std::cout << "decoder error " << error << ": " << lodepng_error_text(error) << " for " << fileName<<std::endl;
 			return 0;
 		}
 
@@ -68,13 +68,23 @@ void Graphics::drawImage(unsigned int width, unsigned int height, GLfloat scaled
 	//glDisable(GL_TEXTURE_2D);
 }
 
-void Graphics::drawImage(unsigned int x, unsigned int y, unsigned int width, unsigned int height, GLfloat scaledWidth, GLfloat scaledHeight)
+void Graphics::drawImage(int x, int y, int width, int height, GLfloat scaledWidth, GLfloat scaledHeight)
 {
 	glBegin(GL_QUADS);
 	glTexCoord2f(		   0, scaledHeight); glVertex2i(	x	 ,	    y);
 	glTexCoord2f(scaledWidth, scaledHeight); glVertex2i(x + width,	    y);
 	glTexCoord2f(scaledWidth,			 0); glVertex2i(x+ width , y + height);
 	glTexCoord2f(		   0,			 0); glVertex2i(	x	 , y + height);
+	glEnd();
+}
+
+void Graphics::drawImage(unsigned int x, unsigned int y, float width, float height, GLfloat scaledWidth, GLfloat scaledHeight)
+{
+	glBegin(GL_QUADS);
+	glTexCoord2f(		   0, scaledHeight); glVertex2f(	x	 ,	    y);
+	glTexCoord2f(scaledWidth, scaledHeight); glVertex2f(x + width,	    y);
+	glTexCoord2f(scaledWidth,			 0); glVertex2f(x+ width , y + height);
+	glTexCoord2f(		   0,			 0); glVertex2f(	x	 , y + height);
 	glEnd();
 }
 

@@ -1,3 +1,5 @@
 ﻿  LuaLevel.cpp
-..\..\StepStone\Framework\LuaLevel.cpp(560): warning C4800: 'void *' : forcing value to bool 'true' or 'false' (performance warning)
+..\..\StepStone\Framework\LuaLevel.cpp(610): warning C4018: '<' : signed/unsigned mismatch
+..\..\StepStone\Framework\LuaLevel.cpp(646): warning C4244: 'argument' : conversion from 'unsigned int' to 'float', possible loss of data
+..\..\StepStone\Framework\LuaLevel.cpp(648): warning C4244: 'argument' : conversion from 'unsigned int' to 'float', possible loss of data
   StepStone.vcxproj -> C:\Users\David\Desktop\newmaster\Build\vs2010\bin\Debug\StepStone.exe

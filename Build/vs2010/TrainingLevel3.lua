@@ -1,5 +1,5 @@
-local WIDTH = 60
-local HEIGHT = 15
+local WIDTH = 30
+local HEIGHT = 60
 local GRAVITY_Y = -30
 local PLAYER_SPAWN_X = 4
 local PLAYER_SPAWN_Y = 4
@@ -13,10 +13,9 @@ box2DFactory:createEdge(WIDTH, 0, WIDTH, HEIGHT)
 local currentTime = 0
 local nextCreate = 0
 math.randomseed(1)
-
 function step(delta)
 	if (nextCreate<=0) then
-		nextCreate = math.random()*.4
+		nextCreate = math.random()*.8
 		currentTime = currentTime + delta;
 		box2DFactory:createDebris(math.random()*WIDTH, HEIGHT)
 	else
@@ -37,24 +36,26 @@ function createBox(x,y,width,height) -- this way i can just call 1 method for cr
 	box2DFactory:createBox(x,y,width,height)
 end
 
-music = "level1\\music.mp3"
+music = "level3\\music.mp3"
 musicLoop = true
-backgroundImageFile = "level1\\desert.png"
-backgroundImageWidth = WIDTH
-backgroundImageHeight = HEIGHT
---tile1ImageFile = "backdrops\\skyscraper.png"
+backgroundImageFile = nil
+backgroundImageWidth = 30
+backgroundImageHeight = 30
+tile1ImageFile = "level3\\skyscraper.png"
+tile1ImageDrawList = {0,0,30,30,0,30,30,30,0,60,30,30}
 --x,y,width,height
 --createBox(0,0,2,2)
 --createBox(15,15,2,2)
-afterWin='TrainingLevel2.lua'
+debrisList = {'debris\\city_64x128_1.png', 'debris\\city_64x128_2.png', 'debris\\city_128x128_1.png', 'debris\\city_128x128_2.png'}
+afterWin=GAME_WIN
+introImageFile = nil
+dialogFile = {'level3\\wiz3.mp3','level3\\'..character..'4.mp3'}
+endMusic = 'level3\\ending.mp3'
+endDialogFile = {'level3\\wiz4.mp3', 'level3\\'..character..'5.mp3', 'common\\weirdMagic.mp3','level3\\'..character..'6.mp3'}
+winHeight = 60
+--a1 wiz1 a2
+--wiz2 a3
+--wiz3 a4, ending wiz4,a5,a6
 --world:setGravity(world:getGravity():set(0,GRAVITY_Y))
 --bodyDef.position:set(PLAYER_SPAWN_X,PLAYER_SPAWN_Y)
 
-viewportMaximumX = WIDTH
-introImageFile = "CGs\\openingcg"..character..".png"
-dialogFile = {'level1\\'..character..'1.mp3','level1\\wiz1.mp3','common\\weirdMagic.mp3','level1\\'..character..'2.mp3'}
-introMusic = 'level1\\opening.mp3'
-debrisList = {'debris\\desert_64x128_1.png', 'debris\\desert_64x128_2.png', 'debris\\desert_128x128_1.png', 'debris\\desert_128x128_2.png'}
-wizardPositionX = 72
-wizardPositionY = 16
-winHeight = HEIGHT

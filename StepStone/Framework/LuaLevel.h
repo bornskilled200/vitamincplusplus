@@ -80,7 +80,7 @@ public:
 	int createAnEdge(float32 x1, float32 y1, float32 x2, float32 y2);
 	int createFrictionlessEdge(float32 x1, float32 y1, float32 x2, float32 y2);
 	int createBox( float32 x, float32 y, float32 hw, float32 hh);
-	int createDebris( float32 x, float32 y,  float32 w, float32 h);
+	int createDebris( float32 x, float32 y);
 	void init();
 	int createButton(float x, float y, const char* file1,const char* file2, int state, LuaStackObject statesToShow);
 
@@ -136,7 +136,6 @@ protected:
 	Graphics::Texture aboutImage;
 	Graphics::Texture menuImage;
 	Graphics::Texture helpImage;
-	Graphics::Texture backdropImage;
 	Graphics::Texture winImage;
 	Graphics::Texture introImage;
 	
@@ -152,19 +151,31 @@ protected:
 	Graphics::AnimatedTexture* animatedIdle;
 	Graphics::AnimatedTexture* animatedRun;
 	Graphics::AnimatedTexture* animatedJump;
+	Graphics::Texture wizardImage;
 
 	Graphics::AnimatedTexture* currentAnimatedTexture;
 	bool isFacingRight;
+	bool wizardIsFacingRight;
 	float viewportMaximumX;
+	float winHeight;
+	bool secret;
 	
 	Sound menuMusic;
-
+	
 	Sound gameMusic;
+	Sound endMusic;
+	Sound introMusic;
 	Sound deathSound;
+	Sound debrisHitSound;
+	Sound strangeSound;
+
 	Sound* currentVoice;
 	int currentDialog;
 	
 	Sound* currentMusic;
+	unsigned int wizardPositionX, wizardPositionY;
+	vector<b2Body*> debris;
+	vector<Graphics::Texture> debrisList;
 };
 
 #endif

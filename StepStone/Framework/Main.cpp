@@ -159,8 +159,7 @@ static void Keyboard(unsigned char key, int x, int y)
 	case 'p':
 		settings.setPause(!settings.getPause());
 		break;
-	case '\n':
-	case '\r':
+	case 'l':
 		settings.setSingleStep(true);
 		break;
 
@@ -212,6 +211,7 @@ static void KeyboardSpecial(int key, int x, int y)
 		settings.setViewSize(20.0f);
 		settings.setViewPosition(b2Vec2(0.0f, 0.0f));
 		break;
+
 	}
 }
 
@@ -333,7 +333,6 @@ int main(int argc, char** argv)
 
 	glutMainLoop();
 
-	glutDestroyWindow(mainWindow);
 	delete luaLevel;
 	return EXIT_SUCCESS;
 }
