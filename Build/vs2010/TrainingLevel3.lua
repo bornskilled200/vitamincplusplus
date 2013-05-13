@@ -42,7 +42,9 @@ backgroundImageFile = nil
 backgroundImageWidth = 30
 backgroundImageHeight = 30
 tile1ImageFile = "level3\\skyscraper.png"
-tile1ImageDrawList = {0,0,30,30,0,30,30,30,0,60,30,30}
+tile1ImageDrawList = {0,0,30,30,0,30,30,30}
+tile2ImageFile = "level3\\skyscrapertop.png"
+tile2ImageDrawList = {0,60,30,15}
 --x,y,width,height
 --createBox(0,0,2,2)
 --createBox(15,15,2,2)
@@ -52,7 +54,7 @@ introImageFile = nil
 dialogFile = {'level3\\wiz3.mp3','level3\\'..character..'4.mp3'}
 endMusic = 'level3\\ending.mp3'
 endDialogFile = {'level3\\wiz4.mp3', 'level3\\'..character..'5.mp3', 'common\\weirdMagic.mp3','level3\\'..character..'6.mp3'}
-winHeight = 60
+winHeight = 70
 --a1 wiz1 a2
 --wiz2 a3
 --wiz3 a4, ending wiz4,a5,a6

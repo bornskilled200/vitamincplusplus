@@ -231,6 +231,8 @@ void LuaLevel::init()
 	controlJump=false;
 	controlLeft= false;
 	controlRight=false;
+	uncollidable = false;
+	invincibility = false;
 
 	currentDialog = 1;
 
@@ -565,6 +567,19 @@ void LuaLevel::Step(Settings* settings)
 					Graphics::drawImage(&tile1Image, 
 						(int)tile1ImageDrawList.GetByIndex(i).GetInteger(),(int)tile1ImageDrawList.GetByIndex(i+1).GetInteger(),
 						(int)tile1ImageDrawList.GetByIndex(i+2).GetInteger(),(int)tile1ImageDrawList.GetByIndex(i+3).GetInteger());
+				}
+			}
+		}
+		if (Graphics::isValidTexture(tile2Image))
+		{
+			if (tile2ImageDrawList.IsTable())
+			{
+				int drawListLength = tile2ImageDrawList.GetN();
+				for (int i = 1; i <= drawListLength-3; i+=4)
+				{
+					Graphics::drawImage(&tile2Image, 
+						(int)tile2ImageDrawList.GetByIndex(i).GetInteger(),(int)tile2ImageDrawList.GetByIndex(i+1).GetInteger(),
+						(int)tile2ImageDrawList.GetByIndex(i+2).GetInteger(),(int)tile2ImageDrawList.GetByIndex(i+3).GetInteger());
 				}
 			}
 		}
@@ -1077,12 +1092,12 @@ void LuaLevel::unloadLevelGlobals(LuaState *pstate)
 
 	if (pstate->GetGlobal("debrisList").IsTable())
 	{
-		tile2ImageDrawList = pstate->GetGlobal("debrisList");
-		int size = tile2ImageDrawList.GetN();
+		LuaObject obj = pstate->GetGlobal("debrisList");
+		int size = obj.GetN();
 		for (int i = 1; i<=size; i++)
 		{
 			Graphics::Texture debris;
-			Graphics::loadATexture(tile2ImageDrawList.GetByIndex(i).GetString(), &debris);
+			Graphics::loadATexture(obj.GetByIndex(i).GetString(), &debris);
 			levelTextures.push_back(debris.id);
 			debrisList.push_back(debris);
 		}
