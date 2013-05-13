@@ -161,6 +161,8 @@ protected:
 
 	Sound gameMusic;
 	Sound deathSound;
+	Sound* currentVoice;
+	int currentDialog;
 	
 	Sound* currentMusic;
 };

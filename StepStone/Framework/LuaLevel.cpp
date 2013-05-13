@@ -35,7 +35,7 @@ const static uint16 PLAYER_FEET_TOUCHING_BOUNDARY=playerFeetBits|boundaryBits;
 const static uint16 PLAYER_FEET_TOUCHING_DEBRIS=playerFeetBits|debrisBits;
 const static uint16 PLAYER_BODY_TOUCHING_DEBRIS=playerBodyBits|debrisBits;
 
-LuaLevel::LuaLevel(Settings* settings):m_world(NULL),currentLevelLuaFile("TrainingLevel.lua"),slowdownBy(50)
+LuaLevel::LuaLevel(Settings* settings):m_world(NULL),currentLevelLuaFile("TrainingLevel.lua"),slowdownBy(50),currentVoice(NULL)
 {
 	// Init Lua
 	luaPState = LuaState::Create(true);
@@ -227,6 +227,8 @@ void LuaLevel::init()
 	controlJump=false;
 	controlLeft= false;
 	controlRight=false;
+
+	currentDialog = 1;
 
 	uint32 flags = 0;
 	flags += b2Draw::e_shapeBit;
@@ -461,6 +463,32 @@ void LuaLevel::Step(Settings* settings)
 			glColor4ub(255, 255, 255, 255);
 			drawImage(&introImage);
 		}
+
+		if (!currentVoice)
+		{
+			if (luaPState->GetGlobal("dialogFile").IsTable())
+			{
+				LuaObject table = luaPState->GetGlobal("dialogFile");
+				int size = table.GetCount();
+				if (currentDialog<=size)
+				{
+					currentVoice = new Sound;
+					loadMp3File(table.GetByIndex(currentDialog).GetString(),currentVoice);
+					currentVoice->loop=false;
+					playMp3File(currentVoice);
+				}
+			}
+		}
+		else if (currentVoice->pStream==0)
+		{
+			LuaObject table = luaPState->GetGlobal("dialogFile");
+			int size = table.GetCount();
+			delete currentVoice;
+			currentVoice = NULL;
+			if (size==currentDialog)
+				setGameState(GAME,settings);
+			currentDialog++;
+		}
 		break;
 	case GAME:		
 		float32 timeStep = settings->getHz() > 0.0f ? 1.0f / settings->getHz() : float32(0.0f);
@@ -590,6 +618,15 @@ void LuaLevel::setGameState(GameState state, Settings* settings)
 		luaStepFunction.Reset();
 		gameMusic.loaded.resize(0);
 		m_world = NULL;
+	}
+	if (gameState==GAME_INTRO && state!=GAME_INTRO)
+	{
+		if (currentVoice && currentVoice->pStream)
+		{
+			Pa_AbortStream(currentVoice->pStream);
+			delete currentVoice;
+			currentVoice = NULL;
+		}
 	}
 	gameState = state;
 	if (gameState==GAME)
@@ -797,7 +834,7 @@ void LuaLevel::loadLevelGlobals(LuaState *pstate)
 
 	globals.SetString("character","Alex",4);
 	globals.SetNumber("viewportMaximumX",30);
-	
+
 
 
 	//Level specific stuff

@@ -68,3 +68,4 @@ afterWin='TrainingLevel2.lua'
 character='Alex'
 viewportMaximumX = WIDTH
 introImageFile = "CGs\\openingcg"..character..".png"
+dialogFile = {'level1\\'..character..'1.mp3','level1\\'..character..'2.mp3'}
