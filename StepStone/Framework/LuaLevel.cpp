@@ -678,9 +678,9 @@ void LuaLevel::setGameState(GameState state, Settings* settings)
 	{
 		delete m_world;
 		glDeleteTextures(levelTextures.size(),&levelTextures[0]);
-		levelTextures.clear();
-		debrisList.clear();
-		debris.clear();
+		vector<GLuint>().swap(levelTextures);
+		vector<Graphics::Texture>().swap(debrisList);
+		vector<b2Body*>().swap(debris);
 		introImage.id = 0;
 		backgroundImage.id  = 0;
 		tile1Image.id = 0;
@@ -695,8 +695,8 @@ void LuaLevel::setGameState(GameState state, Settings* settings)
 		delete animatedRun;
 		animatedJump=animatedIdle=animatedRun=NULL;
 		luaStepFunction.Reset();
-		gameMusic.loaded.clear();
-		introMusic.loaded.clear();
+		vector<unsigned char>().swap(gameMusic.loaded);
+		vector<unsigned char>().swap(introMusic.loaded);
 
 		m_world = NULL;
 		if (state!=GAME_WIN)
@@ -754,7 +754,10 @@ void LuaLevel::setGameState(GameState state, Settings* settings)
 	else
 	{
 		if (gameState==GAME_INTRO)
+		{
 			init();
+
+		}
 
 		glClearColor(97/255.f,117/255.f,113/255.f,1);
 		glEnable(GL_TEXTURE_2D);
@@ -799,6 +802,7 @@ void LuaLevel::setGameState(GameState state, Settings* settings)
 		if (state==MENU)
 		{
 			currentLevelLuaFile = "TrainingLevel.lua";
+			vector<unsigned char>().swap(deathSound.loaded);
 		}
 	}
 }

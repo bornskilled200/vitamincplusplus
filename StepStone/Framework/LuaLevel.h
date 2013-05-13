@@ -136,9 +136,9 @@ protected:
 	Graphics::Texture aboutImage;
 	Graphics::Texture menuImage;
 	Graphics::Texture helpImage;
-	Graphics::Texture winImage;
-	Graphics::Texture introImage;
 	
+	Graphics::Texture introImage;
+	Graphics::Texture winImage;
 	Graphics::Texture tile1Image;
 	LuaObject tile1ImageDrawList;
 	Graphics::Texture tile2Image;
