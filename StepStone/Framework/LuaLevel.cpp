@@ -756,7 +756,6 @@ void LuaLevel::setGameState(GameState state, Settings* settings)
 		if (gameState==GAME_INTRO)
 		{
 			init();
-
 		}
 
 		glClearColor(97/255.f,117/255.f,113/255.f,1);
