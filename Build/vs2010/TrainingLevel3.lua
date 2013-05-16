@@ -50,11 +50,13 @@ tile2ImageDrawList = {0,60,30,15}
 --createBox(15,15,2,2)
 debrisList = {'debris\\city_64x128_1.png', 'debris\\city_64x128_2.png', 'debris\\city_128x128_1.png', 'debris\\city_128x128_2.png'}
 afterWin=GAME_WIN
-introImageFile = nil
+introImageFile = 'cgs\\forest'..character..'.png'
 dialogFile = {'level3\\wiz3.mp3','level3\\'..character..'4.mp3'}
 endMusic = 'level3\\ending.mp3'
 endDialogFile = {'level3\\wiz4.mp3', 'level3\\'..character..'5.mp3', 'common\\weirdMagic.mp3','level3\\'..character..'6.mp3'}
 winHeight = 70
+wizardPositionX=22
+wizardPositionY=69
 --a1 wiz1 a2
 --wiz2 a3
 --wiz3 a4, ending wiz4,a5,a6

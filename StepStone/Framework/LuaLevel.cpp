@@ -48,6 +48,16 @@ LuaLevel::LuaLevel(Settings* settings):m_world(NULL),currentLevelLuaFile("Traini
 	loadATexture("titlescreen.png", &menuImage, image);					uniqueTextures.push_back(menuImage.id);
 	loadATexture("wizard\\idle.png", &wizardImage, image);				uniqueTextures.push_back(wizardImage.id);
 
+	loadATexture("health\\0.png", &healthBar[0], image); uniqueTextures.push_back(healthBar[0].id);
+	loadATexture("health\\1.png", &healthBar[1], image); uniqueTextures.push_back(healthBar[1].id);
+	loadATexture("health\\2.png", &healthBar[2], image); uniqueTextures.push_back(healthBar[2].id);
+	loadATexture("health\\3.png", &healthBar[3], image); uniqueTextures.push_back(healthBar[3].id);
+	loadATexture("health\\4.png", &healthBar[4], image); uniqueTextures.push_back(healthBar[4].id);
+	loadATexture("health\\5.png", &healthBar[5], image); uniqueTextures.push_back(healthBar[5].id);
+	loadATexture("health\\6.png", &healthBar[6], image); uniqueTextures.push_back(healthBar[6].id);
+	loadATexture("health\\7.png", &healthBar[7], image); uniqueTextures.push_back(healthBar[7].id);
+	loadATexture("health\\8.png", &healthBar[8], image); uniqueTextures.push_back(healthBar[8].id);
+	loadATexture("health\\hp.png", &healthBarIndicator, image); uniqueTextures.push_back(healthBarIndicator.id);
 	//Menu Music
 	loadMp3File("title\\music.mp3", &menuMusic);
 	loadMp3File("level3\\ending.mp3", &endMusic);
@@ -127,7 +137,7 @@ void LuaLevel::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
 		maxImpulse = b2Max(maxImpulse, impulse->normalImpulses[i]);
 	}
 
-	if (maxImpulse > 40.0f)
+	if (maxImpulse > 20.0f)
 	{
 		playerBody->SetUserData((void*)true);
 	}
@@ -194,6 +204,21 @@ void LuaLevel::init()
 	loadATexture(character + "\\jump\\5.png", &textures[4], image); framesPerImage[4]=10; levelTextures.push_back(textures[4].id);
 	animatedJump = new Graphics::AnimatedTexture(textures,5,framesPerImage);
 
+	
+	textures.resize(2);
+	framesPerImage.resize(2);
+	loadATexture(character + "\\hurt\\1.png", &textures[0], image); framesPerImage[0]=10; levelTextures.push_back(textures[0].id);
+	loadATexture(character + "\\hurt\\2.png", &textures[1], image); framesPerImage[1]=10; levelTextures.push_back(textures[1].id);
+	animatedHurt = new Graphics::AnimatedTexture(textures,2,framesPerImage);
+
+	
+	textures.resize(2);
+	framesPerImage.resize(2);
+	loadATexture(character + "\\dead\\1.png", &textures[0], image); framesPerImage[0]=10; levelTextures.push_back(textures[0].id);
+	textures[1]=textures[0];
+	textures[1].id=0;
+	animatedDead = new Graphics::AnimatedTexture(textures,2,framesPerImage);
+
 	loadATexture("CGs\\final"+character+".png", &winImage, image);					
 	//loadATexture("CGs\\openingcg"+character+".png", &introImage, image);					uniqueTextures.push_back(introImage.id);
 	if (luaPState->GetGlobal("introImageFile").IsString())
@@ -215,14 +240,14 @@ void LuaLevel::init()
 	b2FixtureDef fixtureDef;
 	b2PolygonShape polygonShape;
 	fixtureDef.shape = &polygonShape;
-	polygonShape.SetAsBox(.76f,1.28f);
+	polygonShape.SetAsBox(.6f,1.28f);
 	fixtureDef.friction=0;
 	fixtureDef.filter.categoryBits=playerBodyBits;
 	fixtureDef.density=1;
 	playerBox = playerBody->CreateFixture(&fixtureDef);
 
 	b2Vec2 center(0,-1.28f);
-	polygonShape.SetAsBox(.76f,.2f, center, 0);
+	polygonShape.SetAsBox(.6f,.2f, center, 0);
 	fixtureDef.filter.categoryBits=playerFeetBits;
 	fixtureDef.density=0;
 	playerFeet = playerBody->CreateFixture(&fixtureDef);
@@ -234,7 +259,11 @@ void LuaLevel::init()
 	uncollidable = false;
 	invincibility = false;
 
+	died = 0;
+	citamatic = 100;
+
 	currentDialog = 1;
+	health = secret?2:8;
 
 	uint32 flags = 0;
 	flags += b2Draw::e_shapeBit;
@@ -267,7 +296,7 @@ void LuaLevel::drawGame(Settings* settings, float32 timeStep)
 void LuaLevel::processCollisionsForGame(Settings* settings)
 {
 	//Check for winnning
-	if (playerBody->GetPosition().y>winHeight)
+	if ((b2Vec2(wizardPositionX+2,wizardPositionY+2)-playerBody->GetPosition()).Length()<4)
 	{
 		if (luaPState->GetGlobal("afterWin").IsInteger())
 		{
@@ -285,7 +314,8 @@ void LuaLevel::processCollisionsForGame(Settings* settings)
 	if (pos.x<0 || pos.y<0 || pos.x>viewportMaximumX)
 	{
 		playMp3File(&deathSound);
-		setGameState(GAME_INTRO,settings);
+		died = 30;
+		//setGameState(GAME_INTRO,settings);
 		return;
 	}
 
@@ -339,7 +369,7 @@ void LuaLevel::processCollisionsForGame(Settings* settings)
 			bool below = true, side = true;
 			for(int j = 0; j < c->GetManifold()->pointCount; j++) {
 				below &= (worldManifold.points[j].y < pos.y - 1.28f);
-				side &= (worldManifold.points[j].x < pos.x - .76f) | (worldManifold.points[j].x > pos.x + .76f);
+				side &= (worldManifold.points[j].x < pos.x - .6f) | (worldManifold.points[j].x > pos.x + .6f);
 			}
 
 			if (below)
@@ -371,31 +401,32 @@ void LuaLevel::processInputForGame(Settings *settings, float32 timeStep)
 	// JUMPING
 	if (playerCanMoveUpwards>=0) playerCanMoveUpwards -= timeStep;
 	if (controlJump) {
-		if (canJump && justJumped==false)
+		if (canJump && justJumped==false && linearVelocity.y<10)
 		{
-			playerBody->ApplyLinearImpulse(b2Vec2(0,15), worldCenter);
-			playerCanMoveUpwards = .3f;
+			playerBody->ApplyLinearImpulse(b2Vec2(0,25), worldCenter);
+			playerCanMoveUpwards = .5f;
 			justJumped = true;
 			if (currentAnimatedTexture!=animatedJump)
 				currentAnimatedTexture=animatedJump;
 		}
 		else if (canKickOff && justKickedOff==false)
 		{
-			playerBody->ApplyLinearImpulse(b2Vec2(0,20), worldCenter);
+			playerBody->ApplyLinearImpulse(b2Vec2(0,12), worldCenter);
 			justKickedOff = true;
-		}
+		}/*
 		else if (playerCanMoveUpwards > 0)
 		{
-			playerBody->ApplyLinearImpulse(b2Vec2(0,2.2f), worldCenter);
-		}
+			m_debugDraw.DrawString(0, 45, "floating");
+			playerBody->ApplyLinearImpulse(b2Vec2(0,2.f), worldCenter);
+		}*/
 	}
 
 	// HORIZONTAL MOVEMENT/RUNNING
 	float32 vx = 0;
 	if (controlLeft)
-		vx += -200;
+		vx += -400;
 	if (controlRight)
-		vx += 200;
+		vx += 400;
 
 	if (vx == 0) { // if not pressing left and right
 		playerFeet->SetFriction(5);
@@ -410,11 +441,11 @@ void LuaLevel::processInputForGame(Settings *settings, float32 timeStep)
 		}
 	} else {
 		b2Vec2 force(vx, 0);
-		if (vx > 0 && linearVelocity.x < 8) {
+		if (vx > 0 && linearVelocity.x < 10) {
 			playerBody->ApplyForce(force, worldCenter);
 			isFacingRight = true;
 			//moving right
-		} else if (vx < 0 && linearVelocity.x > -8) {
+		} else if (vx < 0 && linearVelocity.x > -10) {
 			playerBody->ApplyForce(force, worldCenter);
 			//moving left
 			isFacingRight = false;
@@ -431,11 +462,14 @@ void LuaLevel::processInputForGame(Settings *settings, float32 timeStep)
 		}
 	}
 
-	b2Vec2 viewportPosition = settings->getViewPosition();
-	viewportPosition.y = max(viewportPosition.y-(viewportPosition.y-(worldCenter.y-10)) * .2f,0.0f);
-	viewportPosition.x = max(0.0f,viewportPosition.x-(viewportPosition.x-(worldCenter.x-10)) * .2f);
-	viewportPosition.x = min(viewportMaximumX-30.f,viewportPosition.x);//30.f is viewport width
-	settings->setViewPosition(viewportPosition);
+	if (citamatic==0)
+	{
+		b2Vec2 viewportPosition = settings->getViewPosition();
+		viewportPosition.y = max(viewportPosition.y-(viewportPosition.y-(worldCenter.y-10)) * .2f,0.0f);
+		viewportPosition.x = max(0.0f,viewportPosition.x-(viewportPosition.x-(worldCenter.x-10)) * .2f);
+		viewportPosition.x = min(viewportMaximumX-30.f,viewportPosition.x);//30.f is viewport width
+		settings->setViewPosition(viewportPosition);
+	}
 }
 
 
@@ -459,7 +493,7 @@ void LuaLevel::Step(Settings* settings)
 	case GAME_WIN:
 		glColor4ub(255, 255, 255, 255);
 		drawImage(&winImage);
-		m_debugDraw.DrawString(0,1024,"Congratulations! Press the Space Bar in the main menu for a suprise!");
+		m_debugDraw.DrawString(0,1000,"Congratulations! Press the Space Bar in the main menu for a suprise!");
 
 
 		if (!currentVoice)
@@ -518,137 +552,178 @@ void LuaLevel::Step(Settings* settings)
 		}
 		break;
 	case GAME:		
-		float32 timeStep = settings->getHz() > 0.0f ? 1.0f / settings->getHz() : float32(0.0f);
-
-		processCollisionsForGame(settings);
-		if (gameState!=GAME) // check to see if this is still the game state
-			break;
-		processInputForGame(settings, timeStep);
-		if (slowDown)
-			timeStep/=slowdownBy;
-
-
-		if (invincibility)
+		if (died==1)
 		{
-			invincibility-=.2f;
-			if (invincibility<0)
-				invincibility = 0;
+			setGameState(GAME_INTRO, settings);
 		}
-
-
-		glEnable(GL_TEXTURE_2D);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		glColor4f(1,1,1,1);
-		// ~~~~~~~~~~~~~ background drawing
-		if (Graphics::isValidTexture(backgroundImage))
-			Graphics::drawImage(&backgroundImage);
-
-		// ~~~~~~~~~~~~~ box2d drawing
-		drawGame(settings, timeStep);
-
-		if (playerBody->GetUserData())
+		else
 		{
-			playMp3File(&debrisHitSound);
-			playMp3File(&deathSound);
-			setGameState(GAME_INTRO,settings);
-		}
+			float32 timeStep = settings->getHz() > 0.0f ? 1.0f / settings->getHz() : float32(0.0f);
 
+			processCollisionsForGame(settings);
+			if (died==0 && citamatic==0) // check to see if this is still the game state or citamitc
+				processInputForGame(settings, timeStep);
+			if (slowDown)
+				timeStep/=slowdownBy;
 
-		// ~~~~~~~~~~~~~ tile drawing
-		if (Graphics::isValidTexture(tile1Image))
-		{
-			if (tile1ImageDrawList.IsTable())
+			if (citamatic<10 && citamatic!=0)
 			{
-				int drawListLength = tile1ImageDrawList.GetN();
-				for (int i = 1; i <= drawListLength-3; i+=4)
+				b2Vec2 playerPosition = playerBody->GetPosition();
+				b2Vec2 originalViewport = settings->getViewPosition();
+				b2Vec2 viewportPosition = settings->getViewPosition();
+				viewportPosition.y = max(viewportPosition.y-(viewportPosition.y-(playerPosition.y-10)) * .02f,0.0f);
+				viewportPosition.x = max(0.0f,viewportPosition.x-(viewportPosition.x-(playerPosition.x-15)) * .02f);
+				viewportPosition.x = min(viewportMaximumX-30.f,viewportPosition.x);//30.f is viewport width
+				settings->setViewPosition(viewportPosition);
+				if ((viewportPosition-originalViewport).Length()<.01f)
+					citamatic--;
+			} else if (citamatic!=0) citamatic--;
+
+			if (invincibility)
+			{
+				invincibility-=.2f;
+				if (invincibility<0)
+					invincibility = 0;
+			}
+
+
+			glEnable(GL_TEXTURE_2D);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+			glColor4f(1,1,1,1);
+			// ~~~~~~~~~~~~~ background drawing
+			if (Graphics::isValidTexture(backgroundImage))
+				Graphics::drawImage(&backgroundImage);
+
+			if (citamatic==0)
+				// ~~~~~~~~~~~~~ box2d drawing
+					drawGame(settings, timeStep);
+
+			if (playerBody->GetUserData())
+			{
+				playMp3File(&debrisHitSound);
+				playMp3File(&deathSound);
+				//died = true;
+				if (--health==0)
+					died=200;
+				else
+					invincibility=20;
+				playerBody->SetUserData(NULL);
+			}
+
+
+			// ~~~~~~~~~~~~~ tile drawing
+			if (Graphics::isValidTexture(tile1Image))
+			{
+				if (tile1ImageDrawList.IsTable())
 				{
-					Graphics::drawImage(&tile1Image, 
-						(int)tile1ImageDrawList.GetByIndex(i).GetInteger(),(int)tile1ImageDrawList.GetByIndex(i+1).GetInteger(),
-						(int)tile1ImageDrawList.GetByIndex(i+2).GetInteger(),(int)tile1ImageDrawList.GetByIndex(i+3).GetInteger());
+					int drawListLength = tile1ImageDrawList.GetN();
+					for (int i = 1; i <= drawListLength-3; i+=4)
+					{
+						Graphics::drawImage(&tile1Image, 
+							(int)tile1ImageDrawList.GetByIndex(i).GetInteger(),(int)tile1ImageDrawList.GetByIndex(i+1).GetInteger(),
+							(int)tile1ImageDrawList.GetByIndex(i+2).GetInteger(),(int)tile1ImageDrawList.GetByIndex(i+3).GetInteger());
+					}
 				}
 			}
-		}
-		if (Graphics::isValidTexture(tile2Image))
-		{
-			if (tile2ImageDrawList.IsTable())
+			if (Graphics::isValidTexture(tile2Image))
 			{
-				int drawListLength = tile2ImageDrawList.GetN();
-				for (int i = 1; i <= drawListLength-3; i+=4)
+				if (tile2ImageDrawList.IsTable())
 				{
-					Graphics::drawImage(&tile2Image, 
-						(int)tile2ImageDrawList.GetByIndex(i).GetInteger(),(int)tile2ImageDrawList.GetByIndex(i+1).GetInteger(),
-						(int)tile2ImageDrawList.GetByIndex(i+2).GetInteger(),(int)tile2ImageDrawList.GetByIndex(i+3).GetInteger());
+					int drawListLength = tile2ImageDrawList.GetN();
+					for (int i = 1; i <= drawListLength-3; i+=4)
+					{
+						Graphics::drawImage(&tile2Image, 
+							(int)tile2ImageDrawList.GetByIndex(i).GetInteger(),(int)tile2ImageDrawList.GetByIndex(i+1).GetInteger(),
+							(int)tile2ImageDrawList.GetByIndex(i+2).GetInteger(),(int)tile2ImageDrawList.GetByIndex(i+3).GetInteger());
+					}
 				}
 			}
-		}
+			
+			if (invincibility)
+				currentAnimatedTexture = animatedHurt;
+			if (died>0)
+				currentAnimatedTexture = animatedDead;
+			// ~~~~~~~~~~~~~ player drawing
+			if (!invincibility || (invincibility && invincibilityEffectShow))
+			{
+				b2Vec2 worldCenter = playerBody->GetWorldCenter();
+				glPushMatrix();
+				if (uncollidable)
+					glColor4f(1,1,1,.5f);
+				glTranslatef(worldCenter.x,worldCenter.y-1.28f-.2f*2,0);
+				const float32 scale = .028f;
+				glScalef(scale*(isFacingRight?1:-1),scale,scale);
+				Graphics::Texture currentTexture = currentAnimatedTexture->updateAndGetTexture();
+				glTranslatef(currentTexture.imageWidth/(-2.0f),0,0);
+				if (currentTexture.id!=0)
+					drawImage(&currentTexture);
+				glPopMatrix();
+			}
 
-		// ~~~~~~~~~~~~~ player drawing
-		if (!invincibility || (invincibility && invincibilityEffectShow))
-		{
-			b2Vec2 worldCenter = playerBody->GetWorldCenter();
+
+			if (invincibility)
+			{
+				invincibilityEffectTimer-=.2f;
+				if (invincibilityEffectTimer<=0)
+				{
+					invincibilityEffectShow = !invincibilityEffectShow;
+					invincibilityEffectTimer = 2;
+				}
+			}
+
+			//wizard drawing
 			glPushMatrix();
 			if (uncollidable)
 				glColor4f(1,1,1,.5f);
-			glTranslatef(worldCenter.x,worldCenter.y-1.28f-.2f*2,0);
+			glTranslatef((float)wizardPositionX,(float)wizardPositionY,0);
 			const float32 scale = .025f;
-			glScalef(scale*(isFacingRight?1:-1),scale,scale);
-			Graphics::Texture currentTexture = currentAnimatedTexture->updateAndGetTexture();
-			glTranslatef(currentTexture.imageWidth/(-2.0f),0,0);
-			drawImage(&currentTexture);
+			glScalef(scale*(wizardIsFacingRight?1:-1),scale,scale);
+			Graphics::drawImage(&wizardImage);
 			glPopMatrix();
-		}
 
-
-		if (invincibility)
-		{
-			invincibilityEffectTimer-=.2f;
-			if (invincibilityEffectTimer<=0)
+			// ~~~~~~~~~~~~~ debris drawing
+			for (int i = 0; i < debris.size(); i++)
 			{
-				invincibilityEffectShow = !invincibilityEffectShow;
-				invincibilityEffectTimer = 2;
+				Graphics::Texture* texture = (Graphics::Texture*)debris[i]->GetUserData();
+				//b2Vec2 halfSize(texture->imageWidth/2.f,texture->imageHeight/2.f);
+
+				b2Vec2 pos;
+				pos = debris[i]->GetWorldCenter();
+				float size = 1/128.f * (int)(debris[i]->GetFixtureList()->GetUserData())/100.f;
+				b2Vec2 bottomLeftCorner = pos;//-halfSize;
+
+				glPushMatrix();
+				glTranslatef(pos.x,pos.y,0);
+				glRotatef(debris[i]->GetAngle()*180/3.14f,0,0,1);
+				glTranslatef(texture->imageWidth*-size,texture->imageHeight*-size,0);
+				//glTranslatef(pos.x,pos.y,0);
+				//glTranslatef(pos.x-texture->imageWidth,pos.y-texture->imageHeight,0);
+				glScalef(size*2,size*2,size*2);
+				Graphics::drawImage(texture,0,0,texture->imageWidth,texture->imageHeight);
+				glPopMatrix();
 			}
-		}
 
-		//wizard drawing
-		glPushMatrix();
-		if (uncollidable)
-			glColor4f(1,1,1,.5f);
-		glTranslatef((float)wizardPositionX,(float)wizardPositionY,0);
-		const float32 scale = .025f;
-		glScalef(scale*(wizardIsFacingRight?1:-1),scale,scale);
-		Graphics::drawImage(&wizardImage);
-		glPopMatrix();
-
-		// ~~~~~~~~~~~~~ debris drawing
-		for (int i = 0; i < debris.size(); i++)
-		{
-			Graphics::Texture* texture = (Graphics::Texture*)debris[i]->GetUserData();
-			//b2Vec2 halfSize(texture->imageWidth/2.f,texture->imageHeight/2.f);
-
-			b2Vec2 pos;
-			pos = debris[i]->GetWorldCenter();
-			float size = 1/128.f * (int)(debris[i]->GetFixtureList()->GetUserData())/100.f;
-			b2Vec2 bottomLeftCorner = pos;//-halfSize;
-
-			glPushMatrix();
-			glTranslatef(pos.x,pos.y,0);
-			glRotatef(debris[i]->GetAngle()*180/3.14f,0,0,1);
-			glTranslatef(texture->imageWidth*-size,texture->imageHeight*-size,0);
-			//glTranslatef(pos.x,pos.y,0);
-			//glTranslatef(pos.x-texture->imageWidth,pos.y-texture->imageHeight,0);
-			glScalef(size*2,size*2,size*2);
-			Graphics::drawImage(texture,0,0,texture->imageWidth,texture->imageHeight);
-			glPopMatrix();
-		}
-
+			// ~~~~~~~~~~~~ health bar drawing
+			if (citamatic==0)
+			{
+				b2Vec2 viewportPosition = settings->getViewPosition();
+				glPushMatrix();
+				glTranslatef(viewportPosition.x,settings->getTop(),0);
+				Graphics::drawImage(&healthBarIndicator,1,-3,2,2);
+				Graphics::drawImage(&healthBar[health],3,-3,16,2);
+				glPopMatrix();
+			}
 
 #ifdef _DEBUG
-		//glColor4f(1,1,1,1);
-		glDisable(GL_TEXTURE_2D);
-		m_world->DrawDebugData();
+			//glColor4f(1,1,1,1);
+			glDisable(GL_TEXTURE_2D);
+			m_world->DrawDebugData();
 #endif
+			if (died>0)
+				died--;
+		}
 		break;
 	}
 	glEnable(GL_BLEND);
@@ -675,15 +750,6 @@ void LuaLevel::Step(Settings* settings)
 			m_debugDraw.DrawString(int(pos.x*(640/30)), 480-int(pos.y*(480/25)), "%.2f, %.2f", vel.x, vel.y);
 
 		}
-
-		m_debugDraw.DrawString(0, 15, "key 1: Game");
-		m_debugDraw.DrawString(0, 30, "key 2: Menu");
-		m_debugDraw.DrawString(0, 45, "key 3: About");
-		m_debugDraw.DrawString(0, 60, "key 4: Help");
-		m_debugDraw.DrawString(0, 75, "isplayerfeettouchingground %s", isFeetTouchingBoundary?"true":"false");
-		m_debugDraw.DrawString(0, 90, "canJump %s", canJump?"true":"false");
-		m_debugDraw.DrawString(0, 105, "justJumped %s", justJumped?"true":"false");
-		m_debugDraw.DrawString(0, 130, "playerCanMoveUpwards %f",playerCanMoveUpwards);
 	}
 #endif // _DEBUG 
 }
@@ -708,6 +774,8 @@ void LuaLevel::setGameState(GameState state, Settings* settings)
 		delete animatedJump;
 		delete animatedIdle;
 		delete animatedRun;
+		delete animatedHurt;
+		delete animatedDead;
 		animatedJump=animatedIdle=animatedRun=NULL;
 		luaStepFunction.Reset();
 		vector<unsigned char>().swap(gameMusic.loaded);
@@ -752,7 +820,8 @@ void LuaLevel::setGameState(GameState state, Settings* settings)
 	{
 		settings->setViewSize(30);
 		settings->widthIsConstant = true;
-		settings->setViewPosition(b2Vec2(0,0));
+		b2Vec2 pos(min(max(0.f,float(wizardPositionX)-15),viewportMaximumX-30),max(0,int(wizardPositionY)-8));
+		settings->setViewPosition(pos);
 		glClearColor(201/255.f,229/255.f,245/255.f,1);
 		if (currentMusic != &gameMusic)
 		{

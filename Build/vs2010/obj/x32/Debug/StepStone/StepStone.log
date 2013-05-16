@@ -1,5 +1,8 @@
 ﻿  LuaLevel.cpp
-..\..\StepStone\Framework\LuaLevel.cpp(625): warning C4018: '<' : signed/unsigned mismatch
-..\..\StepStone\Framework\LuaLevel.cpp(661): warning C4244: 'argument' : conversion from 'unsigned int' to 'float', possible loss of data
-..\..\StepStone\Framework\LuaLevel.cpp(663): warning C4244: 'argument' : conversion from 'unsigned int' to 'float', possible loss of data
+..\..\StepStone\Framework\LuaLevel.cpp(689): warning C4018: '<' : signed/unsigned mismatch
+..\..\StepStone\Framework\LuaLevel.cpp(713): warning C4244: 'argument' : conversion from 'float32' to 'int', possible loss of data
+..\..\StepStone\Framework\LuaLevel.cpp(714): warning C4244: 'argument' : conversion from 'float32' to 'int', possible loss of data
+..\..\StepStone\Framework\LuaLevel.cpp(734): warning C4244: 'argument' : conversion from 'unsigned int' to 'float', possible loss of data
+..\..\StepStone\Framework\LuaLevel.cpp(736): warning C4244: 'argument' : conversion from 'unsigned int' to 'float', possible loss of data
+..\..\StepStone\Framework\LuaLevel.cpp(821): warning C4244: 'argument' : conversion from 'const int' to 'float32', possible loss of data
   StepStone.vcxproj -> C:\Users\David\Desktop\newmaster\Build\vs2010\bin\Debug\StepStone.exe

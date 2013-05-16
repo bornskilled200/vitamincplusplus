@@ -151,6 +151,8 @@ protected:
 	Graphics::AnimatedTexture* animatedIdle;
 	Graphics::AnimatedTexture* animatedRun;
 	Graphics::AnimatedTexture* animatedJump;
+	Graphics::AnimatedTexture* animatedHurt;
+	Graphics::AnimatedTexture* animatedDead;
 	Graphics::Texture wizardImage;
 
 	Graphics::AnimatedTexture* currentAnimatedTexture;
@@ -159,6 +161,13 @@ protected:
 	float viewportMaximumX;
 	float winHeight;
 	bool secret;
+
+	int died;
+	int citamatic;
+	int health;
+	
+	Graphics::Texture healthBar[9];
+	Graphics::Texture healthBarIndicator;
 	
 	Sound menuMusic;
 	

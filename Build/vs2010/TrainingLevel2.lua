@@ -47,7 +47,7 @@ afterWin='TrainingLevel3.lua'
 --bodyDef.position:set(PLAYER_SPAWN_X,PLAYER_SPAWN_Y)
 
 viewportMaximumX = WIDTH
-introImageFile = nil
+introImageFile = 'cgs\\desert'..character..'.png'
 dialogFile = {'level2\\wiz2.mp3','level2\\'..character..'3.mp3'}
 playerPositionX = 110
 wizardPositionX = 5

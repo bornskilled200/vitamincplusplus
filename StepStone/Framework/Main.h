@@ -30,7 +30,7 @@ public:
 	inline void setPause(int32 set) { pause = set; }
 	inline int32 getSingleStep() { return singleStep; }
 	inline void setSingleStep(int32 set) { singleStep = set; }
-	
+	float32 getTop();
 	bool widthIsConstant;
 private:
 	b2Vec2 viewPosition;

@@ -33,6 +33,12 @@ namespace
 	int32 mainWindow;
 	bool rMouseDown;
 	b2Vec2 lastp;
+	float32 top;
+}
+
+float32 Settings::getTop()
+{
+	return top;
 }
 
 static void Resize(int32 w, int32 h)
@@ -60,7 +66,7 @@ static void Resize(int32 w, int32 h)
 	b2Vec2 viewportPosition = settings.getViewPosition();
 	extents += viewportPosition;
 
-	gluOrtho2D(viewportPosition.x, extents.x, viewportPosition.y, extents.y);
+	gluOrtho2D(viewportPosition.x, extents.x, viewportPosition.y, (top=extents.y));
 
 }
 
