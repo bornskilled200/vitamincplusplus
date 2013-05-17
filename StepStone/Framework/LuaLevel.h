@@ -182,7 +182,7 @@ protected:
 	int currentDialog;
 	
 	Sound* currentMusic;
-	unsigned int wizardPositionX, wizardPositionY;
+	float wizardPositionX, wizardPositionY;
 	vector<b2Body*> debris;
 	vector<Graphics::Texture> debrisList;
 };

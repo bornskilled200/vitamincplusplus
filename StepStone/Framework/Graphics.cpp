@@ -93,7 +93,7 @@ void Graphics::drawImage(int x, int y, int width, int height, GLfloat scaledWidt
 	glEnd();
 }
 
-void Graphics::drawImage(unsigned int x, unsigned int y, float width, float height, GLfloat scaledWidth, GLfloat scaledHeight)
+void Graphics::drawImage(float x, float y, float width, float height, GLfloat scaledWidth, GLfloat scaledHeight)
 {
 	glBegin(GL_QUADS);
 	glTexCoord2f(		   0, scaledHeight); glVertex2f(	x	 ,	    y);

@@ -296,7 +296,7 @@ void LuaLevel::drawGame(Settings* settings, float32 timeStep)
 void LuaLevel::processCollisionsForGame(Settings* settings)
 {
 	//Check for winnning
-	if ((b2Vec2(wizardPositionX+2,wizardPositionY+2)-playerBody->GetPosition()).Length()<4)
+	if ((b2Vec2(wizardPositionX+2.f,wizardPositionY+1.5f)-playerBody->GetPosition()).Length()<2)
 	{
 		if (luaPState->GetGlobal("afterWin").IsInteger())
 		{
@@ -685,7 +685,7 @@ void LuaLevel::Step(Settings* settings)
 			glPopMatrix();
 
 			// ~~~~~~~~~~~~~ debris drawing
-			for (int i = 0; i < debris.size(); i++)
+			for (vector<int>::size_type i = 0; i < debris.size(); i++)
 			{
 				Graphics::Texture* texture = (Graphics::Texture*)debris[i]->GetUserData();
 				//b2Vec2 halfSize(texture->imageWidth/2.f,texture->imageHeight/2.f);
@@ -734,9 +734,9 @@ void LuaLevel::Step(Settings* settings)
 		if (find(buttons[i].statesToShow.begin(),buttons[i].statesToShow.end(),gameState)!=buttons[i].statesToShow.end())
 			if (mouse.x>buttons[i].x && mouse.x<buttons[i].x+buttons[i].standard.imageWidth &&
 				mouse.y>buttons[i].y && mouse.y<buttons[i].y+buttons[i].standard.imageHeight)
-				Graphics::drawImage(&buttons[i].hovering,(unsigned int)buttons[i].x,(unsigned int)buttons[i].y,buttons[i].hovering.imageWidth,buttons[i].hovering.imageHeight);
+				Graphics::drawImage(&buttons[i].hovering,buttons[i].x,buttons[i].y,buttons[i].hovering.imageWidth,buttons[i].hovering.imageHeight);
 			else	
-				Graphics::drawImage(&buttons[i].standard,(unsigned int)buttons[i].x,(unsigned int)buttons[i].y,buttons[i].hovering.imageWidth,buttons[i].hovering.imageHeight);
+				Graphics::drawImage(&buttons[i].standard,buttons[i].x,buttons[i].y,buttons[i].hovering.imageWidth,buttons[i].hovering.imageHeight);
 	}
 
 #ifdef _DEBUG 
@@ -821,7 +821,7 @@ void LuaLevel::setGameState(GameState state, Settings* settings)
 	{
 		settings->setViewSize(30);
 		settings->widthIsConstant = true;
-		b2Vec2 pos(min(max(0.f,float(wizardPositionX)-15),viewportMaximumX-30),max(0,int(wizardPositionY)-8));
+		b2Vec2 pos(min(max(0.f,float(wizardPositionX)-15),viewportMaximumX-30),max(0.f,float(wizardPositionY)-8));
 		settings->setViewPosition(pos);
 		glClearColor(201/255.f,229/255.f,245/255.f,1);
 		if (currentMusic != &gameMusic)
@@ -1109,13 +1109,13 @@ void LuaLevel::unloadLevelGlobals(LuaState *pstate)
 		winHeight = (float)pstate->GetGlobal("winHeight").GetNumber();
 	}
 
-	if (pstate->GetGlobal("wizardPositionX").IsInteger())
+	if (pstate->GetGlobal("wizardPositionX").IsNumber())
 	{
-		wizardPositionX = pstate->GetGlobal("wizardPositionX").GetInteger();
+		wizardPositionX = (float)pstate->GetGlobal("wizardPositionX").GetNumber();
 	}
-	if (pstate->GetGlobal("wizardPositionY").IsInteger())
+	if (pstate->GetGlobal("wizardPositionY").IsNumber())
 	{
-		wizardPositionY = pstate->GetGlobal("wizardPositionY").GetInteger();
+		wizardPositionY = (float)pstate->GetGlobal("wizardPositionY").GetNumber();
 	}
 	//Tiles
 	if (pstate->GetGlobal("tile1ImageFile").IsString())
