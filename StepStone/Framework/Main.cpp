@@ -26,8 +26,8 @@ namespace
 {
 	LuaLevel* luaLevel = NULL;
 	Settings settings;
-	int32 width = 640;
-	int32 height = 480;
+	int32 width = 1200;
+	int32 height = 800;
 	float settingsHz = 60.0; // target fps?
 	int32 framePeriod = (int)(1000/settingsHz);
 	int32 mainWindow;
@@ -46,7 +46,6 @@ static void Resize(int32 w, int32 h)
 	width = w;
 	height = h;
 	glViewport(0,0,width,height);
-
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	float32 ratio = float32(height) / float32(width);
@@ -67,7 +66,8 @@ static void Resize(int32 w, int32 h)
 	extents += viewportPosition;
 
 	gluOrtho2D(viewportPosition.x, extents.x, viewportPosition.y, (top=extents.y));
-
+	
+	settings.setVPW(width);
 }
 
 void Settings::setViewPosition(b2Vec2 set)
