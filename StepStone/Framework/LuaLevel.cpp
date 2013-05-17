@@ -137,7 +137,7 @@ void LuaLevel::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
 		maxImpulse = b2Max(maxImpulse, impulse->normalImpulses[i]);
 	}
 
-	if (maxImpulse > 20.0f)
+	if (maxImpulse > 22.0f)
 	{
 		playerBody->SetUserData((void*)true);
 	}
@@ -404,7 +404,7 @@ void LuaLevel::processInputForGame(Settings *settings, float32 timeStep)
 		if (canJump && justJumped==false && linearVelocity.y<10)
 		{
 			playerBody->ApplyLinearImpulse(b2Vec2(0,25), worldCenter);
-			playerCanMoveUpwards = .5f;
+			playerCanMoveUpwards = .6f;
 			justJumped = true;
 			if (currentAnimatedTexture!=animatedJump)
 				currentAnimatedTexture=animatedJump;
@@ -524,7 +524,8 @@ void LuaLevel::Step(Settings* settings)
 		if (isValidTexture(introImage))
 		{
 			glColor4ub(255, 255, 255, 255);
-			drawImage(&introImage);
+			unsigned int vpW = settings->getVPW();
+			drawIntroImage(&introImage, vpW);
 		}
 
 		if (!currentVoice)

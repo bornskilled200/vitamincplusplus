@@ -74,6 +74,7 @@ namespace Graphics
 	void drawImage(unsigned int width, unsigned int height, GLfloat scaledWidth, GLfloat scaledHeight);
 	void drawImage(int x, int y, int width, int height, GLfloat scaledWidth, GLfloat scaledHeight);
 	void drawImage(unsigned int x, unsigned int y, float width, float height, GLfloat scaledWidth, GLfloat scaledHeight);
+	void drawIntroImage(unsigned int width, unsigned int height, GLfloat scaledWidth, GLfloat scaledHeight, unsigned int vpW);
 
 	inline void loadATexture(string fileName, Texture *texture,vector<unsigned char> &image)
 	{
@@ -96,6 +97,13 @@ namespace Graphics
 		drawImage(texture->imageWidth,texture->imageHeight,texture->scaledImageWidth,texture->scaledImageHeight);
 	}
 	
+	inline void drawIntroImage(Graphics::Texture *texture, unsigned int vpW)
+	{
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, texture->id);
+		drawIntroImage(texture->imageWidth,texture->imageHeight,texture->scaledImageWidth,texture->scaledImageHeight, vpW);
+	}
+
 	inline void drawImage(Graphics::Texture *texture, unsigned int projectedWidth, unsigned int projectedHeight)
 	{
 		glEnable(GL_TEXTURE_2D);

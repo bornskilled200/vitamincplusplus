@@ -30,6 +30,8 @@ public:
 	inline void setPause(int32 set) { pause = set; }
 	inline int32 getSingleStep() { return singleStep; }
 	inline void setSingleStep(int32 set) { singleStep = set; }
+	inline int32 getVPW(){ return vpW; };
+	inline void setVPW(int32 newW){vpW = newW;};
 	float32 getTop();
 	bool widthIsConstant;
 private:
@@ -38,5 +40,6 @@ private:
 	float32 hz;
 	int32 pause;
 	int32 singleStep;
+	int32 vpW;
 };
 #endif

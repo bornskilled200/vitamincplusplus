@@ -1,4 +1,5 @@
 #include "Graphics.h"
+#include "Main.h"
 
 GLuint Graphics::loadTexture(vector<unsigned char> &image, string fileName, unsigned int &imageWidth, unsigned int &imageHeight, float &scaledImageWidth, float &scaledImageHeight)
 {
@@ -64,6 +65,20 @@ void Graphics::drawImage(unsigned int width, unsigned int height, GLfloat scaled
 	glTexCoord2f(scaledWidth, scaledHeight); glVertex2i(width,	    0);
 	glTexCoord2f(scaledWidth,			 0); glVertex2i(width, height);
 	glTexCoord2f(		   0,			 0); glVertex2i(	0, height);
+	glEnd();
+	//glDisable(GL_TEXTURE_2D);
+}
+
+void Graphics::drawIntroImage(unsigned int width, unsigned int height, GLfloat scaledWidth, GLfloat scaledHeight, unsigned int vpW)
+{
+	float perc = .20f;
+	//glEnable(GL_TEXTURE_2D);
+	int dis = perc*vpW;
+	glBegin(GL_QUADS);
+	glTexCoord2f(		  0, scaledHeight); glVertex2i(	dis,	    0);
+	glTexCoord2f(scaledWidth, scaledHeight); glVertex2i(width+dis,	    0);
+	glTexCoord2f(scaledWidth,			 0); glVertex2i(width+dis, height);
+	glTexCoord2f(		  0,			 0); glVertex2i( dis, height);
 	glEnd();
 	//glDisable(GL_TEXTURE_2D);
 }
