@@ -67,7 +67,7 @@ static void Resize(int32 w, int32 h)
 
 	gluOrtho2D(viewportPosition.x, extents.x, viewportPosition.y, (top=extents.y));
 	
-	settings.setVPW(width);
+	settings.setVPW(extents.x-viewportPosition.x);
 }
 
 void Settings::setViewPosition(b2Vec2 set)
